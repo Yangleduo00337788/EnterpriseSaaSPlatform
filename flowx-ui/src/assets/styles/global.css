@@ -1,0 +1,313 @@
+/* ============================================
+   FlowX Global Styles — Apple-style Rounded Corners
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', Arial, 'PingFang SC', 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Scrollbar (Apple-style thin) ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* ---- Apple-style Global Rounded Corners ---- */
+
+/* Cards & Panels */
+.n-card {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.n-card__content {
+  border-radius: 16px;
+}
+
+/* Buttons */
+.n-button {
+  border-radius: 10px !important;
+  font-weight: 500;
+}
+
+.n-button--small {
+  border-radius: 8px !important;
+}
+
+.n-button--tiny {
+  border-radius: 6px !important;
+}
+
+/* Input Fields */
+.n-input {
+  border-radius: 10px !important;
+}
+
+.n-input__input-el,
+.n-input__textarea-el {
+  border-radius: 10px;
+}
+
+/* Select */
+.n-base-selection {
+  border-radius: 10px !important;
+}
+
+/* Tags */
+.n-tag {
+  border-radius: 8px !important;
+  font-weight: 500;
+}
+
+/* Modals & Dialogs */
+.n-modal {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.n-dialog {
+  border-radius: 20px !important;
+}
+
+.n-dialog__title {
+  font-weight: 600;
+}
+
+/* Drawers */
+.n-drawer {
+  border-radius: 16px !important;
+}
+
+/* Data Tables */
+.n-data-table {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.n-data-table-th {
+  font-weight: 600;
+}
+
+/* Alerts */
+.n-alert {
+  border-radius: 12px !important;
+}
+
+/* Messages */
+.n-message {
+  border-radius: 12px !important;
+}
+
+/* Notifications */
+.n-notification {
+  border-radius: 16px !important;
+}
+
+/* Tabs */
+.n-tabs-tab {
+  border-radius: 10px !important;
+  padding: 6px 14px;
+  font-weight: 500;
+}
+
+.n-tabs-tab--active {
+  font-weight: 600;
+}
+
+/* Dropdown */
+.n-dropdown-menu {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.n-dropdown-option-body {
+  border-radius: 8px;
+}
+
+/* Popover */
+.n-popover {
+  border-radius: 12px !important;
+}
+
+/* Tooltip */
+.n-tooltip {
+  border-radius: 8px !important;
+}
+
+/* Upload */
+.n-upload {
+  border-radius: 12px;
+}
+
+.n-upload-trigger {
+  border-radius: 12px;
+}
+
+/* Progress */
+.n-progress {
+  border-radius: 8px;
+}
+
+/* Pagination */
+.n-pagination-item {
+  border-radius: 8px !important;
+}
+
+/* Switch */
+.n-switch {
+  border-radius: 12px !important;
+}
+
+/* Checkbox */
+.n-checkbox-box {
+  border-radius: 6px !important;
+}
+
+/* Radio */
+.n-radio-button {
+  border-radius: 10px !important;
+}
+
+/* Badge */
+.n-badge {
+  border-radius: 8px;
+}
+
+/* Avatar */
+.n-avatar {
+  border-radius: 50% !important;
+}
+
+/* Breadcrumb */
+.n-breadcrumb-item {
+  border-radius: 6px;
+}
+
+/* Menu */
+.n-menu-item-content {
+  border-radius: 10px !important;
+  margin: 2px 8px;
+}
+
+.n-menu-item-content--selected {
+  font-weight: 600;
+}
+
+/* Form Items */
+.n-form-item-label {
+  font-weight: 500;
+}
+
+/* Layout Sider */
+.n-layout-sider {
+  border-radius: 0 16px 16px 0;
+}
+
+/* Spin */
+.n-spin {
+  border-radius: 12px;
+}
+
+/* Result */
+.n-result {
+  border-radius: 16px;
+}
+
+/* Empty */
+.n-empty {
+  border-radius: 16px;
+}
+
+/* ---- Page Utilities ---- */
+.page-container {
+  padding: 16px;
+}
+
+.search-bar {
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Stat Card (Apple-style) */
+.stat-card {
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ---- Transitions ---- */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.slide-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+/* Apple-style spring animation */
+@keyframes apple-spring {
+  0% { transform: scale(0.95); opacity: 0; }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.apple-enter {
+  animation: apple-spring 0.35s ease-out;
+}

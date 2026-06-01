@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.flowx</groupId>
+        <artifactId>flowx-platform</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>flowx-admin</artifactId>
+    <packaging>jar</packaging>
+    <name>flowx-admin</name>
+    <description>Admin application entry point</description>
+
+    <dependencies>
+        <!-- All business modules -->
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-auth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-workflow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-approval</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-message</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-ai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.flowx</groupId>
+            <artifactId>flowx-report</artifactId>
+        </dependency>
+
+        <!-- API Docs -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Quartz -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
