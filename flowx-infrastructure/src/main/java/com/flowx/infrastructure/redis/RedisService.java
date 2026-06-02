@@ -41,6 +41,20 @@ public class RedisService {
     }
 
     /**
+     * Set string key-value pair (uses StringRedisSerializer).
+     */
+    public void setString(String key, String value) {
+        stringRedisTemplate.opsForValue().set(key, value);
+    }
+
+    /**
+     * Set string key-value pair with expiration (uses StringRedisSerializer).
+     */
+    public void setString(String key, String value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    /**
      * Get value by key.
      */
     public Object get(String key) {

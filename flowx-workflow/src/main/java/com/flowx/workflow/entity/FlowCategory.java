@@ -1,7 +1,7 @@
 package com.flowx.workflow.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("flow_category")
+@Table("flow_category")
 public class FlowCategory extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,30 +22,30 @@ public class FlowCategory extends BaseEntity {
     /**
      * Category name
      */
-    @TableField("category_name")
+    @Column("category_name")
     private String categoryName;
 
     /**
      * Category code (unique)
      */
-    @TableField("category_code")
+    @Column("category_code")
     private String categoryCode;
 
     /**
      * Sort order
      */
-    @TableField("sort")
+    @Column("sort")
     private Integer sort;
 
     /**
      * Icon
      */
-    @TableField("icon")
+    @Column("icon")
     private String icon;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 }

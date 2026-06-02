@@ -12,6 +12,8 @@ import lombok.Data;
 @Data
 public class PasswordResetDTO {
 
+    private Long id;
+
     /**
      * Email address
      */

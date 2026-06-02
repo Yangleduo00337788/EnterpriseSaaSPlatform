@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/reports/approvals")
+@RequestMapping("/api/report/approval")
 @RequiredArgsConstructor
 public class ApprovalReportController {
 

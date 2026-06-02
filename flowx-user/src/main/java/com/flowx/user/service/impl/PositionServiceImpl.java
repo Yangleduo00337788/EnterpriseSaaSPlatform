@@ -1,6 +1,6 @@
 package com.flowx.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.ResultCodeEnum;
 import com.flowx.common.util.AssertUtil;
@@ -35,7 +35,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public PositionVO getPositionById(Long positionId) {
         AssertUtil.notNull(positionId, "岗位ID不能为空");
-        SysPosition position = positionMapper.selectById(positionId);
+        SysPosition position = positionMapper.selectOneById(positionId);
         AssertUtil.notNull(position, ResultCodeEnum.POST_NOT_FOUND.getCode(), ResultCodeEnum.POST_NOT_FOUND.getMessage());
         return positionConvert.toVO(position);
     }
@@ -48,7 +48,7 @@ public class PositionServiceImpl implements PositionService {
         AssertUtil.notBlank(dto.getPositionCode(), "岗位编码不能为空");
 
         // Check position code uniqueness
-        QueryWrapper<SysPosition> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("position_code", dto.getPositionCode());
         Long count = positionMapper.selectCount(wrapper);
         if (count > 0) {
@@ -76,12 +76,12 @@ public class PositionServiceImpl implements PositionService {
         AssertUtil.notNull(positionId, "岗位ID不能为空");
         AssertUtil.notNull(dto, "岗位信息不能为空");
 
-        SysPosition position = positionMapper.selectById(positionId);
+        SysPosition position = positionMapper.selectOneById(positionId);
         AssertUtil.notNull(position, ResultCodeEnum.POST_NOT_FOUND.getCode(), ResultCodeEnum.POST_NOT_FOUND.getMessage());
 
         // Check position code uniqueness if changed
         if (StringUtils.hasText(dto.getPositionCode()) && !dto.getPositionCode().equals(position.getPositionCode())) {
-            QueryWrapper<SysPosition> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("position_code", dto.getPositionCode());
             wrapper.ne("id", positionId);
             Long count = positionMapper.selectCount(wrapper);
@@ -99,7 +99,7 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(rollbackFor = Exception.class)
     public void deletePosition(Long positionId) {
         AssertUtil.notNull(positionId, "岗位ID不能为空");
-        SysPosition position = positionMapper.selectById(positionId);
+        SysPosition position = positionMapper.selectOneById(positionId);
         AssertUtil.notNull(position, ResultCodeEnum.POST_NOT_FOUND.getCode(), ResultCodeEnum.POST_NOT_FOUND.getMessage());
 
         // Soft delete
@@ -109,8 +109,8 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public List<PositionVO> listPositions() {
-        QueryWrapper<SysPosition> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("sort");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("sort", true);
         List<SysPosition> positions = positionMapper.selectList(wrapper);
         return positionConvert.toVOList(positions);
     }

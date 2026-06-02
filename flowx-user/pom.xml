@@ -24,9 +24,16 @@
             <groupId>com.flowx</groupId>
             <artifactId>flowx-infrastructure</artifactId>
         </dependency>
+
+                <!-- Security (PasswordEncoder) -->
         <dependency>
-            <groupId>com.flowx</groupId>
-            <artifactId>flowx-auth</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
         <!-- MapStruct -->

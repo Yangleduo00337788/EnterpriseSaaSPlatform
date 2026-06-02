@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatResponseDTO implements Serializable {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

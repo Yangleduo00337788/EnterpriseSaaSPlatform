@@ -16,6 +16,11 @@ import java.io.Serializable;
 @Data
 public class MenuDTO implements Serializable {
 
+    /**
+     * Primary key ID
+     */
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

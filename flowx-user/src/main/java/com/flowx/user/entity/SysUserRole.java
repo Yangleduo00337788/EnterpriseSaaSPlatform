@@ -1,9 +1,9 @@
 package com.flowx.user.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
+import com.mybatisflex.annotation.Table;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 @Data
-@TableName("sys_user_role")
+@Table("sys_user_role")
 public class SysUserRole implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,18 +23,18 @@ public class SysUserRole implements Serializable {
     /**
      * Primary ID
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @Id(keyType = KeyType.Generator, value = "snowFlakeId")
     private Long id;
 
     /**
      * User ID
      */
-    @TableField("user_id")
+    @Column("user_id")
     private Long userId;
 
     /**
      * Role ID
      */
-    @TableField("role_id")
+    @Column("role_id")
     private Long roleId;
 }

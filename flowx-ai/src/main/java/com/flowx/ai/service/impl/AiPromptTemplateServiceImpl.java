@@ -1,7 +1,7 @@
 package com.flowx.ai.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.ai.dto.PromptTemplateDTO;
 import com.flowx.ai.entity.AiPromptTemplate;
 import com.flowx.ai.mapper.AiPromptTemplateMapper;
@@ -36,7 +36,7 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
     @Override
     public AiPromptTemplateVO getTemplateById(Long templateId) {
         AssertUtil.notNull(templateId, "模板ID不能为空");
-        AiPromptTemplate template = templateMapper.selectById(templateId);
+        AiPromptTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "提示词模板不存在");
         return toVO(template);
     }
@@ -44,7 +44,7 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
     @Override
     public AiPromptTemplateVO getTemplateByCode(String templateCode) {
         AssertUtil.notBlank(templateCode, "模板编码不能为空");
-        QueryWrapper<AiPromptTemplate> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("template_code", templateCode);
         AiPromptTemplate template = templateMapper.selectOne(wrapper);
         return template != null ? toVO(template) : null;
@@ -59,7 +59,7 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
         AssertUtil.notBlank(dto.getPromptContent(), "提示词内容不能为空");
 
         // Check template code uniqueness
-        QueryWrapper<AiPromptTemplate> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("template_code", dto.getTemplateCode());
         Long count = templateMapper.selectCount(wrapper);
         if (count > 0) {
@@ -86,12 +86,12 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
         AssertUtil.notNull(templateId, "模板ID不能为空");
         AssertUtil.notNull(dto, "模板信息不能为空");
 
-        AiPromptTemplate template = templateMapper.selectById(templateId);
+        AiPromptTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "提示词模板不存在");
 
         // Check template code uniqueness if changed
         if (StringUtils.hasText(dto.getTemplateCode()) && !dto.getTemplateCode().equals(template.getTemplateCode())) {
-            QueryWrapper<AiPromptTemplate> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("template_code", dto.getTemplateCode());
             Long count = templateMapper.selectCount(wrapper);
             if (count > 0) {
@@ -123,7 +123,7 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteTemplate(Long templateId) {
         AssertUtil.notNull(templateId, "模板ID不能为空");
-        AiPromptTemplate template = templateMapper.selectById(templateId);
+        AiPromptTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "提示词模板不存在");
 
         templateMapper.deleteById(templateId);
@@ -132,21 +132,20 @@ public class AiPromptTemplateServiceImpl implements AiPromptTemplateService {
 
     @Override
     public PageResult<AiPromptTemplateVO> listTemplates(Integer pageNum, Integer pageSize, String templateType) {
-        Page<AiPromptTemplate> page = new Page<>(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
-        QueryWrapper<AiPromptTemplate> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(templateType)) {
             wrapper.eq("template_type", templateType);
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
 
-        Page<AiPromptTemplate> templatePage = templateMapper.selectPage(page, wrapper);
+        Page<AiPromptTemplate> templatePage = templateMapper.paginate(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10, wrapper);
         List<AiPromptTemplateVO> voList = templatePage.getRecords().stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(templatePage.getTotal(), voList,
+        return PageResult.of(templatePage.getTotalRow(), voList,
                 pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
     }
 

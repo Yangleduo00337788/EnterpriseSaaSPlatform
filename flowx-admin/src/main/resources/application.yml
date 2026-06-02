@@ -4,10 +4,13 @@ server:
     context-path: /
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.flowable.spring.boot.RestApiAutoConfiguration
   datasource:
-    url: jdbc:mysql://localhost:3306/flowx?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/flowx?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root123
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     druid:
       initial-size: 5
@@ -17,6 +20,7 @@ spring:
     redis:
       host: localhost
       port: 6379
+      password: redis123
       database: 0
       lettuce:
         pool:
@@ -32,11 +36,16 @@ spring:
       group-id: flowx-consumer
       auto-offset-reset: earliest
   mail:
-    host: smtp.example.com
-    port: 587
-    username: noreply@flowx.com
-    password: changeme
-  servlet:
+    host: smtp.qq.com
+    port: 465
+    username: 3315097995@qq.com
+    password: yasnvqkaftbecjfa
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
@@ -54,7 +63,7 @@ mybatis-flex:
 minio:
   endpoint: http://localhost:9000
   access-key: minioadmin
-  secret-key: minioadmin
+  secret-key: minioadmin123
   bucket-name: flowx
 
 flowx:
@@ -73,6 +82,13 @@ flowx:
       api-key: sk-xxx
       base-url: https://api.openai.com/v1
       model: gpt-4o
+
+flowable:
+  dmn:
+    rest:
+      enabled: false
+  eventregistry:
+    enabled: false
 
 logging:
   level:

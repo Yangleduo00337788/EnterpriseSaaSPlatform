@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/reports/tenants")
+@RequestMapping("/api/report/tenant")
 @RequiredArgsConstructor
 public class TenantReportController {
 

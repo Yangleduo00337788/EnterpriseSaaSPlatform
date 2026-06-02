@@ -2,7 +2,7 @@ package com.flowx.user.mapper;
 
 import com.flowx.user.entity.SysRoleMenu;
 import org.apache.ibatis.annotations.Mapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 
 /**
  * Role-menu association mapper
@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 1.0.0
  */
 @Mapper
-public interface SysRoleMenuMapper extends BaseMapper<SysRoleMenu> {
+public interface SysRoleMenuMapper extends FlexBaseMapper<SysRoleMenu> {
 }

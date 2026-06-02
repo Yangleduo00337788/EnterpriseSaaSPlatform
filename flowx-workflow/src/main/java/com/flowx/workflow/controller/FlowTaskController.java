@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/flow/tasks")
+@RequestMapping("/api/workflow/task")
 @RequiredArgsConstructor
 public class FlowTaskController {
 

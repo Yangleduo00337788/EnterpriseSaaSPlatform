@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/msg/notifications")
+@RequestMapping("/api/message/notification")
 @RequiredArgsConstructor
 public class MsgNotificationController {
 

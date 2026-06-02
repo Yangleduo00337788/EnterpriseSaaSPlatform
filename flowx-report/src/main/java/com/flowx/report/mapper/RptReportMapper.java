@@ -1,6 +1,6 @@
 package com.flowx.report.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 import com.flowx.report.entity.RptReportConfig;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -17,7 +17,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Mapper
-public interface RptReportMapper extends BaseMapper<RptReportConfig> {
+public interface RptReportMapper extends FlexBaseMapper<RptReportConfig> {
 
     /**
      * Get approval statistics grouped by status
@@ -140,9 +140,9 @@ public interface RptReportMapper extends BaseMapper<RptReportConfig> {
      *
      * @return list of position/count maps
      */
-    @Select("SELECT p.post_name as name, COUNT(up.user_id) as count FROM sys_user_post up " +
-            "LEFT JOIN sys_post p ON up.post_id = p.id " +
-            "GROUP BY up.post_id, p.post_name")
+    @Select("SELECT p.position_name as name, COUNT(u.id) as count FROM sys_user u " +
+            "LEFT JOIN sys_position p ON u.position_id = p.id " +
+            "GROUP BY u.position_id, p.position_name")
     List<Map<String, Object>> getPositionDistribution();
 
     /**
@@ -158,7 +158,7 @@ public interface RptReportMapper extends BaseMapper<RptReportConfig> {
      *
      * @return total count
      */
-    @Select("SELECT COUNT(*) FROM sys_post WHERE deleted = 0")
+    @Select("SELECT COUNT(*) FROM sys_position WHERE deleted = 0")
     Long getTotalPositions();
 
     /**

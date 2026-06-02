@@ -1,7 +1,7 @@
 package com.flowx.report.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -35,7 +35,7 @@ public class ReportConfigServiceImpl implements ReportConfigService {
     @Override
     public ReportConfigVO getConfigById(Long configId) {
         AssertUtil.notNull(configId, "报表配置ID不能为空");
-        RptReportConfig config = reportMapper.selectById(configId);
+        RptReportConfig config = reportMapper.selectOneById(configId);
         AssertUtil.notNull(config, ResultCodeEnum.NOT_FOUND.getCode(), "报表配置不存在");
         return toVO(config);
     }
@@ -48,7 +48,7 @@ public class ReportConfigServiceImpl implements ReportConfigService {
         AssertUtil.notBlank(config.getReportCode(), "报表编码不能为空");
 
         // Check report code uniqueness
-        QueryWrapper<RptReportConfig> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("report_code", config.getReportCode());
         Long count = reportMapper.selectCount(wrapper);
         if (count > 0) {
@@ -73,12 +73,12 @@ public class ReportConfigServiceImpl implements ReportConfigService {
         AssertUtil.notNull(configId, "报表配置ID不能为空");
         AssertUtil.notNull(config, "报表配置信息不能为空");
 
-        RptReportConfig existing = reportMapper.selectById(configId);
+        RptReportConfig existing = reportMapper.selectOneById(configId);
         AssertUtil.notNull(existing, ResultCodeEnum.NOT_FOUND.getCode(), "报表配置不存在");
 
         // Check report code uniqueness if changed
         if (StringUtils.hasText(config.getReportCode()) && !config.getReportCode().equals(existing.getReportCode())) {
-            QueryWrapper<RptReportConfig> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("report_code", config.getReportCode());
             Long count = reportMapper.selectCount(wrapper);
             if (count > 0) {
@@ -119,7 +119,7 @@ public class ReportConfigServiceImpl implements ReportConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteConfig(Long configId) {
         AssertUtil.notNull(configId, "报表配置ID不能为空");
-        RptReportConfig config = reportMapper.selectById(configId);
+        RptReportConfig config = reportMapper.selectOneById(configId);
         AssertUtil.notNull(config, ResultCodeEnum.NOT_FOUND.getCode(), "报表配置不存在");
 
         reportMapper.deleteById(configId);
@@ -128,21 +128,20 @@ public class ReportConfigServiceImpl implements ReportConfigService {
 
     @Override
     public PageResult<ReportConfigVO> listConfigs(Integer pageNum, Integer pageSize, String reportType) {
-        Page<RptReportConfig> page = new Page<>(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
-        QueryWrapper<RptReportConfig> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(reportType)) {
             wrapper.eq("report_type", reportType);
         }
 
-        wrapper.orderByAsc("sort").orderByDesc("create_time");
+        wrapper.orderBy("sort", true).orderBy("create_time", false);
 
-        Page<RptReportConfig> configPage = reportMapper.selectPage(page, wrapper);
+        Page<RptReportConfig> configPage = reportMapper.paginate(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10, wrapper);
         List<ReportConfigVO> voList = configPage.getRecords().stream()
                 .map(this::toVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(configPage.getTotal(), voList,
+        return PageResult.of(configPage.getTotalRow(), voList,
                 pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
     }
 

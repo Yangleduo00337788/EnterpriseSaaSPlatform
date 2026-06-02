@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/dict-types")
+@RequestMapping("/api/system/dict/type")
 @RequiredArgsConstructor
 public class DictTypeController {
 
@@ -77,27 +78,32 @@ public class DictTypeController {
     }
 
     /**
-     * Update existing dict type
+     * Update existing dict type (id from request body)
      *
-     * @param id  dict type ID
      * @param dto dict type update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateDictType(@PathVariable("id") Long id, @Valid @RequestBody DictTypeDTO dto) {
-        dictTypeService.updateDictType(id, dto);
+    @PutMapping
+    public R<Void> updateDictType(@Valid @RequestBody DictTypeDTO dto) {
+        dictTypeService.updateDictType(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete dict type
+     * Delete dict types by IDs (comma-separated)
      *
-     * @param id dict type ID
+     * @param ids dict type IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteDictType(@PathVariable("id") Long id) {
-        dictTypeService.deleteDictType(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteDictTypes(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            dictTypeService.deleteDictType(id);
+        }
         return R.ok();
     }
 }

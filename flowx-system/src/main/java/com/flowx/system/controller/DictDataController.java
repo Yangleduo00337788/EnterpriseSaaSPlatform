@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/dict-data")
+@RequestMapping("/api/system/dict/data")
 @RequiredArgsConstructor
 public class DictDataController {
 
@@ -60,27 +61,32 @@ public class DictDataController {
     }
 
     /**
-     * Update existing dict data
+     * Update existing dict data (id from request body)
      *
-     * @param id  dict data ID
      * @param dto dict data update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateDictData(@PathVariable("id") Long id, @Valid @RequestBody DictDataDTO dto) {
-        dictDataService.updateDictData(id, dto);
+    @PutMapping
+    public R<Void> updateDictData(@Valid @RequestBody DictDataDTO dto) {
+        dictDataService.updateDictData(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete dict data
+     * Delete dict data by IDs (comma-separated)
      *
-     * @param id dict data ID
+     * @param ids dict data IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteDictData(@PathVariable("id") Long id) {
-        dictDataService.deleteDictData(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteDictData(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            dictDataService.deleteDictData(id);
+        }
         return R.ok();
     }
 }

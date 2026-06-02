@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/tenant-packages")
+@RequestMapping("/api/system/tenant/package")
 @RequiredArgsConstructor
 public class TenantPackageController {
 
@@ -59,27 +60,32 @@ public class TenantPackageController {
     }
 
     /**
-     * Update existing package
+     * Update existing package (id from request body)
      *
-     * @param id  package ID
      * @param dto package update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updatePackage(@PathVariable("id") Long id, @Valid @RequestBody TenantPackageDTO dto) {
-        tenantPackageService.updatePackage(id, dto);
+    @PutMapping
+    public R<Void> updatePackage(@Valid @RequestBody TenantPackageDTO dto) {
+        tenantPackageService.updatePackage(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete package
+     * Delete packages by IDs (comma-separated)
      *
-     * @param id package ID
+     * @param ids package IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deletePackage(@PathVariable("id") Long id) {
-        tenantPackageService.deletePackage(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deletePackages(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            tenantPackageService.deletePackage(id);
+        }
         return R.ok();
     }
 }

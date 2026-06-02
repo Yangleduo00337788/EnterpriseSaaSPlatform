@@ -1,5 +1,6 @@
 package com.flowx.user.convert;
 
+import com.flowx.common.config.FlowxMapstructConfig;
 import com.flowx.user.dto.UserDTO;
 import com.flowx.user.entity.SysUser;
 import com.flowx.user.vo.UserVO;
@@ -16,7 +17,7 @@ import java.util.List;
  * @author FlowX
  * @since 1.0.0
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", config = FlowxMapstructConfig.class)
 public interface UserConvert {
 
     UserConvert INSTANCE = Mappers.getMapper(UserConvert.class);

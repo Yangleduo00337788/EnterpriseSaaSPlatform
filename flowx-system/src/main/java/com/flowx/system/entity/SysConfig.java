@@ -1,7 +1,7 @@
 package com.flowx.system.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_config")
+@Table("sys_config")
 public class SysConfig extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,30 +22,30 @@ public class SysConfig extends BaseEntity {
     /**
      * Config name
      */
-    @TableField("config_name")
+    @Column("config_name")
     private String configName;
 
     /**
      * Config key (unique)
      */
-    @TableField("config_key")
+    @Column("config_key")
     private String configKey;
 
     /**
      * Config value
      */
-    @TableField("config_value")
+    @Column("config_value")
     private String configValue;
 
     /**
      * Config type (Y=system built-in, N=user defined)
      */
-    @TableField("config_type")
+    @Column("config_type")
     private String configType;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 }

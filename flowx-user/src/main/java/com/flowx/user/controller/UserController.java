@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/system/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -62,27 +63,32 @@ public class UserController {
     }
 
     /**
-     * Update existing user
+     * Update existing user (id from request body)
      *
-     * @param id  user ID
      * @param dto user update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO dto) {
-        userService.updateUser(id, dto);
+    @PutMapping
+    public R<Void> updateUser(@Valid @RequestBody UserDTO dto) {
+        userService.updateUser(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete user
+     * Delete users by IDs (comma-separated)
      *
-     * @param id user ID
+     * @param ids user IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteUsers(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            userService.deleteUser(id);
+        }
         return R.ok();
     }
 
@@ -102,7 +108,7 @@ public class UserController {
     /**
      * Assign roles to user
      *
-     * @param id     user ID
+     * @param id      user ID
      * @param request role assignment request containing role IDs
      * @return success response
      */

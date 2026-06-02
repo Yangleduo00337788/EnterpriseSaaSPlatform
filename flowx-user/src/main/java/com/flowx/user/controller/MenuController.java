@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/menus")
+@RequestMapping("/api/system/menu")
 @RequiredArgsConstructor
 public class MenuController {
 
@@ -70,27 +71,32 @@ public class MenuController {
     }
 
     /**
-     * Update existing menu
+     * Update existing menu (id from request body)
      *
-     * @param id  menu ID
      * @param dto menu update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateMenu(@PathVariable("id") Long id, @Valid @RequestBody MenuDTO dto) {
-        menuService.updateMenu(id, dto);
+    @PutMapping
+    public R<Void> updateMenu(@Valid @RequestBody MenuDTO dto) {
+        menuService.updateMenu(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete menu
+     * Delete menus by IDs (comma-separated)
      *
-     * @param id menu ID
+     * @param ids menu IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteMenu(@PathVariable("id") Long id) {
-        menuService.deleteMenu(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteMenus(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            menuService.deleteMenu(id);
+        }
         return R.ok();
     }
 }

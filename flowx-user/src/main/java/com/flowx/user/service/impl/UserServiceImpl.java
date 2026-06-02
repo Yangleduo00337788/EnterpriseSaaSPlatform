@@ -1,7 +1,7 @@
 package com.flowx.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO getUserById(Long userId) {
         AssertUtil.notNull(userId, "用户ID不能为空");
-        SysUser user = userMapper.selectById(userId);
+        SysUser user = userMapper.selectOneById(userId);
         AssertUtil.notNull(user, ResultCodeEnum.USER_NOT_FOUND.getCode(), ResultCodeEnum.USER_NOT_FOUND.getMessage());
         return buildUserVO(user);
     }
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
     public UserVO getUserInfo(Long userId) {
         AssertUtil.notNull(userId, "用户ID不能为空");
         return (UserVO) cacheManager.getUserInfo(userId, () -> {
-            SysUser user = userMapper.selectById(userId);
+            SysUser user = userMapper.selectOneById(userId);
             if (user == null) {
                 return null;
             }
@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService {
         AssertUtil.notNull(userId, "用户ID不能为空");
         AssertUtil.notNull(dto, "用户信息不能为空");
 
-        SysUser user = userMapper.selectById(userId);
+        SysUser user = userMapper.selectOneById(userId);
         AssertUtil.notNull(user, ResultCodeEnum.USER_NOT_FOUND.getCode(), ResultCodeEnum.USER_NOT_FOUND.getMessage());
 
         // Check username uniqueness if changed
@@ -188,16 +188,16 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteUser(Long userId) {
         AssertUtil.notNull(userId, "用户ID不能为空");
-        SysUser user = userMapper.selectById(userId);
+        SysUser user = userMapper.selectOneById(userId);
         AssertUtil.notNull(user, ResultCodeEnum.USER_NOT_FOUND.getCode(), ResultCodeEnum.USER_NOT_FOUND.getMessage());
 
         // Soft delete - MyBatis-Plus @TableLogic handles this
         userMapper.deleteById(userId);
 
         // Delete user-role associations
-        QueryWrapper<SysUserRole> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("user_id", userId);
-        userRoleMapper.delete(wrapper);
+        userRoleMapper.deleteByQuery(wrapper);
 
         // Evict cache
         cacheManager.evictUserInfo(userId);
@@ -208,15 +208,14 @@ public class UserServiceImpl implements UserService {
     public PageResult<UserVO> listUsers(UserQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<SysUser> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<SysUser> wrapper = buildUserQueryWrapper(queryDTO);
+        QueryWrapper wrapper = buildUserQueryWrapper(queryDTO);
 
-        Page<SysUser> userPage = userMapper.selectPage(page, wrapper);
+        Page<SysUser> userPage = userMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<UserVO> voList = userPage.getRecords().stream()
                 .map(this::buildUserVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(userPage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(userPage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
@@ -225,9 +224,9 @@ public class UserServiceImpl implements UserService {
         AssertUtil.notNull(userId, "用户ID不能为空");
 
         // Remove existing user-role associations
-        QueryWrapper<SysUserRole> deleteWrapper = new QueryWrapper<>();
+        QueryWrapper deleteWrapper = QueryWrapper.create();
         deleteWrapper.eq("user_id", userId);
-        userRoleMapper.delete(deleteWrapper);
+        userRoleMapper.deleteByQuery(deleteWrapper);
 
         // Insert new associations
         if (!CollectionUtils.isEmpty(roleIds)) {
@@ -249,7 +248,7 @@ public class UserServiceImpl implements UserService {
         AssertUtil.notNull(userId, "用户ID不能为空");
         AssertUtil.notBlank(newPassword, "新密码不能为空");
 
-        SysUser user = userMapper.selectById(userId);
+        SysUser user = userMapper.selectOneById(userId);
         AssertUtil.notNull(user, ResultCodeEnum.USER_NOT_FOUND.getCode(), ResultCodeEnum.USER_NOT_FOUND.getMessage());
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -268,7 +267,7 @@ public class UserServiceImpl implements UserService {
 
         // Set department name
         if (user.getDeptId() != null) {
-            var dept = deptMapper.selectById(user.getDeptId());
+            var dept = deptMapper.selectOneById(user.getDeptId());
             if (dept != null) {
                 vo.setDeptName(dept.getDeptName());
             }
@@ -276,7 +275,7 @@ public class UserServiceImpl implements UserService {
 
         // Set position name
         if (user.getPositionId() != null) {
-            var position = positionMapper.selectById(user.getPositionId());
+            var position = positionMapper.selectOneById(user.getPositionId());
             if (position != null) {
                 vo.setPositionName(position.getPositionName());
             }
@@ -297,8 +296,8 @@ public class UserServiceImpl implements UserService {
     /**
      * Build query wrapper from UserQueryDTO
      */
-    private QueryWrapper<SysUser> buildUserQueryWrapper(UserQueryDTO queryDTO) {
-        QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
+    private QueryWrapper buildUserQueryWrapper(UserQueryDTO queryDTO) {
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(queryDTO.getUsername())) {
             wrapper.like("username", queryDTO.getUsername());
@@ -319,10 +318,10 @@ public class UserServiceImpl implements UserService {
             wrapper.eq("dept_id", queryDTO.getDeptId());
         }
         if (queryDTO.getRoleId() != null) {
-            wrapper.inSql("id", "SELECT user_id FROM sys_user_role WHERE role_id = " + queryDTO.getRoleId());
+            wrapper.and("id IN (SELECT user_id FROM sys_user_role WHERE role_id = " + queryDTO.getRoleId() + ")");
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
         return wrapper;
     }
 }

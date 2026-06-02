@@ -35,7 +35,7 @@ export const useUserStore = defineStore('user', () => {
     return roles.value.includes(role)
   }
 
-  async function login(loginForm: { username: string; password: string; captchaCode: string; uuid: string }) {
+  async function login(loginForm: { username: string; password: string; captchaCode: string; captchaKey: string }) {
     const res = await loginApi(loginForm)
     const { accessToken, tokenType } = res.data
     token.value = `${tokenType} ${accessToken}`

@@ -13,6 +13,8 @@ import lombok.Data;
 @Data
 public class RegisterDTO {
 
+    private Long id;
+
     /**
      * Username
      */

@@ -28,6 +28,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Security (optional, for SecurityUtil) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -54,7 +61,13 @@
         <dependency>
             <groupId>com.mybatis-flex</groupId>
             <artifactId>mybatis-flex-core</artifactId>
-            <version>${mybatis-flex.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MapStruct (shared @MapperConfig) -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
             <optional>true</optional>
         </dependency>
 

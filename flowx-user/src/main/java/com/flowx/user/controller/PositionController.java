@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/positions")
+@RequestMapping("/api/system/position")
 @RequiredArgsConstructor
 public class PositionController {
 
@@ -59,27 +60,32 @@ public class PositionController {
     }
 
     /**
-     * Update existing position
+     * Update existing position (id from request body)
      *
-     * @param id  position ID
      * @param dto position update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updatePosition(@PathVariable("id") Long id, @Valid @RequestBody PositionDTO dto) {
-        positionService.updatePosition(id, dto);
+    @PutMapping
+    public R<Void> updatePosition(@Valid @RequestBody PositionDTO dto) {
+        positionService.updatePosition(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete position
+     * Delete positions by IDs (comma-separated)
      *
-     * @param id position ID
+     * @param ids position IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deletePosition(@PathVariable("id") Long id) {
-        positionService.deletePosition(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deletePositions(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            positionService.deletePosition(id);
+        }
         return R.ok();
     }
 }

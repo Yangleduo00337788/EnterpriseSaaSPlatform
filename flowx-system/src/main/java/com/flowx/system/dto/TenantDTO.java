@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 @Data
 public class TenantDTO implements Serializable {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

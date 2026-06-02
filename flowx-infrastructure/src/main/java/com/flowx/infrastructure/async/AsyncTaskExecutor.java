@@ -32,7 +32,7 @@ public class AsyncTaskExecutor {
      * @param notificationType the notification type (email, sms, wechat, dingtalk)
      * @param message          the notification message
      */
-    @Async("asyncTaskExecutor")
+    @Async("flowxAsyncExecutor")
     public void asyncSendNotification(String notificationType, Object message) {
         try {
             String topic = resolveNotificationTopic(notificationType);
@@ -48,7 +48,7 @@ public class AsyncTaskExecutor {
      *
      * @param auditLog the audit log data
      */
-    @Async("asyncTaskExecutor")
+    @Async("flowxAsyncExecutor")
     public void asyncSaveAuditLog(Object auditLog) {
         try {
             kafkaProducer.send(TopicConstant.TOPIC_AUDIT_LOG, auditLog);
@@ -66,7 +66,7 @@ public class AsyncTaskExecutor {
      * @param timeout the timeout value
      * @param unit    the timeout unit
      */
-    @Async("asyncTaskExecutor")
+    @Async("flowxAsyncExecutor")
     public void asyncUpdateCache(String key, Object value, long timeout, TimeUnit unit) {
         try {
             redisService.set(key, value, timeout, unit);
@@ -81,7 +81,7 @@ public class AsyncTaskExecutor {
      *
      * @param key the cache key
      */
-    @Async("asyncTaskExecutor")
+    @Async("flowxAsyncExecutor")
     public void asyncDeleteCache(String key) {
         try {
             redisService.delete(key);
@@ -96,7 +96,7 @@ public class AsyncTaskExecutor {
      *
      * @param task the task to execute
      */
-    @Async("asyncTaskExecutor")
+    @Async("flowxAsyncExecutor")
     public void asyncExecute(Runnable task) {
         try {
             task.run();

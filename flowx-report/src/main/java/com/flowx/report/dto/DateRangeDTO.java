@@ -14,6 +14,8 @@ import java.time.LocalDate;
 @Data
 public class DateRangeDTO implements Serializable {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

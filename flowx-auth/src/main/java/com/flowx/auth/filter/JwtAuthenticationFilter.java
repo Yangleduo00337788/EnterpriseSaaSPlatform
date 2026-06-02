@@ -1,7 +1,7 @@
 package com.flowx.auth.filter;
 
 import com.flowx.auth.util.JwtUtil;
-import com.flowx.common.security.SecurityUser;
+import com.flowx.common.core.base.SecurityUser;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,7 +20,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * JWT authentication filter
@@ -84,9 +86,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = claims.getSubject();
                 Long tenantId = claims.get("tenantId", Long.class);
                 @SuppressWarnings("unchecked")
-                List<String> roles = claims.get("roles", List.class);
+                List<String> rolesList = claims.get("roles", List.class);
                 @SuppressWarnings("unchecked")
-                List<String> permissions = claims.get("permissions", List.class);
+                List<String> permissionsList = claims.get("permissions", List.class);
+
+                Set<String> roles = rolesList != null ? new HashSet<>(rolesList) : new HashSet<>();
+                Set<String> permissions = permissionsList != null ? new HashSet<>(permissionsList) : new HashSet<>();
 
                 // Build SecurityUser from claims
                 SecurityUser securityUser = SecurityUser.builder()

@@ -2,7 +2,7 @@ package com.flowx.user.mapper;
 
 import com.flowx.user.entity.SysDept;
 import org.apache.ibatis.annotations.Mapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 
 /**
  * System department mapper
@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 1.0.0
  */
 @Mapper
-public interface SysDeptMapper extends BaseMapper<SysDept> {
+public interface SysDeptMapper extends FlexBaseMapper<SysDept> {
 }

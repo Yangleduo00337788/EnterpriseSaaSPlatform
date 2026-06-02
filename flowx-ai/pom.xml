@@ -13,7 +13,7 @@
     <artifactId>flowx-ai</artifactId>
     <packaging>jar</packaging>
     <name>flowx-ai</name>
-    <description>AI assistant: approval suggestions, flow generation, Q&A</description>
+    <description>AI assistant: approval suggestions, flow generation, Q&amp;A</description>
 
     <dependencies>
         <dependency>
@@ -42,6 +42,11 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
+        </dependency>
+            <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
     </dependencies>
 

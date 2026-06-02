@@ -32,7 +32,7 @@ public class AsyncConfig {
     @Value("${async.executor.await-termination-seconds:60}")
     private int awaitTerminationSeconds;
 
-    @Bean("asyncTaskExecutor")
+    @Bean("flowxAsyncExecutor")
     public Executor asyncTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePoolSize);

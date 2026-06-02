@@ -1,7 +1,7 @@
 package com.flowx.user.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_position")
+@Table("sys_position")
 public class SysPosition extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,30 +22,30 @@ public class SysPosition extends BaseEntity {
     /**
      * Position name
      */
-    @TableField("position_name")
+    @Column("position_name")
     private String positionName;
 
     /**
      * Position code (unique identifier)
      */
-    @TableField("position_code")
+    @Column("position_code")
     private String positionCode;
 
     /**
      * Sort order
      */
-    @TableField("sort")
+    @Column("sort")
     private Integer sort;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 }

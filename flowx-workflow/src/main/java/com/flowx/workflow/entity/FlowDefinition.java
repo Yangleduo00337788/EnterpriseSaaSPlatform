@@ -1,7 +1,7 @@
 package com.flowx.workflow.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("flow_definition")
+@Table("flow_definition")
 public class FlowDefinition extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -25,55 +25,55 @@ public class FlowDefinition extends BaseEntity {
     /**
      * Definition key (unique identifier for the process)
      */
-    @TableField("definition_key")
+    @Column("definition_key")
     private String definitionKey;
 
     /**
      * Definition name
      */
-    @TableField("definition_name")
+    @Column("definition_name")
     private String definitionName;
 
     /**
      * Category ID
      */
-    @TableField("category_id")
+    @Column("category_id")
     private Long categoryId;
 
     /**
      * Version number
      */
-    @TableField("version")
+    @Column("version")
     private Integer version;
 
     /**
      * Description
      */
-    @TableField("description")
+    @Column("description")
     private String description;
 
     /**
      * BPMN XML content
      */
-    @TableField("bpmn_xml")
+    @Column("bpmn_xml")
     private String bpmnXml;
 
     /**
      * Form JSON schema
      */
-    @TableField("form_json")
+    @Column("form_json")
     private String formJson;
 
     /**
      * Status (0=draft, 1=active, 2=suspended)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Deploy time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField("deploy_time")
+    @Column("deploy_time")
     private LocalDateTime deployTime;
 }

@@ -1,12 +1,12 @@
-import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { useUserStore } from '@/stores/user'
-import { createDiscreteApi } from 'naive-ui'
+import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from "axios"
+import { useUserStore } from "@/stores/user"
+import { createDiscreteApi } from "naive-ui"
 
-const { message } = createDiscreteApi(['message'])
+const { message } = createDiscreteApi(["message"])
 
 export interface R<T = any> {
   code: number
-  msg: string
+  message: string
   data: T
 }
 
@@ -18,11 +18,11 @@ export interface PageResult<T> {
 }
 
 const service = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    "Content-Type": "application/json"
+  }
 })
 
 service.interceptors.request.use(
@@ -31,9 +31,9 @@ service.interceptors.request.use(
     if (userStore.token) {
       config.headers.Authorization = userStore.token
     }
-    const tenantId = localStorage.getItem('tenantId')
+    const tenantId = localStorage.getItem("tenantId")
     if (tenantId) {
-      config.headers['X-Tenant-Id'] = tenantId
+      config.headers["X-Tenant-Id"] = tenantId
     }
     return config
   },
@@ -46,13 +46,13 @@ service.interceptors.response.use(
   (response: AxiosResponse<R>) => {
     const res = response.data
     if (res.code !== 200) {
-      message.error(res.msg || '请求失败')
+      message.error(res.message || "请求失败")
       if (res.code === 401) {
         const userStore = useUserStore()
         userStore.resetState()
-        window.location.href = '/login'
+        window.location.href = "/login"
       }
-      return Promise.reject(new Error(res.msg || '请求失败'))
+      return Promise.reject(new Error(res.message || "请求失败"))
     }
     return res as any
   },
@@ -61,27 +61,29 @@ service.interceptors.response.use(
       const { status } = error.response
       switch (status) {
         case 401:
-          message.error('登录已过期，请重新登录')
-          const userStore = useUserStore()
-          userStore.resetState()
-          window.location.href = '/login'
+          message.error("登录已过期，请重新登录")
+          {
+            const userStore = useUserStore()
+            userStore.resetState()
+          }
+          window.location.href = "/login"
           break
         case 403:
-          message.error('没有权限访问')
+          message.error("没有权限访问")
           break
         case 404:
-          message.error('请求资源不存在')
+          message.error("请求资源不存在")
           break
         case 500:
-          message.error('服务器内部错误')
+          message.error("服务器内部错误")
           break
         default:
           message.error(`请求错误: ${status}`)
       }
-    } else if (error.message.includes('timeout')) {
-      message.error('请求超时')
-    } else if (error.message.includes('Network Error')) {
-      message.error('网络连接异常')
+    } else if (error.message.includes("timeout")) {
+      message.error("请求超时")
+    } else if (error.message.includes("Network Error")) {
+      message.error("网络连接异常")
     }
     return Promise.reject(error)
   }

@@ -15,6 +15,8 @@ import java.io.Serializable;
 @Data
 public class SendNotificationDTO implements Serializable {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

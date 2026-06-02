@@ -1,7 +1,7 @@
 package com.flowx.workflow.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,7 +70,7 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
         AssertUtil.notBlank(dto.getTitle(), "流程标题不能为空");
 
         // Get definition
-        FlowDefinition definition = definitionMapper.selectById(dto.getDefinitionId());
+        FlowDefinition definition = definitionMapper.selectOneById(dto.getDefinitionId());
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
@@ -141,8 +141,7 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
 
     @Override
     public PageResult<FlowInstanceVO> getInstances(FlowInstanceQueryDTO queryDTO) {
-        Page<FlowInstance> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<FlowInstance> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (queryDTO.getDefinitionId() != null) {
             wrapper.eq("definition_id", queryDTO.getDefinitionId());
@@ -157,29 +156,29 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
             wrapper.like("title", queryDTO.getTitle());
         }
 
-        wrapper.orderByDesc("create_time");
-        Page<FlowInstance> result = instanceMapper.selectPage(page, wrapper);
+        wrapper.orderBy("create_time", false);
+        Page<FlowInstance> result = instanceMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<FlowInstanceVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public FlowInstanceVO getInstanceDetail(Long instanceId) {
         AssertUtil.notNull(instanceId, "流程实例ID不能为空");
-        FlowInstance instance = instanceMapper.selectById(instanceId);
+        FlowInstance instance = instanceMapper.selectOneById(instanceId);
         AssertUtil.notNull(instance, ResultCodeEnum.WORKFLOW_INSTANCE_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_INSTANCE_NOT_FOUND.getMessage());
 
         FlowInstanceVO vo = convertToVO(instance);
 
         // Load task history
-        QueryWrapper<FlowTask> taskWrapper = new QueryWrapper<>();
+        QueryWrapper taskWrapper = QueryWrapper.create();
         taskWrapper.eq("instance_id", instanceId);
-        taskWrapper.orderByAsc("create_time");
+        taskWrapper.orderBy("create_time", true);
         List<FlowTask> tasks = taskMapper.selectList(taskWrapper);
 
         List<FlowTaskVO> taskHistory = tasks.stream()
@@ -207,7 +206,7 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
     @Transactional(rollbackFor = Exception.class)
     public void cancelInstance(Long instanceId) {
         AssertUtil.notNull(instanceId, "流程实例ID不能为空");
-        FlowInstance instance = instanceMapper.selectById(instanceId);
+        FlowInstance instance = instanceMapper.selectOneById(instanceId);
         AssertUtil.notNull(instance, ResultCodeEnum.WORKFLOW_INSTANCE_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_INSTANCE_NOT_FOUND.getMessage());
 
@@ -231,7 +230,7 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
         instanceMapper.updateById(instance);
 
         // Update pending tasks
-        QueryWrapper<FlowTask> taskWrapper = new QueryWrapper<>();
+        QueryWrapper taskWrapper = QueryWrapper.create();
         taskWrapper.eq("instance_id", instanceId);
         taskWrapper.in("status", 0, 1); // Pending or Claimed
         List<FlowTask> pendingTasks = taskMapper.selectList(taskWrapper);
@@ -254,7 +253,7 @@ public class FlowInstanceServiceImpl implements FlowInstanceService {
 
         // Load definition name
         if (instance.getDefinitionId() != null) {
-            FlowDefinition definition = definitionMapper.selectById(instance.getDefinitionId());
+            FlowDefinition definition = definitionMapper.selectOneById(instance.getDefinitionId());
             if (definition != null) {
                 vo.setDefinitionName(definition.getDefinitionName());
             }

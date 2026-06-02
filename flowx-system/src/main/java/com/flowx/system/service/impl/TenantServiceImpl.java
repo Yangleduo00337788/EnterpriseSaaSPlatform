@@ -1,7 +1,7 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -45,7 +45,7 @@ public class TenantServiceImpl implements TenantService {
     @Override
     public TenantVO getTenantById(Long tenantId) {
         AssertUtil.notNull(tenantId, "租户ID不能为空");
-        SysTenant tenant = tenantMapper.selectById(tenantId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
         AssertUtil.notNull(tenant, ResultCodeEnum.TENANT_NOT_FOUND.getCode(), ResultCodeEnum.TENANT_NOT_FOUND.getMessage());
         return buildTenantVO(tenant);
     }
@@ -78,7 +78,7 @@ public class TenantServiceImpl implements TenantService {
         AssertUtil.notNull(tenantId, "租户ID不能为空");
         AssertUtil.notNull(dto, "租户信息不能为空");
 
-        SysTenant tenant = tenantMapper.selectById(tenantId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
         AssertUtil.notNull(tenant, ResultCodeEnum.TENANT_NOT_FOUND.getCode(), ResultCodeEnum.TENANT_NOT_FOUND.getMessage());
 
         tenantConvert.updateEntity(dto, tenant);
@@ -90,7 +90,7 @@ public class TenantServiceImpl implements TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteTenant(Long tenantId) {
         AssertUtil.notNull(tenantId, "租户ID不能为空");
-        SysTenant tenant = tenantMapper.selectById(tenantId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
         AssertUtil.notNull(tenant, ResultCodeEnum.TENANT_NOT_FOUND.getCode(), ResultCodeEnum.TENANT_NOT_FOUND.getMessage());
 
         // Soft delete
@@ -102,15 +102,14 @@ public class TenantServiceImpl implements TenantService {
     public PageResult<TenantVO> listTenants(TenantQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<SysTenant> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<SysTenant> wrapper = buildTenantQueryWrapper(queryDTO);
+        QueryWrapper wrapper = buildTenantQueryWrapper(queryDTO);
 
-        Page<SysTenant> tenantPage = tenantMapper.selectPage(page, wrapper);
+        Page<SysTenant> tenantPage = tenantMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<TenantVO> voList = tenantPage.getRecords().stream()
                 .map(this::buildTenantVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(tenantPage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(tenantPage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
@@ -119,11 +118,11 @@ public class TenantServiceImpl implements TenantService {
         AssertUtil.notNull(tenantId, "租户ID不能为空");
         AssertUtil.notNull(packageId, "套餐ID不能为空");
 
-        SysTenant tenant = tenantMapper.selectById(tenantId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
         AssertUtil.notNull(tenant, ResultCodeEnum.TENANT_NOT_FOUND.getCode(), ResultCodeEnum.TENANT_NOT_FOUND.getMessage());
 
         // Verify package exists
-        SysTenantPackage pkg = tenantPackageMapper.selectById(packageId);
+        SysTenantPackage pkg = tenantPackageMapper.selectOneById(packageId);
         AssertUtil.notNull(pkg, "租户套餐不存在");
 
         tenant.setPackageId(packageId);
@@ -134,13 +133,13 @@ public class TenantServiceImpl implements TenantService {
     @Override
     public TenantStatsVO getTenantStats(Long tenantId) {
         AssertUtil.notNull(tenantId, "租户ID不能为空");
-        SysTenant tenant = tenantMapper.selectById(tenantId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
         AssertUtil.notNull(tenant, ResultCodeEnum.TENANT_NOT_FOUND.getCode(), ResultCodeEnum.TENANT_NOT_FOUND.getMessage());
 
         TenantStatsVO stats = new TenantStatsVO();
 
         // Count users for this tenant
-        QueryWrapper<com.flowx.user.entity.SysUser> userWrapper = new QueryWrapper<>();
+        QueryWrapper userWrapper = QueryWrapper.create();
         userWrapper.eq("tenant_id", tenantId);
         Long userCount = userMapper.selectCount(userWrapper);
         stats.setUserCount(userCount);
@@ -160,7 +159,7 @@ public class TenantServiceImpl implements TenantService {
     private TenantVO buildTenantVO(SysTenant tenant) {
         TenantVO vo = tenantConvert.toVO(tenant);
         if (tenant.getPackageId() != null) {
-            SysTenantPackage pkg = tenantPackageMapper.selectById(tenant.getPackageId());
+            SysTenantPackage pkg = tenantPackageMapper.selectOneById(tenant.getPackageId());
             if (pkg != null) {
                 vo.setPackageName(pkg.getPackageName());
             }
@@ -171,8 +170,8 @@ public class TenantServiceImpl implements TenantService {
     /**
      * Build query wrapper from TenantQueryDTO
      */
-    private QueryWrapper<SysTenant> buildTenantQueryWrapper(TenantQueryDTO queryDTO) {
-        QueryWrapper<SysTenant> wrapper = new QueryWrapper<>();
+    private QueryWrapper buildTenantQueryWrapper(TenantQueryDTO queryDTO) {
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(queryDTO.getTenantName())) {
             wrapper.like("tenant_name", queryDTO.getTenantName());
@@ -184,7 +183,7 @@ public class TenantServiceImpl implements TenantService {
             wrapper.eq("status", queryDTO.getStatus());
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
         return wrapper;
     }
 }

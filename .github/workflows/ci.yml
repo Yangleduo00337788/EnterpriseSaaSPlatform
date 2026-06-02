@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # FlowX Enterprise SaaS Platform - GitHub Actions CI Pipeline
 # ============================================================================
 
@@ -108,7 +108,7 @@ jobs:
       - name: Run tests
         run: mvn test -B
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/flowx_test?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/flowx_test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root123
           SPRING_DATA_REDIS_HOST: localhost

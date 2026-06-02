@@ -1,6 +1,6 @@
 package com.flowx.workflow.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 import com.flowx.workflow.entity.FlowTask;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0.0
  */
 @Mapper
-public interface FlowTaskMapper extends BaseMapper<FlowTask> {
+public interface FlowTaskMapper extends FlexBaseMapper<FlowTask> {
 }

@@ -1,6 +1,6 @@
 package com.flowx.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.result.ResultCodeEnum;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.user.convert.MenuConvert;
@@ -37,7 +37,7 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public MenuVO getMenuById(Long menuId) {
         AssertUtil.notNull(menuId, "菜单ID不能为空");
-        SysMenu menu = menuMapper.selectById(menuId);
+        SysMenu menu = menuMapper.selectOneById(menuId);
         AssertUtil.notNull(menu, ResultCodeEnum.MENU_NOT_FOUND.getCode(), ResultCodeEnum.MENU_NOT_FOUND.getMessage());
         return menuConvert.toVO(menu);
     }
@@ -73,7 +73,7 @@ public class MenuServiceImpl implements MenuService {
         AssertUtil.notNull(menuId, "菜单ID不能为空");
         AssertUtil.notNull(dto, "菜单信息不能为空");
 
-        SysMenu menu = menuMapper.selectById(menuId);
+        SysMenu menu = menuMapper.selectOneById(menuId);
         AssertUtil.notNull(menu, ResultCodeEnum.MENU_NOT_FOUND.getCode(), ResultCodeEnum.MENU_NOT_FOUND.getMessage());
 
         // Prevent setting parent to self
@@ -90,11 +90,11 @@ public class MenuServiceImpl implements MenuService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteMenu(Long menuId) {
         AssertUtil.notNull(menuId, "菜单ID不能为空");
-        SysMenu menu = menuMapper.selectById(menuId);
+        SysMenu menu = menuMapper.selectOneById(menuId);
         AssertUtil.notNull(menu, ResultCodeEnum.MENU_NOT_FOUND.getCode(), ResultCodeEnum.MENU_NOT_FOUND.getMessage());
 
         // Check if menu has children
-        QueryWrapper<SysMenu> childWrapper = new QueryWrapper<>();
+        QueryWrapper childWrapper = QueryWrapper.create();
         childWrapper.eq("parent_id", menuId);
         Long childCount = menuMapper.selectCount(childWrapper);
         if (childCount > 0) {
@@ -108,8 +108,8 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<MenuVO> listMenus() {
-        QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("parent_id", "sort");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("parent_id", true).orderBy("sort", true);
         List<SysMenu> menus = menuMapper.selectList(wrapper);
         return menuConvert.toVOList(menus);
     }

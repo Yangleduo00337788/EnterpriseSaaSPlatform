@@ -1,7 +1,7 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.system.entity.SysOperationLog;
@@ -43,16 +43,15 @@ public class OperationLogServiceImpl implements OperationLogService {
             pageSize = 10;
         }
 
-        Page<SysOperationLog> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<SysOperationLog> wrapper = new QueryWrapper<>();
-        wrapper.orderByDesc("oper_time");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("oper_time", false);
 
-        Page<SysOperationLog> logPage = operationLogMapper.selectPage(page, wrapper);
+        Page<SysOperationLog> logPage = operationLogMapper.paginate(pageNum, pageSize, wrapper);
         List<OperationLogVO> voList = logPage.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(logPage.getTotal(), voList, pageNum, pageSize);
+        return PageResult.of(logPage.getTotalRow(), voList, pageNum, pageSize);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.flowx.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleVO getRoleById(Long roleId) {
         AssertUtil.notNull(roleId, "角色ID不能为空");
-        SysRole role = roleMapper.selectById(roleId);
+        SysRole role = roleMapper.selectOneById(roleId);
         AssertUtil.notNull(role, ResultCodeEnum.ROLE_NOT_FOUND.getCode(), ResultCodeEnum.ROLE_NOT_FOUND.getMessage());
         return buildRoleVO(role);
     }
@@ -59,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
         AssertUtil.notBlank(dto.getRoleKey(), "角色标识不能为空");
 
         // Check role key uniqueness
-        QueryWrapper<SysRole> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("role_key", dto.getRoleKey());
         Long count = roleMapper.selectCount(wrapper);
         if (count > 0) {
@@ -96,12 +96,12 @@ public class RoleServiceImpl implements RoleService {
         AssertUtil.notNull(roleId, "角色ID不能为空");
         AssertUtil.notNull(dto, "角色信息不能为空");
 
-        SysRole role = roleMapper.selectById(roleId);
+        SysRole role = roleMapper.selectOneById(roleId);
         AssertUtil.notNull(role, ResultCodeEnum.ROLE_NOT_FOUND.getCode(), ResultCodeEnum.ROLE_NOT_FOUND.getMessage());
 
         // Check role key uniqueness if changed
         if (StringUtils.hasText(dto.getRoleKey()) && !dto.getRoleKey().equals(role.getRoleKey())) {
-            QueryWrapper<SysRole> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("role_key", dto.getRoleKey());
             wrapper.ne("id", roleId);
             Long count = roleMapper.selectCount(wrapper);
@@ -127,16 +127,16 @@ public class RoleServiceImpl implements RoleService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteRole(Long roleId) {
         AssertUtil.notNull(roleId, "角色ID不能为空");
-        SysRole role = roleMapper.selectById(roleId);
+        SysRole role = roleMapper.selectOneById(roleId);
         AssertUtil.notNull(role, ResultCodeEnum.ROLE_NOT_FOUND.getCode(), ResultCodeEnum.ROLE_NOT_FOUND.getMessage());
 
         // Soft delete
         roleMapper.deleteById(roleId);
 
         // Delete role-menu associations
-        QueryWrapper<SysRoleMenu> deleteWrapper = new QueryWrapper<>();
+        QueryWrapper deleteWrapper = QueryWrapper.create();
         deleteWrapper.eq("role_id", roleId);
-        roleMenuMapper.delete(deleteWrapper);
+        roleMenuMapper.deleteByQuery(deleteWrapper);
 
         // Evict cache
         cacheManager.evictRolePermissions(roleId);
@@ -147,15 +147,14 @@ public class RoleServiceImpl implements RoleService {
     public PageResult<RoleVO> listRoles(RoleQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<SysRole> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<SysRole> wrapper = buildRoleQueryWrapper(queryDTO);
+        QueryWrapper wrapper = buildRoleQueryWrapper(queryDTO);
 
-        Page<SysRole> rolePage = roleMapper.selectPage(page, wrapper);
+        Page<SysRole> rolePage = roleMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<RoleVO> voList = rolePage.getRecords().stream()
                 .map(this::buildRoleVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(rolePage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(rolePage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
@@ -164,9 +163,9 @@ public class RoleServiceImpl implements RoleService {
         AssertUtil.notNull(roleId, "角色ID不能为空");
 
         // Remove existing role-menu associations
-        QueryWrapper<SysRoleMenu> deleteWrapper = new QueryWrapper<>();
+        QueryWrapper deleteWrapper = QueryWrapper.create();
         deleteWrapper.eq("role_id", roleId);
-        roleMenuMapper.delete(deleteWrapper);
+        roleMenuMapper.deleteByQuery(deleteWrapper);
 
         // Insert new associations
         if (!CollectionUtils.isEmpty(menuIds)) {
@@ -187,7 +186,7 @@ public class RoleServiceImpl implements RoleService {
     public List<Long> getRoleMenus(Long roleId) {
         AssertUtil.notNull(roleId, "角色ID不能为空");
 
-        QueryWrapper<SysRoleMenu> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("role_id", roleId);
         List<SysRoleMenu> roleMenus = roleMenuMapper.selectList(wrapper);
 
@@ -213,8 +212,8 @@ public class RoleServiceImpl implements RoleService {
     /**
      * Build query wrapper from RoleQueryDTO
      */
-    private QueryWrapper<SysRole> buildRoleQueryWrapper(RoleQueryDTO queryDTO) {
-        QueryWrapper<SysRole> wrapper = new QueryWrapper<>();
+    private QueryWrapper buildRoleQueryWrapper(RoleQueryDTO queryDTO) {
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(queryDTO.getRoleName())) {
             wrapper.like("role_name", queryDTO.getRoleName());
@@ -226,7 +225,7 @@ public class RoleServiceImpl implements RoleService {
             wrapper.eq("status", queryDTO.getStatus());
         }
 
-        wrapper.orderByAsc("sort");
+        wrapper.orderBy("sort", true);
         return wrapper;
     }
 }

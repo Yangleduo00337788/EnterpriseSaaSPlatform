@@ -1,7 +1,7 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.system.entity.SysLoginLog;
@@ -43,16 +43,15 @@ public class LoginLogServiceImpl implements LoginLogService {
             pageSize = 10;
         }
 
-        Page<SysLoginLog> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<SysLoginLog> wrapper = new QueryWrapper<>();
-        wrapper.orderByDesc("login_time");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("login_time", false);
 
-        Page<SysLoginLog> logPage = loginLogMapper.selectPage(page, wrapper);
+        Page<SysLoginLog> logPage = loginLogMapper.paginate(pageNum, pageSize, wrapper);
         List<LoginLogVO> voList = logPage.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(logPage.getTotal(), voList, pageNum, pageSize);
+        return PageResult.of(logPage.getTotalRow(), voList, pageNum, pageSize);
     }
 
     /**

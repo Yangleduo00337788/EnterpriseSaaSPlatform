@@ -1,0 +1,3 @@
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  org.flowable.spring.boot.environment.FlowableDefaultPropertiesEnvironmentPostProcessor

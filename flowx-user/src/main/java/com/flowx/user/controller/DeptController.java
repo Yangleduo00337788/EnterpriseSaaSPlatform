@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/depts")
+@RequestMapping("/api/system/dept")
 @RequiredArgsConstructor
 public class DeptController {
 
@@ -70,27 +71,32 @@ public class DeptController {
     }
 
     /**
-     * Update existing department
+     * Update existing department (id from request body)
      *
-     * @param id  department ID
      * @param dto department update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateDept(@PathVariable("id") Long id, @Valid @RequestBody DeptDTO dto) {
-        deptService.updateDept(id, dto);
+    @PutMapping
+    public R<Void> updateDept(@Valid @RequestBody DeptDTO dto) {
+        deptService.updateDept(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete department
+     * Delete departments by IDs (comma-separated)
      *
-     * @param id department ID
+     * @param ids department IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteDept(@PathVariable("id") Long id) {
-        deptService.deleteDept(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteDepts(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            deptService.deleteDept(id);
+        }
         return R.ok();
     }
 }

@@ -1,7 +1,7 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -43,7 +43,7 @@ public class DictTypeServiceImpl implements DictTypeService {
     @Override
     public DictTypeDTO getDictTypeById(Long dictId) {
         AssertUtil.notNull(dictId, "字典类型ID不能为空");
-        SysDictType dictType = dictTypeMapper.selectById(dictId);
+        SysDictType dictType = dictTypeMapper.selectOneById(dictId);
         AssertUtil.notNull(dictType, ResultCodeEnum.DICT_NOT_FOUND.getCode(), ResultCodeEnum.DICT_NOT_FOUND.getMessage());
         return dictTypeConvert.toDTO(dictType);
     }
@@ -51,7 +51,7 @@ public class DictTypeServiceImpl implements DictTypeService {
     @Override
     public DictTypeDTO getDictTypeByType(String dictType) {
         AssertUtil.notBlank(dictType, "字典类型不能为空");
-        QueryWrapper<SysDictType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("dict_type", dictType);
         SysDictType entity = dictTypeMapper.selectOne(wrapper);
         AssertUtil.notNull(entity, ResultCodeEnum.DICT_NOT_FOUND.getCode(), ResultCodeEnum.DICT_NOT_FOUND.getMessage());
@@ -66,7 +66,7 @@ public class DictTypeServiceImpl implements DictTypeService {
         AssertUtil.notBlank(dto.getDictType(), "字典类型不能为空");
 
         // Check dict type uniqueness
-        QueryWrapper<SysDictType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("dict_type", dto.getDictType());
         Long count = dictTypeMapper.selectCount(wrapper);
         if (count > 0) {
@@ -91,12 +91,12 @@ public class DictTypeServiceImpl implements DictTypeService {
         AssertUtil.notNull(dictId, "字典类型ID不能为空");
         AssertUtil.notNull(dto, "字典类型信息不能为空");
 
-        SysDictType dictType = dictTypeMapper.selectById(dictId);
+        SysDictType dictType = dictTypeMapper.selectOneById(dictId);
         AssertUtil.notNull(dictType, ResultCodeEnum.DICT_NOT_FOUND.getCode(), ResultCodeEnum.DICT_NOT_FOUND.getMessage());
 
         // Check dict type uniqueness if changed
         if (StringUtils.hasText(dto.getDictType()) && !dto.getDictType().equals(dictType.getDictType())) {
-            QueryWrapper<SysDictType> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("dict_type", dto.getDictType());
             wrapper.ne("id", dictId);
             Long count = dictTypeMapper.selectCount(wrapper);
@@ -111,11 +111,11 @@ public class DictTypeServiceImpl implements DictTypeService {
 
         // If dict type changed, update related dict data and evict cache
         if (StringUtils.hasText(dto.getDictType()) && !dto.getDictType().equals(oldDictType)) {
-            QueryWrapper<SysDictData> updateWrapper = new QueryWrapper<>();
+            QueryWrapper updateWrapper = QueryWrapper.create();
             updateWrapper.eq("dict_type", oldDictType);
             SysDictData updateEntity = new SysDictData();
             updateEntity.setDictType(dto.getDictType());
-            dictDataMapper.update(updateEntity, updateWrapper);
+            dictDataMapper.updateByQuery(updateEntity, updateWrapper);
 
             // Evict old cache
             redisService.delete(CacheConstant.DICT_DATA + oldDictType);
@@ -130,16 +130,16 @@ public class DictTypeServiceImpl implements DictTypeService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteDictType(Long dictId) {
         AssertUtil.notNull(dictId, "字典类型ID不能为空");
-        SysDictType dictType = dictTypeMapper.selectById(dictId);
+        SysDictType dictType = dictTypeMapper.selectOneById(dictId);
         AssertUtil.notNull(dictType, ResultCodeEnum.DICT_NOT_FOUND.getCode(), ResultCodeEnum.DICT_NOT_FOUND.getMessage());
 
         // Soft delete dict type
         dictTypeMapper.deleteById(dictId);
 
         // Delete related dict data
-        QueryWrapper<SysDictData> deleteWrapper = new QueryWrapper<>();
+        QueryWrapper deleteWrapper = QueryWrapper.create();
         deleteWrapper.eq("dict_type", dictType.getDictType());
-        dictDataMapper.delete(deleteWrapper);
+        dictDataMapper.deleteByQuery(deleteWrapper);
 
         // Evict cache
         redisService.delete(CacheConstant.DICT_DATA + dictType.getDictType());
@@ -150,8 +150,7 @@ public class DictTypeServiceImpl implements DictTypeService {
     public PageResult<DictTypeDTO> listDictTypes(TenantQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<SysDictType> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<SysDictType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         // Reuse tenantName field as dict name search, and status as status filter
         if (StringUtils.hasText(queryDTO.getTenantName())) {
@@ -161,19 +160,19 @@ public class DictTypeServiceImpl implements DictTypeService {
             wrapper.eq("status", queryDTO.getStatus());
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
 
-        Page<SysDictType> dictTypePage = dictTypeMapper.selectPage(page, wrapper);
+        Page<SysDictType> dictTypePage = dictTypeMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<DictTypeDTO> dtoList = dictTypeConvert.toDTOList(dictTypePage.getRecords());
 
-        return PageResult.of(dictTypePage.getTotal(), dtoList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(dictTypePage.getTotalRow(), dtoList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public List<DictTypeDTO> listAllDictTypes() {
-        QueryWrapper<SysDictType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("status", 1);
-        wrapper.orderByAsc("create_time");
+        wrapper.orderBy("create_time", true);
         List<SysDictType> entities = dictTypeMapper.selectList(wrapper);
         return dictTypeConvert.toDTOList(entities);
     }

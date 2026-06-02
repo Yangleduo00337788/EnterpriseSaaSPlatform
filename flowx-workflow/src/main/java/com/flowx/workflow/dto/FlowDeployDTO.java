@@ -14,6 +14,8 @@ import java.io.Serializable;
 @Data
 public class FlowDeployDTO implements Serializable {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

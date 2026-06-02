@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/flow/instances")
+@RequestMapping("/api/workflow/instance")
 @RequiredArgsConstructor
 public class FlowInstanceController {
 

@@ -1,39 +1,35 @@
 package com.flowx.infrastructure.config;
 
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
-import com.flowx.infrastructure.persistence.handler.AutoFillHandler;
-import com.flowx.infrastructure.persistence.handler.TenantLineHandlerImpl;
-import org.springframework.context.annotation.Bean;
+import com.mybatisflex.core.tenant.TenantFactory;
+import com.mybatisflex.core.tenant.TenantManager;
+import com.flowx.infrastructure.persistence.TenantContext;
 import org.springframework.context.annotation.Configuration;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * MyBatis-Flex configuration.
- * Registers tenant interceptor and auto-fill handler.
+ * Registers tenant factory for multi-tenant data isolation.
+ * Tables without tenant_id column should be queried within
+ * TenantManager.withoutTenantCondition() block.
  */
 @Configuration
 public class MyBatisFlexConfig {
 
-    private final AutoFillHandler autoFillHandler;
+    @PostConstruct
+    public void initTenantManager() {
+        TenantManager.setTenantFactory(new TenantFactory() {
+            @Override
+            @SuppressWarnings("deprecation")
+            public Object[] getTenantIds() {
+                return getTenantIds(null);
+            }
 
-    public MyBatisFlexConfig(AutoFillHandler autoFillHandler) {
-        this.autoFillHandler = autoFillHandler;
-    }
-
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-
-        // Add tenant line interceptor
-        TenantLineInnerInterceptor tenantInterceptor =
-                new TenantLineInnerInterceptor(new TenantLineHandlerImpl());
-        interceptor.addInnerInterceptor(tenantInterceptor);
-
-        return interceptor;
-    }
-
-    @Bean
-    public AutoFillHandler metaObjectHandler() {
-        return autoFillHandler;
+            @Override
+            public Object[] getTenantIds(String tableName) {
+                Long tenantId = TenantContext.getTenantId();
+                return new Object[]{tenantId != null ? tenantId : 1L};
+            }
+        });
     }
 }

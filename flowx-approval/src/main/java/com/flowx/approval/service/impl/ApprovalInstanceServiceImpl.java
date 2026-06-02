@@ -1,7 +1,7 @@
 package com.flowx.approval.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,7 +72,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
         Long currentUserId = SecurityUtil.getUserId();
 
         // Get approval type
-        ApprovalType approvalType = typeMapper.selectById(dto.getTypeId());
+        ApprovalType approvalType = typeMapper.selectOneById(dto.getTypeId());
         AssertUtil.notNull(approvalType, ResultCodeEnum.NOT_FOUND.getCode(), "审批类型不存在");
 
         if (approvalType.getStatus() == null || approvalType.getStatus() != 1) {
@@ -124,8 +124,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
     @Override
     public PageResult<ApprovalInstanceVO> getMyApprovals(ApprovalQueryDTO queryDTO) {
         Long currentUserId = SecurityUtil.getUserId();
-        Page<ApprovalInstance> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<ApprovalInstance> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         wrapper.eq("initiator_id", currentUserId);
 
@@ -139,14 +138,14 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
             wrapper.like("title", queryDTO.getTitle());
         }
 
-        wrapper.orderByDesc("submit_time");
-        Page<ApprovalInstance> result = instanceMapper.selectPage(page, wrapper);
+        wrapper.orderBy("submit_time", false);
+        Page<ApprovalInstance> result = instanceMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<ApprovalInstanceVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
@@ -169,8 +168,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
                 .collect(Collectors.toList());
 
         // Query approval instances by process instance IDs
-        Page<ApprovalInstance> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<ApprovalInstance> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.in("process_instance_id", processInstanceIds);
         wrapper.eq("status", ApprovalStatusEnum.PENDING.getCode());
 
@@ -181,20 +179,20 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
             wrapper.like("title", queryDTO.getTitle());
         }
 
-        wrapper.orderByDesc("submit_time");
-        Page<ApprovalInstance> result = instanceMapper.selectPage(page, wrapper);
+        wrapper.orderBy("submit_time", false);
+        Page<ApprovalInstance> result = instanceMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<ApprovalInstanceVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public ApprovalInstanceVO getApprovalDetail(Long id) {
         AssertUtil.notNull(id, "审批实例ID不能为空");
-        ApprovalInstance instance = instanceMapper.selectById(id);
+        ApprovalInstance instance = instanceMapper.selectOneById(id);
         AssertUtil.notNull(instance, ResultCodeEnum.APPROVAL_NOT_FOUND.getCode(),
                 ResultCodeEnum.APPROVAL_NOT_FOUND.getMessage());
 
@@ -222,7 +220,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
         AssertUtil.notNull(id, "审批实例ID不能为空");
         Long currentUserId = SecurityUtil.getUserId();
 
-        ApprovalInstance instance = instanceMapper.selectById(id);
+        ApprovalInstance instance = instanceMapper.selectOneById(id);
         AssertUtil.notNull(instance, ResultCodeEnum.APPROVAL_NOT_FOUND.getCode(),
                 ResultCodeEnum.APPROVAL_NOT_FOUND.getMessage());
 
@@ -257,7 +255,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
         AssertUtil.notNull(id, "审批实例ID不能为空");
         Long currentUserId = SecurityUtil.getUserId();
 
-        ApprovalInstance instance = instanceMapper.selectById(id);
+        ApprovalInstance instance = instanceMapper.selectOneById(id);
         AssertUtil.notNull(instance, ResultCodeEnum.APPROVAL_NOT_FOUND.getCode(),
                 ResultCodeEnum.APPROVAL_NOT_FOUND.getMessage());
 
@@ -313,7 +311,7 @@ public class ApprovalInstanceServiceImpl implements ApprovalInstanceService {
 
         // Load type name
         if (instance.getTypeId() != null) {
-            ApprovalType type = typeMapper.selectById(instance.getTypeId());
+            ApprovalType type = typeMapper.selectOneById(instance.getTypeId());
             if (type != null) {
                 vo.setTypeName(type.getTypeName());
             }

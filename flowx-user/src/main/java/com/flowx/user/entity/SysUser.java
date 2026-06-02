@@ -1,7 +1,7 @@
 package com.flowx.user.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_user")
+@Table("sys_user")
 public class SysUser extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -24,78 +24,78 @@ public class SysUser extends BaseEntity {
     /**
      * Username
      */
-    @TableField("username")
+    @Column("username")
     private String username;
 
     /**
      * Password (encrypted)
      */
-    @TableField("password")
+    @Column("password")
     private String password;
 
     /**
      * Nickname
      */
-    @TableField("nickname")
+    @Column("nickname")
     private String nickname;
 
     /**
      * Email
      */
-    @TableField("email")
+    @Column("email")
     private String email;
 
     /**
      * Phone
      */
-    @TableField("phone")
+    @Column("phone")
     private String phone;
 
     /**
      * Gender (0=unknown, 1=male, 2=female)
      */
-    @TableField("gender")
+    @Column("gender")
     private Integer gender;
 
     /**
      * Avatar URL
      */
-    @TableField("avatar")
+    @Column("avatar")
     private String avatar;
 
     /**
      * Department ID
      */
-    @TableField("dept_id")
+    @Column("dept_id")
     private Long deptId;
 
     /**
      * Position ID
      */
-    @TableField("position_id")
+    @Column("position_id")
     private Long positionId;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Last login IP
      */
-    @TableField("login_ip")
+    @Column("login_ip")
     private String loginIp;
 
     /**
      * Last login time
      */
-    @TableField("login_time")
+    @Column("login_time")
     private LocalDateTime loginTime;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 }

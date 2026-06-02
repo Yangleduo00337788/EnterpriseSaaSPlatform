@@ -1,7 +1,7 @@
 package com.flowx.workflow.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.exception.NotFoundException;
 import com.flowx.common.core.result.PageResult;
@@ -60,8 +60,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
     @Override
     public PageResult<FlowTaskVO> getMyTasks(FlowTaskQueryDTO queryDTO) {
         Long currentUserId = SecurityUtil.getUserId();
-        Page<FlowTask> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<FlowTask> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         wrapper.eq("assignee_id", currentUserId);
 
@@ -72,21 +71,20 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             wrapper.eq("status", queryDTO.getStatus());
         }
 
-        wrapper.orderByDesc("create_time");
-        Page<FlowTask> result = taskMapper.selectPage(page, wrapper);
+        wrapper.orderBy("create_time", false);
+        Page<FlowTask> result = taskMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<FlowTaskVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public PageResult<FlowTaskVO> getMyTodoTasks(FlowTaskQueryDTO queryDTO) {
         Long currentUserId = SecurityUtil.getUserId();
-        Page<FlowTask> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<FlowTask> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         wrapper.eq("assignee_id", currentUserId);
         wrapper.in("status", 0, 1); // Pending or Claimed
@@ -95,21 +93,20 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             wrapper.eq("instance_id", queryDTO.getInstanceId());
         }
 
-        wrapper.orderByDesc("create_time");
-        Page<FlowTask> result = taskMapper.selectPage(page, wrapper);
+        wrapper.orderBy("create_time", false);
+        Page<FlowTask> result = taskMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<FlowTaskVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public PageResult<FlowTaskVO> getMyDoneTasks(FlowTaskQueryDTO queryDTO) {
         Long currentUserId = SecurityUtil.getUserId();
-        Page<FlowTask> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<FlowTask> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         wrapper.eq("assignee_id", currentUserId);
         wrapper.eq("status", 2); // Completed
@@ -118,14 +115,14 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             wrapper.eq("instance_id", queryDTO.getInstanceId());
         }
 
-        wrapper.orderByDesc("complete_time");
-        Page<FlowTask> result = taskMapper.selectPage(page, wrapper);
+        wrapper.orderBy("complete_time", false);
+        Page<FlowTask> result = taskMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
 
         List<FlowTaskVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(result.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
@@ -134,7 +131,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
         AssertUtil.notNull(taskId, "任务ID不能为空");
         Long currentUserId = SecurityUtil.getUserId();
 
-        FlowTask flowTask = taskMapper.selectById(taskId);
+        FlowTask flowTask = taskMapper.selectOneById(taskId);
         AssertUtil.notNull(flowTask, ResultCodeEnum.NOT_FOUND.getCode(), "任务不存在");
 
         if (flowTask.getStatus() != null && flowTask.getStatus() != 0) {
@@ -172,7 +169,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
 
         Long currentUserId = SecurityUtil.getUserId();
 
-        FlowTask flowTask = taskMapper.selectById(dto.getTaskId());
+        FlowTask flowTask = taskMapper.selectOneById(dto.getTaskId());
         AssertUtil.notNull(flowTask, ResultCodeEnum.NOT_FOUND.getCode(), "任务不存在");
 
         if (flowTask.getStatus() != null && flowTask.getStatus() >= 2) {
@@ -228,7 +225,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
 
         Long currentUserId = SecurityUtil.getUserId();
 
-        FlowTask flowTask = taskMapper.selectById(taskId);
+        FlowTask flowTask = taskMapper.selectOneById(taskId);
         AssertUtil.notNull(flowTask, ResultCodeEnum.NOT_FOUND.getCode(), "任务不存在");
 
         if (flowTask.getStatus() != null && flowTask.getStatus() >= 2) {
@@ -279,13 +276,13 @@ public class FlowTaskServiceImpl implements FlowTaskService {
             return;
         }
 
-        QueryWrapper<FlowTask> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("instance_id", instanceId);
         wrapper.in("status", 0, 1); // Pending or Claimed
         Long pendingCount = taskMapper.selectCount(wrapper);
 
         if (pendingCount == 0) {
-            FlowInstance instance = instanceMapper.selectById(instanceId);
+            FlowInstance instance = instanceMapper.selectOneById(instanceId);
             if (instance != null && instance.getStatus() == 0) {
                 instance.setStatus(1); // Completed
                 instance.setEndTime(LocalDateTime.now());
@@ -304,7 +301,7 @@ public class FlowTaskServiceImpl implements FlowTaskService {
 
         // Load instance title
         if (task.getInstanceId() != null) {
-            FlowInstance instance = instanceMapper.selectById(task.getInstanceId());
+            FlowInstance instance = instanceMapper.selectOneById(task.getInstanceId());
             if (instance != null) {
                 vo.setInstanceTitle(instance.getTitle());
             }

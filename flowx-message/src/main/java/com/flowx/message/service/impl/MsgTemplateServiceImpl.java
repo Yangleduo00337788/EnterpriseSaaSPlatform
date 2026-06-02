@@ -1,7 +1,7 @@
 package com.flowx.message.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -35,7 +35,7 @@ public class MsgTemplateServiceImpl implements MsgTemplateService {
     @Override
     public MsgTemplateVO getTemplateById(Long templateId) {
         AssertUtil.notNull(templateId, "模板ID不能为空");
-        MsgTemplate template = templateMapper.selectById(templateId);
+        MsgTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "消息模板不存在");
         return templateConvert.toVO(template);
     }
@@ -79,7 +79,7 @@ public class MsgTemplateServiceImpl implements MsgTemplateService {
         AssertUtil.notNull(templateId, "模板ID不能为空");
         AssertUtil.notNull(vo, "模板信息不能为空");
 
-        MsgTemplate template = templateMapper.selectById(templateId);
+        MsgTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "消息模板不存在");
 
         // Check template code uniqueness if changed
@@ -98,7 +98,7 @@ public class MsgTemplateServiceImpl implements MsgTemplateService {
     @Override
     public void deleteTemplate(Long templateId) {
         AssertUtil.notNull(templateId, "模板ID不能为空");
-        MsgTemplate template = templateMapper.selectById(templateId);
+        MsgTemplate template = templateMapper.selectOneById(templateId);
         AssertUtil.notNull(template, ResultCodeEnum.NOT_FOUND.getCode(), "消息模板不存在");
 
         templateMapper.deleteById(templateId);
@@ -107,19 +107,18 @@ public class MsgTemplateServiceImpl implements MsgTemplateService {
 
     @Override
     public PageResult<MsgTemplateVO> listTemplates(Integer pageNum, Integer pageSize, String templateType) {
-        Page<MsgTemplate> page = new Page<>(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
-        QueryWrapper<MsgTemplate> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(templateType)) {
             wrapper.eq("template_type", templateType);
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
 
-        Page<MsgTemplate> templatePage = templateMapper.selectPage(page, wrapper);
+        Page<MsgTemplate> templatePage = templateMapper.paginate(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10, wrapper);
         List<MsgTemplateVO> voList = templateConvert.toVOList(templatePage.getRecords());
 
-        return PageResult.of(templatePage.getTotal(), voList,
+        return PageResult.of(templatePage.getTotalRow(), voList,
                 pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
     }
 }

@@ -1,7 +1,7 @@
 package com.flowx.ai.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("ai_prompt_template")
+@Table("ai_prompt_template")
 public class AiPromptTemplate extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,42 +22,42 @@ public class AiPromptTemplate extends BaseEntity {
     /**
      * Template name
      */
-    @TableField("template_name")
+    @Column("template_name")
     private String templateName;
 
     /**
      * Template code (unique identifier)
      */
-    @TableField("template_code")
+    @Column("template_code")
     private String templateCode;
 
     /**
      * Template type
      */
-    @TableField("template_type")
+    @Column("template_type")
     private String templateType;
 
     /**
      * Prompt content
      */
-    @TableField("prompt_content")
+    @Column("prompt_content")
     private String promptContent;
 
     /**
      * Variables (JSON array)
      */
-    @TableField("variables")
+    @Column("variables")
     private String variables;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Usage count
      */
-    @TableField("usage_count")
+    @Column("usage_count")
     private Integer usageCount;
 }

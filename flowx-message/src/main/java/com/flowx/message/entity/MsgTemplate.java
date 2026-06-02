@@ -1,7 +1,7 @@
 package com.flowx.message.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("msg_template")
+@Table("msg_template")
 public class MsgTemplate extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,42 +22,42 @@ public class MsgTemplate extends BaseEntity {
     /**
      * Template name
      */
-    @TableField("template_name")
+    @Column("template_name")
     private String templateName;
 
     /**
      * Template code (unique identifier)
      */
-    @TableField("template_code")
+    @Column("template_code")
     private String templateCode;
 
     /**
      * Template type: email/sms/wechat/dingtalk
      */
-    @TableField("template_type")
+    @Column("template_type")
     private String templateType;
 
     /**
      * Title template (supports placeholder like {variable})
      */
-    @TableField("title_template")
+    @Column("title_template")
     private String titleTemplate;
 
     /**
      * Content template (supports placeholder like {variable})
      */
-    @TableField("content_template")
+    @Column("content_template")
     private String contentTemplate;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Parameters description (JSON format, describes available placeholders)
      */
-    @TableField("params_desc")
+    @Column("params_desc")
     private String paramsDesc;
 }

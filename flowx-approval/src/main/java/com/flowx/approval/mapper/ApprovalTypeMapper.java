@@ -1,6 +1,6 @@
 package com.flowx.approval.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 import com.flowx.approval.entity.ApprovalType;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0.0
  */
 @Mapper
-public interface ApprovalTypeMapper extends BaseMapper<ApprovalType> {
+public interface ApprovalTypeMapper extends FlexBaseMapper<ApprovalType> {
 }

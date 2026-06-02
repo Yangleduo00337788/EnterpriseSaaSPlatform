@@ -1,7 +1,7 @@
 package com.flowx.message.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("msg_notification")
+@Table("msg_notification")
 public class MsgNotification extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -24,48 +24,48 @@ public class MsgNotification extends BaseEntity {
     /**
      * Target user ID
      */
-    @TableField("user_id")
+    @Column("user_id")
     private Long userId;
 
     /**
      * Notification title
      */
-    @TableField("title")
+    @Column("title")
     private String title;
 
     /**
      * Notification content
      */
-    @TableField("content")
+    @Column("content")
     private String content;
 
     /**
      * Message type: 1=notice, 2=alert, 3=todo
      */
-    @TableField("msg_type")
+    @Column("msg_type")
     private Integer msgType;
 
     /**
      * Read status: 0=unread, 1=read
      */
-    @TableField("read_status")
+    @Column("read_status")
     private Integer readStatus;
 
     /**
      * Read time
      */
-    @TableField("read_time")
+    @Column("read_time")
     private LocalDateTime readTime;
 
     /**
      * Business type (for linking to business entity)
      */
-    @TableField("business_type")
+    @Column("business_type")
     private String businessType;
 
     /**
      * Business ID (for linking to business entity)
      */
-    @TableField("business_id")
+    @Column("business_id")
     private String businessId;
 }

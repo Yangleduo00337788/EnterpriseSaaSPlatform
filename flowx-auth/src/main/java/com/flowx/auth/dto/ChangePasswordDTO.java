@@ -12,6 +12,8 @@ import lombok.Data;
 @Data
 public class ChangePasswordDTO {
 
+    private Long id;
+
     /**
      * Old password
      */

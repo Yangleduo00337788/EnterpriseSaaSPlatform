@@ -1,6 +1,6 @@
 package com.flowx.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.ResultCodeEnum;
 import com.flowx.common.util.AssertUtil;
@@ -37,7 +37,7 @@ public class DeptServiceImpl implements DeptService {
     @Override
     public DeptVO getDeptById(Long deptId) {
         AssertUtil.notNull(deptId, "部门ID不能为空");
-        SysDept dept = deptMapper.selectById(deptId);
+        SysDept dept = deptMapper.selectOneById(deptId);
         AssertUtil.notNull(dept, ResultCodeEnum.DEPT_NOT_FOUND.getCode(), ResultCodeEnum.DEPT_NOT_FOUND.getMessage());
         return deptConvert.toVO(dept);
     }
@@ -72,7 +72,7 @@ public class DeptServiceImpl implements DeptService {
         AssertUtil.notNull(deptId, "部门ID不能为空");
         AssertUtil.notNull(dto, "部门信息不能为空");
 
-        SysDept dept = deptMapper.selectById(deptId);
+        SysDept dept = deptMapper.selectOneById(deptId);
         AssertUtil.notNull(dept, ResultCodeEnum.DEPT_NOT_FOUND.getCode(), ResultCodeEnum.DEPT_NOT_FOUND.getMessage());
 
         // Prevent setting parent to self
@@ -89,11 +89,11 @@ public class DeptServiceImpl implements DeptService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteDept(Long deptId) {
         AssertUtil.notNull(deptId, "部门ID不能为空");
-        SysDept dept = deptMapper.selectById(deptId);
+        SysDept dept = deptMapper.selectOneById(deptId);
         AssertUtil.notNull(dept, ResultCodeEnum.DEPT_NOT_FOUND.getCode(), ResultCodeEnum.DEPT_NOT_FOUND.getMessage());
 
         // Check if dept has children
-        QueryWrapper<SysDept> childWrapper = new QueryWrapper<>();
+        QueryWrapper childWrapper = QueryWrapper.create();
         childWrapper.eq("parent_id", deptId);
         Long childCount = deptMapper.selectCount(childWrapper);
         if (childCount > 0) {
@@ -107,16 +107,16 @@ public class DeptServiceImpl implements DeptService {
 
     @Override
     public List<DeptVO> listDepts() {
-        QueryWrapper<SysDept> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("parent_id", "sort", "order_num");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("parent_id", true).orderBy("sort", true).orderBy("order_num", true);
         List<SysDept> depts = deptMapper.selectList(wrapper);
         return deptConvert.toVOList(depts);
     }
 
     @Override
     public List<DeptVO> getDeptTree() {
-        QueryWrapper<SysDept> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("sort", "order_num");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("sort", true).orderBy("order_num", true);
         List<SysDept> allDepts = deptMapper.selectList(wrapper);
 
         if (CollectionUtils.isEmpty(allDepts)) {

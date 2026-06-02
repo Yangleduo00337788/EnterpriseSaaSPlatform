@@ -1,4 +1,4 @@
-# ============================================================================
+﻿# ============================================================================
 # FlowX Enterprise SaaS Platform - Docker Compose
 # Services: MySQL 8.4, Redis 7, Kafka (KRaft), MinIO, FlowX App, Nginx
 # ============================================================================
@@ -152,7 +152,7 @@ services:
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: prod
       # MySQL
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flowx?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/flowx?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root123
       # Redis

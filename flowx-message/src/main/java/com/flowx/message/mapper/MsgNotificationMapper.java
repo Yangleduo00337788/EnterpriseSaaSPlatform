@@ -1,6 +1,6 @@
 package com.flowx.message.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 import com.flowx.message.entity.MsgNotification;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
  * @since 1.0.0
  */
 @Mapper
-public interface MsgNotificationMapper extends BaseMapper<MsgNotification> {
+public interface MsgNotificationMapper extends FlexBaseMapper<MsgNotification> {
 
     /**
      * Count unread notifications for a user

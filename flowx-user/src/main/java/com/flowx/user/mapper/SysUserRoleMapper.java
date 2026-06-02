@@ -2,7 +2,7 @@ package com.flowx.user.mapper;
 
 import com.flowx.user.entity.SysUserRole;
 import org.apache.ibatis.annotations.Mapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 
 /**
  * User-role association mapper
@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 1.0.0
  */
 @Mapper
-public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
+public interface SysUserRoleMapper extends FlexBaseMapper<SysUserRole> {
 }

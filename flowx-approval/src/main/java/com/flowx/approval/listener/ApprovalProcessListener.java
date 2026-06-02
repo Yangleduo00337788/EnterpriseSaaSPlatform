@@ -1,6 +1,6 @@
 package com.flowx.approval.listener;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.approval.entity.ApprovalInstance;
 import com.flowx.approval.mapper.ApprovalInstanceMapper;
 import com.flowx.common.core.enums.ApprovalStatusEnum;
@@ -68,7 +68,7 @@ public class ApprovalProcessListener implements ExecutionListener, TaskListener 
         String processInstanceId = delegateTask.getProcessInstanceId();
 
         // Find approval instance by process instance ID
-        QueryWrapper<ApprovalInstance> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("process_instance_id", processInstanceId);
         ApprovalInstance approvalInstance = approvalInstanceMapper.selectOne(wrapper);
 
@@ -103,7 +103,7 @@ public class ApprovalProcessListener implements ExecutionListener, TaskListener 
     private void handleProcessEnd(DelegateExecution execution) {
         String processInstanceId = execution.getProcessInstanceId();
 
-        QueryWrapper<ApprovalInstance> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("process_instance_id", processInstanceId);
         ApprovalInstance approvalInstance = approvalInstanceMapper.selectOne(wrapper);
 

@@ -1,7 +1,7 @@
 package com.flowx.system.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_dict_type")
+@Table("sys_dict_type")
 public class SysDictType extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,24 +22,24 @@ public class SysDictType extends BaseEntity {
     /**
      * Dictionary name
      */
-    @TableField("dict_name")
+    @Column("dict_name")
     private String dictName;
 
     /**
      * Dictionary type (unique)
      */
-    @TableField("dict_type")
+    @Column("dict_type")
     private String dictType;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 }

@@ -1,8 +1,8 @@
 package com.flowx.file.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.core.update.UpdateChain;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -118,13 +118,14 @@ public class FileServiceImpl implements FileService {
     public InputStreamResource download(Long fileId) {
         AssertUtil.notNull(fileId, "文件ID不能为空");
 
-        FileInfo fileInfo = fileInfoMapper.selectById(fileId);
+        FileInfo fileInfo = fileInfoMapper.selectOneById(fileId);
         AssertUtil.notNull(fileInfo, ResultCodeEnum.NOT_FOUND.getCode(), "文件不存在");
 
         // Increment download count
-        UpdateWrapper<FileInfo> wrapper = new UpdateWrapper<>();
-        wrapper.eq("id", fileId).setSql("download_count = download_count + 1");
-        fileInfoMapper.update(null, wrapper);
+        UpdateChain.of(FileInfo.class)
+                .setRaw("download_count", "download_count + 1")
+                .where(FileInfo::getId).eq(fileId)
+                .update();
 
         // Get file from MinIO
         try {
@@ -140,7 +141,7 @@ public class FileServiceImpl implements FileService {
     public void delete(Long fileId) {
         AssertUtil.notNull(fileId, "文件ID不能为空");
 
-        FileInfo fileInfo = fileInfoMapper.selectById(fileId);
+        FileInfo fileInfo = fileInfoMapper.selectOneById(fileId);
         AssertUtil.notNull(fileInfo, ResultCodeEnum.NOT_FOUND.getCode(), "文件不存在");
 
         // Soft delete in database
@@ -160,7 +161,7 @@ public class FileServiceImpl implements FileService {
     public FileInfoVO getFileInfo(Long fileId) {
         AssertUtil.notNull(fileId, "文件ID不能为空");
 
-        FileInfo fileInfo = fileInfoMapper.selectById(fileId);
+        FileInfo fileInfo = fileInfoMapper.selectOneById(fileId);
         AssertUtil.notNull(fileInfo, ResultCodeEnum.NOT_FOUND.getCode(), "文件不存在");
 
         return fileInfoConvert.toVO(fileInfo);
@@ -170,20 +171,19 @@ public class FileServiceImpl implements FileService {
     public PageResult<FileInfoVO> listFiles(FileQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<FileInfo> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<FileInfo> wrapper = buildFileQueryWrapper(queryDTO);
+        QueryWrapper wrapper = buildFileQueryWrapper(queryDTO);
 
-        Page<FileInfo> filePage = fileInfoMapper.selectPage(page, wrapper);
+        Page<FileInfo> filePage = fileInfoMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<FileInfoVO> voList = fileInfoConvert.toVOList(filePage.getRecords());
 
-        return PageResult.of(filePage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(filePage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public String getPresignedDownloadUrl(Long fileId) {
         AssertUtil.notNull(fileId, "文件ID不能为空");
 
-        FileInfo fileInfo = fileInfoMapper.selectById(fileId);
+        FileInfo fileInfo = fileInfoMapper.selectOneById(fileId);
         AssertUtil.notNull(fileInfo, ResultCodeEnum.NOT_FOUND.getCode(), "文件不存在");
 
         try {
@@ -198,7 +198,7 @@ public class FileServiceImpl implements FileService {
     public String preview(Long fileId) {
         AssertUtil.notNull(fileId, "文件ID不能为空");
 
-        FileInfo fileInfo = fileInfoMapper.selectById(fileId);
+        FileInfo fileInfo = fileInfoMapper.selectOneById(fileId);
         AssertUtil.notNull(fileInfo, ResultCodeEnum.NOT_FOUND.getCode(), "文件不存在");
 
         try {
@@ -345,8 +345,8 @@ public class FileServiceImpl implements FileService {
     /**
      * Build query wrapper from FileQueryDTO
      */
-    private QueryWrapper<FileInfo> buildFileQueryWrapper(FileQueryDTO queryDTO) {
-        QueryWrapper<FileInfo> wrapper = new QueryWrapper<>();
+    private QueryWrapper buildFileQueryWrapper(FileQueryDTO queryDTO) {
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (StringUtils.hasText(queryDTO.getFileName())) {
             wrapper.like("file_name", queryDTO.getFileName());
@@ -359,7 +359,7 @@ public class FileServiceImpl implements FileService {
         }
 
         wrapper.eq("status", 1); // only active files
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
         return wrapper;
     }
 }

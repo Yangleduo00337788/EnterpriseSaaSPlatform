@@ -1,7 +1,7 @@
 package com.flowx.auth.util;
 
 import com.flowx.auth.config.JwtConfig;
-import com.flowx.common.security.SecurityUser;
+import com.flowx.common.core.base.SecurityUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

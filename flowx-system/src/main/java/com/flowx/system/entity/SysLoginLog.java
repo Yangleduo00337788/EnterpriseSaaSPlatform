@@ -1,9 +1,9 @@
 package com.flowx.system.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
+import com.mybatisflex.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * @since 1.0.0
  */
 @Data
-@TableName("sys_login_log")
+@Table("sys_login_log")
 public class SysLoginLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,55 +25,55 @@ public class SysLoginLog implements Serializable {
     /**
      * Primary ID
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @Id(keyType = KeyType.Generator, value = "snowFlakeId")
     private Long id;
 
     /**
      * Username
      */
-    @TableField("username")
+    @Column("username")
     private String username;
 
     /**
      * Login IP address
      */
-    @TableField("login_ip")
+    @Column("login_ip")
     private String loginIp;
 
     /**
      * Login location
      */
-    @TableField("login_location")
+    @Column("login_location")
     private String loginLocation;
 
     /**
      * Browser type
      */
-    @TableField("browser")
+    @Column("browser")
     private String browser;
 
     /**
      * Operating system
      */
-    @TableField("os")
+    @Column("os")
     private String os;
 
     /**
      * Login status (0=fail, 1=success)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Message (success or failure reason)
      */
-    @TableField("msg")
+    @Column("msg")
     private String msg;
 
     /**
      * Login time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField("login_time")
+    @Column("login_time")
     private LocalDateTime loginTime;
 }

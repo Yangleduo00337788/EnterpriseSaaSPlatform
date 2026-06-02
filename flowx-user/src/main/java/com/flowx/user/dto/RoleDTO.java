@@ -16,6 +16,11 @@ import java.util.List;
 @Data
 public class RoleDTO implements Serializable {
 
+    /**
+     * Primary key ID
+     */
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

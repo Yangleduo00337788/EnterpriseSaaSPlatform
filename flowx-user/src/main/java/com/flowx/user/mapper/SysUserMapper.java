@@ -4,7 +4,7 @@ import com.flowx.user.entity.SysUser;
 import com.flowx.user.entity.SysRole;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 
 import java.util.List;
 import java.util.Set;
@@ -16,7 +16,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Mapper
-public interface SysUserMapper extends BaseMapper<SysUser> {
+public interface SysUserMapper extends FlexBaseMapper<SysUser> {
 
     /**
      * Select user by username

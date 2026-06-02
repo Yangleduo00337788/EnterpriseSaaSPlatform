@@ -1,6 +1,6 @@
 package com.flowx.system.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 import com.flowx.system.entity.SysOperationLog;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0.0
  */
 @Mapper
-public interface SysOperationLogMapper extends BaseMapper<SysOperationLog> {
+public interface SysOperationLogMapper extends FlexBaseMapper<SysOperationLog> {
 }

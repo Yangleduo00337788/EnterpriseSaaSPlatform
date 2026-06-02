@@ -11,6 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Tenant management controller
  *
@@ -18,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/tenants")
+@RequestMapping("/api/system/tenant")
 @RequiredArgsConstructor
 public class TenantController {
 
@@ -61,27 +64,32 @@ public class TenantController {
     }
 
     /**
-     * Update existing tenant
+     * Update existing tenant (id from request body)
      *
-     * @param id  tenant ID
      * @param dto tenant update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateTenant(@PathVariable("id") Long id, @Valid @RequestBody TenantDTO dto) {
-        tenantService.updateTenant(id, dto);
+    @PutMapping
+    public R<Void> updateTenant(@Valid @RequestBody TenantDTO dto) {
+        tenantService.updateTenant(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete tenant
+     * Delete tenants by IDs (comma-separated)
      *
-     * @param id tenant ID
+     * @param ids tenant IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteTenant(@PathVariable("id") Long id) {
-        tenantService.deleteTenant(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteTenants(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            tenantService.deleteTenant(id);
+        }
         return R.ok();
     }
 

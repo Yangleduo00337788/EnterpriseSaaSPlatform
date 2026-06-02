@@ -37,11 +37,11 @@ public class SecurityConfig {
      * Public endpoints that don't require authentication
      */
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/auth/login",
-            "/auth/register",
-            "/auth/captcha",
-            "/auth/refresh-token",
-            "/auth/reset-password",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/captcha",
+            "/api/auth/refresh-token",
+            "/api/auth/reset-password",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/v3/api-docs/**",
@@ -56,18 +56,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Disable CSRF
                 .csrf(AbstractHttpConfigurer::disable)
-                // Enable CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // Stateless session management
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Authorization rules
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated())
-                // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

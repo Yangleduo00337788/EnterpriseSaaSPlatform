@@ -1,7 +1,7 @@
 package com.flowx.system.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_dict_data")
+@Table("sys_dict_data")
 public class SysDictData extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,48 +22,48 @@ public class SysDictData extends BaseEntity {
     /**
      * Dictionary type
      */
-    @TableField("dict_type")
+    @Column("dict_type")
     private String dictType;
 
     /**
      * Dictionary label
      */
-    @TableField("dict_label")
+    @Column("dict_label")
     private String dictLabel;
 
     /**
      * Dictionary value
      */
-    @TableField("dict_value")
+    @Column("dict_value")
     private String dictValue;
 
     /**
      * Sort order
      */
-    @TableField("sort")
+    @Column("sort")
     private Integer sort;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 
     /**
      * CSS class
      */
-    @TableField("css_class")
+    @Column("css_class")
     private String cssClass;
 
     /**
      * List class (tag type for front-end)
      */
-    @TableField("list_class")
+    @Column("list_class")
     private String listClass;
 }

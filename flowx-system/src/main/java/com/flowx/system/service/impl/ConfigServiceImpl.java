@@ -1,7 +1,7 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.constant.CacheConstant;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.PageResult;
@@ -41,7 +41,7 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public ConfigVO getConfigById(Long configId) {
         AssertUtil.notNull(configId, "参数ID不能为空");
-        SysConfig config = configMapper.selectById(configId);
+        SysConfig config = configMapper.selectOneById(configId);
         AssertUtil.notNull(config, "配置参数不存在");
         return configConvert.toVO(config);
     }
@@ -58,7 +58,7 @@ public class ConfigServiceImpl implements ConfigService {
         }
 
         // Query from database
-        QueryWrapper<SysConfig> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("config_key", configKey);
         SysConfig config = configMapper.selectOne(wrapper);
         if (config == null) {
@@ -79,7 +79,7 @@ public class ConfigServiceImpl implements ConfigService {
         AssertUtil.notBlank(dto.getConfigValue(), "参数键值不能为空");
 
         // Check config key uniqueness
-        QueryWrapper<SysConfig> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("config_key", dto.getConfigKey());
         Long count = configMapper.selectCount(wrapper);
         if (count > 0) {
@@ -109,12 +109,12 @@ public class ConfigServiceImpl implements ConfigService {
         AssertUtil.notNull(configId, "参数ID不能为空");
         AssertUtil.notNull(dto, "配置信息不能为空");
 
-        SysConfig config = configMapper.selectById(configId);
+        SysConfig config = configMapper.selectOneById(configId);
         AssertUtil.notNull(config, "配置参数不存在");
 
         // Check config key uniqueness if changed
         if (StringUtils.hasText(dto.getConfigKey()) && !dto.getConfigKey().equals(config.getConfigKey())) {
-            QueryWrapper<SysConfig> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("config_key", dto.getConfigKey());
             wrapper.ne("id", configId);
             Long count = configMapper.selectCount(wrapper);
@@ -139,7 +139,7 @@ public class ConfigServiceImpl implements ConfigService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteConfig(Long configId) {
         AssertUtil.notNull(configId, "参数ID不能为空");
-        SysConfig config = configMapper.selectById(configId);
+        SysConfig config = configMapper.selectOneById(configId);
         AssertUtil.notNull(config, "配置参数不存在");
 
         // Prevent deletion of system built-in configs
@@ -159,8 +159,7 @@ public class ConfigServiceImpl implements ConfigService {
     public PageResult<ConfigVO> listConfigs(TenantQueryDTO queryDTO) {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
 
-        Page<SysConfig> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<SysConfig> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         // Reuse tenantName as config name search, contactName as config key search
         if (StringUtils.hasText(queryDTO.getTenantName())) {
@@ -170,11 +169,11 @@ public class ConfigServiceImpl implements ConfigService {
             wrapper.like("config_key", queryDTO.getContactName());
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
 
-        Page<SysConfig> configPage = configMapper.selectPage(page, wrapper);
+        Page<SysConfig> configPage = configMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<ConfigVO> voList = configConvert.toVOList(configPage.getRecords());
 
-        return PageResult.of(configPage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(configPage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 }

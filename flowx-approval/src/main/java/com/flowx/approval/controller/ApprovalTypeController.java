@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/approval/types")
+@RequestMapping("/api/approval/type")
 @RequiredArgsConstructor
 public class ApprovalTypeController {
 
@@ -59,27 +60,32 @@ public class ApprovalTypeController {
     }
 
     /**
-     * Update existing approval type
+     * Update existing approval type (id from request body)
      *
-     * @param id  type ID
      * @param dto type update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateType(@PathVariable("id") Long id, @Valid @RequestBody ApprovalTypeDTO dto) {
-        typeService.updateType(id, dto);
+    @PutMapping
+    public R<Void> updateType(@Valid @RequestBody ApprovalTypeDTO dto) {
+        typeService.updateType(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete approval type
+     * Delete approval types by IDs (comma-separated)
      *
-     * @param id type ID
+     * @param ids type IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteType(@PathVariable("id") Long id) {
-        typeService.deleteType(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteTypes(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            typeService.deleteType(id);
+        }
         return R.ok();
     }
 }

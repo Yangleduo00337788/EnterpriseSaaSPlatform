@@ -8,19 +8,21 @@ import com.flowx.auth.dto.RegisterDTO;
 import com.flowx.auth.dto.TokenVO;
 import com.flowx.auth.service.AuthService;
 import com.flowx.auth.util.JwtUtil;
-import com.flowx.common.constant.CacheConstants;
-import com.flowx.common.constant.SecurityConstants;
-import com.flowx.common.exception.BusinessException;
-import com.flowx.common.exception.ErrorCode;
-import com.flowx.common.security.SecurityUser;
-import com.flowx.common.utils.RedisUtil;
-import com.flowx.common.utils.SecurityUtils;
+import com.flowx.common.core.result.ResultCodeEnum;
+import com.flowx.common.core.exception.BizException;
+import com.flowx.common.core.base.SecurityUser;
+import com.flowx.infrastructure.redis.RedisService;
+import com.flowx.user.entity.SysMenu;
+import com.flowx.user.entity.SysUser;
+import com.flowx.user.mapper.SysMenuMapper;
+import com.flowx.user.mapper.SysUserMapper;
 import com.wf.captcha.SpecCaptcha;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,24 +33,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-/**
- * Authentication service implementation
- *
- * @author FlowX Team
- */
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = {@Lazy})
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
+    private final RedisService redisService;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    @Lazy
+    private final SysUserMapper sysUserMapper;
+    @Lazy
+    private final SysMenuMapper sysMenuMapper;
 
     @Value("${flowx.captcha.expire-minutes:5}")
     private int captchaExpireMinutes;
@@ -56,9 +58,6 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.mail.username:}")
     private String mailFrom;
 
-    /**
-     * Redis key prefixes
-     */
     private static final String CAPTCHA_KEY_PREFIX = "captcha:";
     private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
     private static final String ACCESS_TOKEN_PREFIX = "access_token:";
@@ -66,252 +65,121 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenVO login(LoginDTO loginDTO) {
-        // Validate captcha
         String captchaKey = CAPTCHA_KEY_PREFIX + loginDTO.getCaptchaKey();
-        String cachedCaptcha = redisUtil.get(captchaKey);
+        String cachedCaptcha = redisService.getString(captchaKey);
         if (cachedCaptcha == null) {
-            throw new BusinessException(ErrorCode.CAPTCHA_EXPIRED);
+            throw new BizException(ResultCodeEnum.CAPTCHA_EXPIRED);
         }
         if (!cachedCaptcha.equalsIgnoreCase(loginDTO.getCaptchaCode())) {
-            throw new BusinessException(ErrorCode.CAPTCHA_ERROR);
+            throw new BizException(ResultCodeEnum.CAPTCHA_ERROR);
         }
-        // Delete captcha after validation
-        redisUtil.delete(captchaKey);
+        redisService.delete(captchaKey);
 
-        // Authenticate user
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginDTO.getUsername(),
-                            loginDTO.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword())
             );
         } catch (Exception e) {
             log.error("Authentication failed for user: {}", loginDTO.getUsername(), e);
-            throw new BusinessException(ErrorCode.LOGIN_FAILED);
+            throw new BizException(ResultCodeEnum.LOGIN_FAILED);
         }
 
-        // Get security user from authentication
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-
-        // Generate tokens
         String accessToken = jwtUtil.generateAccessToken(securityUser);
         String refreshToken = jwtUtil.generateRefreshToken(securityUser);
 
-        // Save tokens to Redis
         long accessTokenExpireSeconds = jwtUtil.parseToken(accessToken).getExpiration().getTime() / 1000;
         long refreshTokenExpireSeconds = jwtUtil.parseToken(refreshToken).getExpiration().getTime() / 1000;
 
         String accessTokenKey = ACCESS_TOKEN_PREFIX + securityUser.getUserId() + ":" + securityUser.getTenantId();
         String refreshTokenKey = REFRESH_TOKEN_PREFIX + securityUser.getUserId() + ":" + securityUser.getTenantId();
 
-        redisUtil.set(accessTokenKey, accessToken, accessTokenExpireSeconds, TimeUnit.SECONDS);
-        redisUtil.set(refreshTokenKey, refreshToken, refreshTokenExpireSeconds, TimeUnit.SECONDS);
+        redisService.set(accessTokenKey, accessToken, accessTokenExpireSeconds, TimeUnit.SECONDS);
+        redisService.set(refreshTokenKey, refreshToken, refreshTokenExpireSeconds, TimeUnit.SECONDS);
 
-        // Set authentication in context
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         log.info("User logged in successfully: {}", loginDTO.getUsername());
 
         return TokenVO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .expiresIn(accessTokenExpireSeconds)
                 .tokenType("Bearer")
+                .expiresIn(accessTokenExpireSeconds)
                 .build();
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void register(RegisterDTO registerDTO) {
-        // Check if username already exists
-        // TODO: Implement user existence check via UserMapper or UserService
-        // boolean exists = userMapper.existsByUsername(registerDTO.getUsername());
-        // if (exists) {
-        //     throw new BusinessException(ErrorCode.USERNAME_ALREADY_EXISTS);
-        // }
-
-        // Encode password
-        String encodedPassword = passwordEncoder.encode(registerDTO.getPassword());
-
-        // TODO: Create user entity and save to database
-        // User user = new User();
-        // user.setUsername(registerDTO.getUsername());
-        // user.setPassword(encodedPassword);
-        // user.setNickname(registerDTO.getNickname() != null ? registerDTO.getNickname() : registerDTO.getUsername());
-        // user.setEmail(registerDTO.getEmail());
-        // user.setPhone(registerDTO.getPhone());
-        // user.setStatus(StatusEnum.ENABLE.getCode());
-        // userMapper.insert(user);
-
-        // TODO: Create default role assignment
-        // UserRole userRole = new UserRole();
-        // userRole.setUserId(user.getId());
-        // userRole.setRoleId(defaultRoleId);
-        // userRoleMapper.insert(userRole);
-
-        // TODO: Create default department assignment if tenant has default department
-
-        log.info("User registered successfully: {}", registerDTO.getUsername());
-    }
-
-    @Override
-    public TokenVO refreshToken(String refreshToken) {
-        // Validate refresh token
-        if (!jwtUtil.validateToken(refreshToken)) {
-            throw new BusinessException(ErrorCode.INVALID_TOKEN);
-        }
-
-        // Check token type
-        var claims = jwtUtil.parseToken(refreshToken);
-        String tokenType = claims.get("tokenType", String.class);
-        if (!"refresh".equals(tokenType)) {
-            throw new BusinessException(ErrorCode.INVALID_TOKEN);
-        }
-
-        Long userId = claims.get("userId", Long.class);
-        String username = claims.getSubject();
-
-        // Verify refresh token exists in Redis
-        // Note: We need tenantId to construct the key properly
-        // For simplicity, we'll check if the token matches
-        String refreshTokenKey = REFRESH_TOKEN_PREFIX + userId + ":*";
-        // In production, you should store and retrieve tenantId properly
-
-        // Generate new access token
-        // TODO: Load full SecurityUser from database or cache
-        SecurityUser securityUser = SecurityUser.builder()
-                .userId(userId)
-                .username(username)
-                .build();
-
-        String newAccessToken = jwtUtil.generateAccessToken(securityUser);
-
-        long accessTokenExpireSeconds = jwtUtil.parseToken(newAccessToken).getExpiration().getTime() / 1000;
-
-        // Update access token in Redis
-        String accessTokenKey = ACCESS_TOKEN_PREFIX + userId;
-        redisUtil.set(accessTokenKey, newAccessToken, accessTokenExpireSeconds, TimeUnit.SECONDS);
-
-        log.info("Token refreshed for user: {}", username);
-
-        return TokenVO.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(refreshToken)
-                .expiresIn(accessTokenExpireSeconds)
-                .tokenType("Bearer")
-                .build();
+        throw new BizException(ResultCodeEnum.NOT_IMPLEMENTED);
     }
 
     @Override
     public void logout() {
-        try {
-            SecurityUser securityUser = SecurityUtils.getCurrentUser();
-            if (securityUser != null) {
-                Long userId = securityUser.getUserId();
-                Long tenantId = securityUser.getTenantId();
-
-                // Remove tokens from Redis
-                String accessTokenKey = ACCESS_TOKEN_PREFIX + userId + ":" + tenantId;
-                String refreshTokenKey = REFRESH_TOKEN_PREFIX + userId + ":" + tenantId;
-
-                redisUtil.delete(accessTokenKey);
-                redisUtil.delete(refreshTokenKey);
-
-                log.info("User logged out: {}", securityUser.getUsername());
-            }
-        } finally {
-            // Clear security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof SecurityUser) {
+            SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+            redisService.delete(ACCESS_TOKEN_PREFIX + securityUser.getUserId() + ":" + securityUser.getTenantId());
+            redisService.delete(REFRESH_TOKEN_PREFIX + securityUser.getUserId() + ":" + securityUser.getTenantId());
             SecurityContextHolder.clearContext();
         }
     }
 
     @Override
-    public void changePassword(ChangePasswordDTO changePasswordDTO) {
-        SecurityUser securityUser = SecurityUtils.getCurrentUser();
-        if (securityUser == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+    public TokenVO refreshToken(String refreshToken) {
+        String username = jwtUtil.getUsernameFromToken(refreshToken);
+        if (username == null || jwtUtil.isTokenExpired(refreshToken)) {
+            throw new BizException(ResultCodeEnum.TOKEN_INVALID);
         }
+        throw new BizException(ResultCodeEnum.NOT_IMPLEMENTED);
+    }
 
-        // TODO: Get current password from database
-        // User user = userMapper.selectById(securityUser.getUserId());
-        // if (user == null) {
-        //     throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        // }
-
-        // Verify old password
-        // if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
-        //     throw new BusinessException(ErrorCode.OLD_PASSWORD_ERROR);
-        // }
-
-        // Update password
-        // String newPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
-        // user.setPassword(newPassword);
-        // userMapper.updateById(user);
-
-        // Invalidate existing tokens
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordDTO changePasswordDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser)) {
+            throw new BizException(ResultCodeEnum.UNAUTHORIZED);
+        }
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         logout();
-
         log.info("Password changed for user: {}", securityUser.getUsername());
     }
 
     @Override
     public void resetPassword(PasswordResetDTO passwordResetDTO) {
-        // Validate captcha if provided
         if (passwordResetDTO.getCaptchaCode() != null && passwordResetDTO.getCaptchaKey() != null) {
             String captchaKey = CAPTCHA_KEY_PREFIX + passwordResetDTO.getCaptchaKey();
-            String cachedCaptcha = redisUtil.get(captchaKey);
+            String cachedCaptcha = redisService.getString(captchaKey);
             if (cachedCaptcha == null) {
-                throw new BusinessException(ErrorCode.CAPTCHA_EXPIRED);
+                throw new BizException(ResultCodeEnum.CAPTCHA_EXPIRED);
             }
             if (!cachedCaptcha.equalsIgnoreCase(passwordResetDTO.getCaptchaCode())) {
-                throw new BusinessException(ErrorCode.CAPTCHA_ERROR);
+                throw new BizException(ResultCodeEnum.CAPTCHA_ERROR);
             }
-            redisUtil.delete(captchaKey);
+            redisService.delete(captchaKey);
         }
-
-        // TODO: Check if email exists in database
-        // User user = userMapper.selectByEmail(passwordResetDTO.getEmail());
-        // if (user == null) {
-        //     throw new BusinessException(ErrorCode.EMAIL_NOT_FOUND);
-        // }
-
-        // Generate reset token
         String resetToken = UUID.randomUUID().toString();
-        String resetKey = RESET_PASSWORD_PREFIX + resetToken;
-
-        // Save reset token to Redis with 30 minutes expiration
-        redisUtil.set(resetKey, passwordResetDTO.getEmail(), 30, TimeUnit.MINUTES);
-
-        // Send reset email
+        redisService.set(RESET_PASSWORD_PREFIX + resetToken, passwordResetDTO.getEmail(), 30, TimeUnit.MINUTES);
         try {
             sendResetEmail(passwordResetDTO.getEmail(), resetToken);
         } catch (MessagingException e) {
             log.error("Failed to send reset email to: {}", passwordResetDTO.getEmail(), e);
-            throw new BusinessException(ErrorCode.EMAIL_SEND_FAILED);
+            throw new BizException(ResultCodeEnum.EMAIL_SEND_FAILED);
         }
-
         log.info("Password reset email sent to: {}", passwordResetDTO.getEmail());
     }
 
     @Override
     public CaptchaVO getCaptcha() {
-        // Generate captcha using easy-captcha
         SpecCaptcha specCaptcha = new SpecCaptcha(130, 48, 5);
-
-        // Generate unique captcha key
         String captchaKey = UUID.randomUUID().toString();
-
-        // Get captcha code and image
-        String captchaCode = specCaptcha.text().toLowerCase();
+        String captchaCode = specCaptcha.text().toUpperCase();
         String captchaImage = specCaptcha.toBase64();
 
-        // Save captcha to Redis with expiration
         String redisKey = CAPTCHA_KEY_PREFIX + captchaKey;
-        redisUtil.set(redisKey, captchaCode, captchaExpireMinutes, TimeUnit.MINUTES);
-
-        log.debug("Captcha generated for key: {}", captchaKey);
+        redisService.setString(redisKey, captchaCode, captchaExpireMinutes, TimeUnit.MINUTES);
+        log.info("Captcha generated for key: {}, code: {}", captchaKey, captchaCode);
 
         return CaptchaVO.builder()
                 .captchaKey(captchaKey)
@@ -320,40 +188,103 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    /**
-     * Send password reset email
-     */
+    @Override
+    public Map<String, Object> getUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser)) {
+            throw new BizException(ResultCodeEnum.UNAUTHORIZED);
+        }
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+
+        // Query fresh user data from DB
+        SysUser user = sysUserMapper.selectUserByUsername(securityUser.getUsername());
+        Map<String, Object> userMap = new HashMap<>();
+        if (user != null) {
+            userMap.put("id", user.getId());
+            userMap.put("username", user.getUsername());
+            userMap.put("nickname", user.getNickname());
+            userMap.put("avatar", user.getAvatar() != null ? user.getAvatar() : "");
+            userMap.put("email", user.getEmail() != null ? user.getEmail() : "");
+            userMap.put("phone", user.getPhone() != null ? user.getPhone() : "");
+            userMap.put("sex", user.getGender() != null ? user.getGender() : 0);
+            userMap.put("deptId", user.getDeptId());
+            userMap.put("deptName", "");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("user", userMap);
+        result.put("roles", securityUser.getRoles());
+        result.put("permissions", securityUser.getPermissions());
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getRouters() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUser)) {
+            throw new BizException(ResultCodeEnum.UNAUTHORIZED);
+        }
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+
+        List<SysMenu> menus;
+        if (securityUser.getRoles().contains("admin")) {
+            // Admin gets all menus
+            menus = sysMenuMapper.selectMenuTree();
+        } else {
+            menus = sysMenuMapper.selectMenusByUserId(securityUser.getUserId());
+        }
+
+        // Filter only directory and menu types, not buttons
+        menus = menus.stream()
+                .filter(m -> m.getMenuType() != null && m.getMenuType() != 2)
+                .collect(Collectors.toList());
+
+        return buildMenuTree(menus, 0L);
+    }
+
+    private List<Map<String, Object>> buildMenuTree(List<SysMenu> menus, Long parentId) {
+        List<Map<String, Object>> tree = new ArrayList<>();
+        for (SysMenu menu : menus) {
+            if (parentId.equals(menu.getParentId())) {
+                Map<String, Object> node = new LinkedHashMap<>();
+                node.put("name", menu.getMenuName());
+                node.put("path", menu.getPath() != null ? menu.getPath() : "");
+                node.put("component", menu.getComponent() != null ? menu.getComponent() : "");
+                node.put("icon", menu.getIcon() != null ? menu.getIcon() : "");
+                node.put("title", menu.getMenuName());
+
+                Map<String, Object> meta = new LinkedHashMap<>();
+                meta.put("title", menu.getMenuName());
+                meta.put("icon", menu.getIcon() != null ? menu.getIcon() : "");
+                node.put("meta", meta);
+
+                List<Map<String, Object>> children = buildMenuTree(menus, menu.getId());
+                if (!children.isEmpty()) {
+                    node.put("children", children);
+                }
+                tree.add(node);
+            }
+        }
+        return tree;
+    }
+
     private void sendResetEmail(String email, String resetToken) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
         helper.setFrom(mailFrom);
         helper.setTo(email);
         helper.setSubject("FlowX - Password Reset");
-
         String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
-        String htmlContent = buildResetEmailContent(resetUrl);
-        helper.setText(htmlContent, true);
-
+        helper.setText(buildResetEmailContent(resetUrl), true);
         mailSender.send(message);
     }
 
-    /**
-     * Build password reset email content
-     */
     private String buildResetEmailContent(String resetUrl) {
-        return "<!DOCTYPE html>" +
-                "<html><head><meta charset='UTF-8'></head><body>" +
-                "<div style='max-width: 600px; margin: 0 auto; padding: 20px;'>" +
-                "<h2 style='color: #333;'>FlowX Password Reset</h2>" +
-                "<p>You have requested to reset your password. Click the link below to proceed:</p>" +
-                "<p><a href='" + resetUrl + "' style='display: inline-block; padding: 10px 20px; " +
-                "background-color: #1890ff; color: white; text-decoration: none; border-radius: 4px;'>" +
-                "Reset Password</a></p>" +
-                "<p>This link will expire in 30 minutes.</p>" +
-                "<p>If you did not request this, please ignore this email.</p>" +
-                "<hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>" +
-                "<p style='color: #999; font-size: 12px;'>This is an automated message from FlowX Platform.</p>" +
-                "</div></body></html>";
+        return "<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body>"
+                + "<div style='max-width:600px;margin:0 auto;padding:20px;'>"
+                + "<h2>FlowX Password Reset</h2>"
+                + "<p>Click to reset: <a href='" + resetUrl + "'>Reset Password</a></p>"
+                + "<p>This link expires in 30 minutes.</p>"
+                + "</div></body></html>";
     }
 }

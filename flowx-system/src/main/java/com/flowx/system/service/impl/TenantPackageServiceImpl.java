@@ -1,6 +1,6 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.system.convert.TenantPackageConvert;
 import com.flowx.system.dto.TenantPackageDTO;
@@ -32,7 +32,7 @@ public class TenantPackageServiceImpl implements TenantPackageService {
     @Override
     public TenantPackageVO getPackageById(Long packageId) {
         AssertUtil.notNull(packageId, "套餐ID不能为空");
-        SysTenantPackage pkg = packageMapper.selectById(packageId);
+        SysTenantPackage pkg = packageMapper.selectOneById(packageId);
         AssertUtil.notNull(pkg, "租户套餐不存在");
         return packageConvert.toVO(pkg);
     }
@@ -61,7 +61,7 @@ public class TenantPackageServiceImpl implements TenantPackageService {
         AssertUtil.notNull(packageId, "套餐ID不能为空");
         AssertUtil.notNull(dto, "套餐信息不能为空");
 
-        SysTenantPackage pkg = packageMapper.selectById(packageId);
+        SysTenantPackage pkg = packageMapper.selectOneById(packageId);
         AssertUtil.notNull(pkg, "租户套餐不存在");
 
         packageConvert.updateEntity(dto, pkg);
@@ -73,7 +73,7 @@ public class TenantPackageServiceImpl implements TenantPackageService {
     @Transactional(rollbackFor = Exception.class)
     public void deletePackage(Long packageId) {
         AssertUtil.notNull(packageId, "套餐ID不能为空");
-        SysTenantPackage pkg = packageMapper.selectById(packageId);
+        SysTenantPackage pkg = packageMapper.selectOneById(packageId);
         AssertUtil.notNull(pkg, "租户套餐不存在");
 
         // Soft delete
@@ -83,8 +83,8 @@ public class TenantPackageServiceImpl implements TenantPackageService {
 
     @Override
     public List<TenantPackageVO> listPackages() {
-        QueryWrapper<SysTenantPackage> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("create_time");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("create_time", true);
         List<SysTenantPackage> packages = packageMapper.selectList(wrapper);
         return packageConvert.toVOList(packages);
     }

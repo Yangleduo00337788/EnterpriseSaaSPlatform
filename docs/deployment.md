@@ -1,4 +1,4 @@
-# FlowX Platform - Production Deployment Guide
+﻿# FlowX Platform - Production Deployment Guide
 
 ## Table of Contents
 
@@ -237,7 +237,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/flowx?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/flowx?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: flowx
     password: your_secure_password
     driver-class-name: com.mysql.cj.jdbc.Driver

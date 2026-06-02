@@ -1,6 +1,6 @@
 package com.flowx.approval.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.approval.dto.ApprovalTypeDTO;
 import com.flowx.approval.entity.ApprovalType;
 import com.flowx.approval.mapper.ApprovalTypeMapper;
@@ -34,7 +34,7 @@ public class ApprovalTypeServiceImpl implements ApprovalTypeService {
     @Override
     public ApprovalTypeVO getTypeById(Long typeId) {
         AssertUtil.notNull(typeId, "审批类型ID不能为空");
-        ApprovalType type = typeMapper.selectById(typeId);
+        ApprovalType type = typeMapper.selectOneById(typeId);
         AssertUtil.notNull(type, ResultCodeEnum.NOT_FOUND.getCode(), "审批类型不存在");
         return convertToVO(type);
     }
@@ -48,7 +48,7 @@ public class ApprovalTypeServiceImpl implements ApprovalTypeService {
         AssertUtil.notBlank(dto.getFlowKey(), "关联流程标识不能为空");
 
         // Check duplicate type code
-        QueryWrapper<ApprovalType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("type_code", dto.getTypeCode());
         Long count = typeMapper.selectCount(wrapper);
         if (count > 0) {
@@ -77,12 +77,12 @@ public class ApprovalTypeServiceImpl implements ApprovalTypeService {
         AssertUtil.notNull(typeId, "审批类型ID不能为空");
         AssertUtil.notNull(dto, "审批类型信息不能为空");
 
-        ApprovalType type = typeMapper.selectById(typeId);
+        ApprovalType type = typeMapper.selectOneById(typeId);
         AssertUtil.notNull(type, ResultCodeEnum.NOT_FOUND.getCode(), "审批类型不存在");
 
         // Check duplicate type code (exclude self)
         if (dto.getTypeCode() != null && !dto.getTypeCode().equals(type.getTypeCode())) {
-            QueryWrapper<ApprovalType> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("type_code", dto.getTypeCode());
             wrapper.ne("id", typeId);
             Long count = typeMapper.selectCount(wrapper);
@@ -100,7 +100,7 @@ public class ApprovalTypeServiceImpl implements ApprovalTypeService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteType(Long typeId) {
         AssertUtil.notNull(typeId, "审批类型ID不能为空");
-        ApprovalType type = typeMapper.selectById(typeId);
+        ApprovalType type = typeMapper.selectOneById(typeId);
         AssertUtil.notNull(type, ResultCodeEnum.NOT_FOUND.getCode(), "审批类型不存在");
 
         // Soft delete
@@ -110,9 +110,9 @@ public class ApprovalTypeServiceImpl implements ApprovalTypeService {
 
     @Override
     public List<ApprovalTypeVO> listTypes() {
-        QueryWrapper<ApprovalType> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("status", 1);
-        wrapper.orderByAsc("sort", "create_time");
+        wrapper.orderBy("sort", true).orderBy("create_time", true);
         List<ApprovalType> types = typeMapper.selectList(wrapper);
         return types.stream()
                 .map(this::convertToVO)

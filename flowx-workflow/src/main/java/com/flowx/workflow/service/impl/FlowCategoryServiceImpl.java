@@ -1,6 +1,6 @@
 package com.flowx.workflow.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.ResultCodeEnum;
 import com.flowx.common.util.AssertUtil;
@@ -34,7 +34,7 @@ public class FlowCategoryServiceImpl implements FlowCategoryService {
     @Override
     public FlowCategoryVO getCategoryById(Long categoryId) {
         AssertUtil.notNull(categoryId, "分类ID不能为空");
-        FlowCategory category = categoryMapper.selectById(categoryId);
+        FlowCategory category = categoryMapper.selectOneById(categoryId);
         AssertUtil.notNull(category, ResultCodeEnum.NOT_FOUND.getCode(), "流程分类不存在");
         return convertToVO(category);
     }
@@ -47,7 +47,7 @@ public class FlowCategoryServiceImpl implements FlowCategoryService {
         AssertUtil.notBlank(dto.getCategoryCode(), "分类编码不能为空");
 
         // Check duplicate category code
-        QueryWrapper<FlowCategory> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("category_code", dto.getCategoryCode());
         Long count = categoryMapper.selectCount(wrapper);
         if (count > 0) {
@@ -76,12 +76,12 @@ public class FlowCategoryServiceImpl implements FlowCategoryService {
         AssertUtil.notNull(categoryId, "分类ID不能为空");
         AssertUtil.notNull(dto, "分类信息不能为空");
 
-        FlowCategory category = categoryMapper.selectById(categoryId);
+        FlowCategory category = categoryMapper.selectOneById(categoryId);
         AssertUtil.notNull(category, ResultCodeEnum.NOT_FOUND.getCode(), "流程分类不存在");
 
         // Check duplicate category code (exclude self)
         if (dto.getCategoryCode() != null && !dto.getCategoryCode().equals(category.getCategoryCode())) {
-            QueryWrapper<FlowCategory> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("category_code", dto.getCategoryCode());
             wrapper.ne("id", categoryId);
             Long count = categoryMapper.selectCount(wrapper);
@@ -99,7 +99,7 @@ public class FlowCategoryServiceImpl implements FlowCategoryService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteCategory(Long categoryId) {
         AssertUtil.notNull(categoryId, "分类ID不能为空");
-        FlowCategory category = categoryMapper.selectById(categoryId);
+        FlowCategory category = categoryMapper.selectOneById(categoryId);
         AssertUtil.notNull(category, ResultCodeEnum.NOT_FOUND.getCode(), "流程分类不存在");
 
         // Soft delete
@@ -109,8 +109,8 @@ public class FlowCategoryServiceImpl implements FlowCategoryService {
 
     @Override
     public List<FlowCategoryVO> listCategories() {
-        QueryWrapper<FlowCategory> wrapper = new QueryWrapper<>();
-        wrapper.orderByAsc("sort", "create_time");
+        QueryWrapper wrapper = QueryWrapper.create();
+        wrapper.orderBy("sort", true).orderBy("create_time", true);
         List<FlowCategory> categories = categoryMapper.selectList(wrapper);
         return categories.stream()
                 .map(this::convertToVO)

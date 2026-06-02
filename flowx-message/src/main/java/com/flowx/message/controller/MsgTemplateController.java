@@ -8,6 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Message template management controller
  *
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/msg/templates")
+@RequestMapping("/api/message/template")
 @RequiredArgsConstructor
 public class MsgTemplateController {
 
@@ -75,27 +78,32 @@ public class MsgTemplateController {
     }
 
     /**
-     * Update existing template
+     * Update existing template (id from request body)
      *
-     * @param id template ID
      * @param vo template data
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateTemplate(@PathVariable("id") Long id, @Valid @RequestBody MsgTemplateVO vo) {
-        templateService.updateTemplate(id, vo);
+    @PutMapping
+    public R<Void> updateTemplate(@Valid @RequestBody MsgTemplateVO vo) {
+        templateService.updateTemplate(vo.getId(), vo);
         return R.ok();
     }
 
     /**
-     * Delete template
+     * Delete templates by IDs (comma-separated)
      *
-     * @param id template ID
+     * @param ids template IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteTemplate(@PathVariable("id") Long id) {
-        templateService.deleteTemplate(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteTemplates(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            templateService.deleteTemplate(id);
+        }
         return R.ok();
     }
 }

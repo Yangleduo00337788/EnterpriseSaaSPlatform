@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Flow definition management controller
  *
@@ -17,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/flow/definitions")
+@RequestMapping("/api/workflow/definition")
 @RequiredArgsConstructor
 public class FlowDefinitionController {
 
@@ -79,27 +82,32 @@ public class FlowDefinitionController {
     }
 
     /**
-     * Update existing definition
+     * Update existing definition (id from request body)
      *
-     * @param id  definition ID
      * @param dto definition update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateDefinition(@PathVariable("id") Long id, @Valid @RequestBody FlowDefinitionDTO dto) {
-        definitionService.updateDefinition(id, dto);
+    @PutMapping
+    public R<Void> updateDefinition(@Valid @RequestBody FlowDefinitionDTO dto) {
+        definitionService.updateDefinition(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete definition
+     * Delete definitions by IDs (comma-separated)
      *
-     * @param id definition ID
+     * @param ids definition IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteDefinition(@PathVariable("id") Long id) {
-        definitionService.deleteDefinition(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteDefinitions(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            definitionService.deleteDefinition(id);
+        }
         return R.ok();
     }
 

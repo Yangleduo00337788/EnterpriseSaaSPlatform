@@ -1,6 +1,6 @@
 package com.flowx.system.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.constant.CacheConstant;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.result.ResultCodeEnum;
@@ -43,7 +43,7 @@ public class DictDataServiceImpl implements DictDataService {
     @Override
     public DictDataVO getDictDataById(Long dictDataId) {
         AssertUtil.notNull(dictDataId, "字典数据ID不能为空");
-        SysDictData dictData = dictDataMapper.selectById(dictDataId);
+        SysDictData dictData = dictDataMapper.selectOneById(dictDataId);
         AssertUtil.notNull(dictData, "字典数据不存在");
         return dictDataConvert.toVO(dictData);
     }
@@ -80,7 +80,7 @@ public class DictDataServiceImpl implements DictDataService {
         AssertUtil.notNull(dictDataId, "字典数据ID不能为空");
         AssertUtil.notNull(dto, "字典数据信息不能为空");
 
-        SysDictData dictData = dictDataMapper.selectById(dictDataId);
+        SysDictData dictData = dictDataMapper.selectOneById(dictDataId);
         AssertUtil.notNull(dictData, "字典数据不存在");
 
         String oldDictType = dictData.getDictType();
@@ -99,7 +99,7 @@ public class DictDataServiceImpl implements DictDataService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteDictData(Long dictDataId) {
         AssertUtil.notNull(dictDataId, "字典数据ID不能为空");
-        SysDictData dictData = dictDataMapper.selectById(dictDataId);
+        SysDictData dictData = dictDataMapper.selectOneById(dictDataId);
         AssertUtil.notNull(dictData, "字典数据不存在");
 
         // Soft delete
@@ -127,10 +127,10 @@ public class DictDataServiceImpl implements DictDataService {
         }
 
         // Query from database
-        QueryWrapper<SysDictData> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("dict_type", dictType);
         wrapper.eq("status", 1);
-        wrapper.orderByAsc("sort");
+        wrapper.orderBy("sort", true);
         List<SysDictData> entities = dictDataMapper.selectList(wrapper);
         List<DictDataVO> voList = dictDataConvert.toVOList(entities);
 

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/files")
+@RequestMapping("/api/file")
 @RequiredArgsConstructor
 public class FileController {
 
@@ -67,14 +68,20 @@ public class FileController {
     }
 
     /**
-     * Delete a file
+     * Delete files by IDs (comma-separated)
      *
-     * @param id file ID
+     * @param ids file IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable("id") Long id) {
-        fileService.delete(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteFiles(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            fileService.delete(id);
+        }
         return R.ok();
     }
 

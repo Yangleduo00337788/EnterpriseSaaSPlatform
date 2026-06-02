@@ -99,6 +99,11 @@ public enum ResultCodeEnum {
     INVALID_TOKEN(1011, "无效的Token"),
 
     /**
+     * Token invalid (alias for INVALID_TOKEN)
+     */
+    TOKEN_INVALID(1011, "无效的Token"),
+
+    /**
      * Duplicate data
      */
     DUPLICATE_DATA(1012, "数据已存在"),
@@ -171,7 +176,37 @@ public enum ResultCodeEnum {
     /**
      * File type not allowed
      */
-    FILE_TYPE_NOT_ALLOWED(1026, "文件类型不允许");
+    FILE_TYPE_NOT_ALLOWED(1026, "文件类型不允许"),
+
+    /**
+     * Captcha expired
+     */
+    CAPTCHA_EXPIRED(1027, "验证码已过期"),
+
+    /**
+     * Captcha error
+     */
+    CAPTCHA_ERROR(1028, "验证码错误"),
+
+    /**
+     * Login failed
+     */
+    LOGIN_FAILED(1029, "登录失败"),
+
+    /**
+     * Email send failed
+     */
+    EMAIL_SEND_FAILED(1030, "邮件发送失败"),
+
+    /**
+     * Old password error
+     */
+    OLD_PASSWORD_ERROR(1031, "原密码错误"),
+
+    /**
+     * Not implemented
+     */
+    NOT_IMPLEMENTED(501, "功能暂未实现");
 
     /**
      * Result code

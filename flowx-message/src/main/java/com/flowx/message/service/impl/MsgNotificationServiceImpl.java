@@ -1,8 +1,8 @@
 package com.flowx.message.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.core.update.UpdateChain;
 import com.flowx.common.core.result.PageResult;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.message.convert.MsgNotificationConvert;
@@ -50,8 +50,7 @@ public class MsgNotificationServiceImpl implements MsgNotificationService {
         AssertUtil.notNull(queryDTO, "查询参数不能为空");
         AssertUtil.notNull(queryDTO.getUserId(), "用户ID不能为空");
 
-        Page<MsgNotification> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
-        QueryWrapper<MsgNotification> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         wrapper.eq("user_id", queryDTO.getUserId());
 
@@ -62,24 +61,23 @@ public class MsgNotificationServiceImpl implements MsgNotificationService {
             wrapper.eq("msg_type", queryDTO.getMsgType());
         }
 
-        wrapper.orderByDesc("create_time");
+        wrapper.orderBy("create_time", false);
 
-        Page<MsgNotification> notificationPage = notificationMapper.selectPage(page, wrapper);
+        Page<MsgNotification> notificationPage = notificationMapper.paginate(queryDTO.getPageNum(), queryDTO.getPageSize(), wrapper);
         List<MsgNotificationVO> voList = notificationConvert.toVOList(notificationPage.getRecords());
 
-        return PageResult.of(notificationPage.getTotal(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
+        return PageResult.of(notificationPage.getTotalRow(), voList, queryDTO.getPageNum(), queryDTO.getPageSize());
     }
 
     @Override
     public void markAsRead(Long notificationId) {
         AssertUtil.notNull(notificationId, "通知ID不能为空");
 
-        UpdateWrapper<MsgNotification> wrapper = new UpdateWrapper<>();
-        wrapper.eq("id", notificationId)
+        UpdateChain.of(MsgNotification.class)
                 .set("read_status", 1)
-                .set("read_time", LocalDateTime.now());
-
-        notificationMapper.update(null, wrapper);
+                .set("read_time", LocalDateTime.now())
+                .where(MsgNotification::getId).eq(notificationId)
+                .update();
         log.info("Marked notification as read: {}", notificationId);
     }
 
@@ -87,13 +85,12 @@ public class MsgNotificationServiceImpl implements MsgNotificationService {
     public void markAllAsRead(Long userId) {
         AssertUtil.notNull(userId, "用户ID不能为空");
 
-        UpdateWrapper<MsgNotification> wrapper = new UpdateWrapper<>();
-        wrapper.eq("user_id", userId)
-                .eq("read_status", 0)
+        UpdateChain.of(MsgNotification.class)
                 .set("read_status", 1)
-                .set("read_time", LocalDateTime.now());
-
-        notificationMapper.update(null, wrapper);
+                .set("read_time", LocalDateTime.now())
+                .where(MsgNotification::getUserId).eq(userId)
+                .and(MsgNotification::getReadStatus).eq(0)
+                .update();
         log.info("Marked all notifications as read for user: {}", userId);
     }
 

@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * System config management controller
  *
@@ -17,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/configs")
+@RequestMapping("/api/system/config")
 @RequiredArgsConstructor
 public class ConfigController {
 
@@ -72,27 +75,32 @@ public class ConfigController {
     }
 
     /**
-     * Update existing config
+     * Update existing config (id from request body)
      *
-     * @param id  config ID
      * @param dto config update DTO
      * @return success response
      */
-    @PutMapping("/{id}")
-    public R<Void> updateConfig(@PathVariable("id") Long id, @Valid @RequestBody ConfigDTO dto) {
-        configService.updateConfig(id, dto);
+    @PutMapping
+    public R<Void> updateConfig(@Valid @RequestBody ConfigDTO dto) {
+        configService.updateConfig(dto.getId(), dto);
         return R.ok();
     }
 
     /**
-     * Delete config
+     * Delete configs by IDs (comma-separated)
      *
-     * @param id config ID
+     * @param ids config IDs
      * @return success response
      */
-    @DeleteMapping("/{id}")
-    public R<Void> deleteConfig(@PathVariable("id") Long id) {
-        configService.deleteConfig(id);
+    @DeleteMapping("/{ids}")
+    public R<Void> deleteConfigs(@PathVariable("ids") String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toList();
+        for (Long id : idList) {
+            configService.deleteConfig(id);
+        }
         return R.ok();
     }
 }

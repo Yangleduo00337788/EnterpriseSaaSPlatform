@@ -1,6 +1,6 @@
 package com.flowx.ai.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +53,7 @@ public class AiChatServiceImpl implements AiChatService {
 
         // Get or create conversation
         if (request.getConversationId() != null) {
-            conversation = conversationMapper.selectById(request.getConversationId());
+            conversation = conversationMapper.selectOneById(request.getConversationId());
             AssertUtil.notNull(conversation, ResultCodeEnum.NOT_FOUND.getCode(), "会话不存在");
         } else {
             conversation = createConversation(request.getConversationType());
@@ -107,10 +107,10 @@ public class AiChatServiceImpl implements AiChatService {
     public List<AiConversationVO> getConversations(Long userId) {
         AssertUtil.notNull(userId, "用户ID不能为空");
 
-        QueryWrapper<AiConversation> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("user_id", userId)
                 .eq("status", 1)
-                .orderByDesc("last_message_time");
+                .orderBy("last_message_time", false);
 
         List<AiConversation> conversations = conversationMapper.selectList(wrapper);
         return conversations.stream()
@@ -122,7 +122,7 @@ public class AiChatServiceImpl implements AiChatService {
     public List<ChatMessageVO> getConversationHistory(Long conversationId) {
         AssertUtil.notNull(conversationId, "会话ID不能为空");
 
-        AiConversation conversation = conversationMapper.selectById(conversationId);
+        AiConversation conversation = conversationMapper.selectOneById(conversationId);
         AssertUtil.notNull(conversation, ResultCodeEnum.NOT_FOUND.getCode(), "会话不存在");
 
         return loadContext(conversation).stream()
@@ -139,7 +139,7 @@ public class AiChatServiceImpl implements AiChatService {
     public void deleteConversation(Long conversationId) {
         AssertUtil.notNull(conversationId, "会话ID不能为空");
 
-        AiConversation conversation = conversationMapper.selectById(conversationId);
+        AiConversation conversation = conversationMapper.selectOneById(conversationId);
         AssertUtil.notNull(conversation, ResultCodeEnum.NOT_FOUND.getCode(), "会话不存在");
 
         conversationMapper.deleteById(conversationId);

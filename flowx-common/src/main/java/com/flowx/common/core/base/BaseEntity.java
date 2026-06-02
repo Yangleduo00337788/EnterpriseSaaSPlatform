@@ -1,7 +1,10 @@
 package com.flowx.common.core.base;
 
-import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
+import com.mybatisflex.annotation.Table;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -21,45 +24,44 @@ public class BaseEntity implements Serializable {
     /**
      * Primary ID (Snowflake algorithm)
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @Id(keyType = KeyType.Generator, value = "snowFlakeId")
     private Long id;
 
     /**
      * Tenant ID
      */
-    @TableField("tenant_id")
+    @Column("tenant_id")
     private Long tenantId;
 
     /**
      * Creation time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @Column(value = "create_time", onInsertValue = "now()")
     private LocalDateTime createTime;
 
     /**
      * Update time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @Column(value = "update_time", onUpdateValue = "now()")
     private LocalDateTime updateTime;
 
     /**
      * Creator ID
      */
-    @TableField(value = "create_by", fill = FieldFill.INSERT)
+    @Column(value = "create_by", onInsertValue = "0")
     private Long createBy;
 
     /**
      * Updater ID
      */
-    @TableField(value = "update_by", fill = FieldFill.INSERT_UPDATE)
+    @Column(value = "update_by", onUpdateValue = "0")
     private Long updateBy;
 
     /**
      * Deleted flag (0=normal, 1=deleted)
      */
-    @TableLogic
-    @TableField("deleted")
+    @Column(value = "deleted", isLogicDelete = true)
     private Integer deleted;
 }

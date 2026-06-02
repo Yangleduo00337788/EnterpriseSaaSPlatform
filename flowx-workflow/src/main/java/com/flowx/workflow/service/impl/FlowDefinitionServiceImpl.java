@@ -1,7 +1,7 @@
 package com.flowx.workflow.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.core.exception.NotFoundException;
 import com.flowx.common.core.result.PageResult;
@@ -51,7 +51,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Override
     public FlowDefinitionVO getDefinitionById(Long definitionId) {
         AssertUtil.notNull(definitionId, "流程定义ID不能为空");
-        FlowDefinition definition = definitionMapper.selectById(definitionId);
+        FlowDefinition definition = definitionMapper.selectOneById(definitionId);
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
         return convertToVO(definition);
@@ -66,7 +66,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
         AssertUtil.notNull(dto.getCategoryId(), "流程分类不能为空");
 
         // Check duplicate definition key
-        QueryWrapper<FlowDefinition> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("definition_key", dto.getDefinitionKey());
         Long count = definitionMapper.selectCount(wrapper);
         if (count > 0) {
@@ -91,13 +91,13 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
         AssertUtil.notNull(definitionId, "流程定义ID不能为空");
         AssertUtil.notNull(dto, "流程定义信息不能为空");
 
-        FlowDefinition definition = definitionMapper.selectById(definitionId);
+        FlowDefinition definition = definitionMapper.selectOneById(definitionId);
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
         // Check duplicate definition key (exclude self)
         if (dto.getDefinitionKey() != null && !dto.getDefinitionKey().equals(definition.getDefinitionKey())) {
-            QueryWrapper<FlowDefinition> wrapper = new QueryWrapper<>();
+            QueryWrapper wrapper = QueryWrapper.create();
             wrapper.eq("definition_key", dto.getDefinitionKey());
             wrapper.ne("id", definitionId);
             Long count = definitionMapper.selectCount(wrapper);
@@ -116,7 +116,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteDefinition(Long definitionId) {
         AssertUtil.notNull(definitionId, "流程定义ID不能为空");
-        FlowDefinition definition = definitionMapper.selectById(definitionId);
+        FlowDefinition definition = definitionMapper.selectOneById(definitionId);
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
@@ -147,7 +147,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
         AssertUtil.notNull(dto.getDefinitionId(), "流程定义ID不能为空");
         AssertUtil.notBlank(dto.getBpmnXml(), "BPMN XML不能为空");
 
-        FlowDefinition definition = definitionMapper.selectById(dto.getDefinitionId());
+        FlowDefinition definition = definitionMapper.selectOneById(dto.getDefinitionId());
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
@@ -171,7 +171,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Transactional(rollbackFor = Exception.class)
     public void suspend(Long definitionId) {
         AssertUtil.notNull(definitionId, "流程定义ID不能为空");
-        FlowDefinition definition = definitionMapper.selectById(definitionId);
+        FlowDefinition definition = definitionMapper.selectOneById(definitionId);
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
@@ -199,7 +199,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Transactional(rollbackFor = Exception.class)
     public void activate(Long definitionId) {
         AssertUtil.notNull(definitionId, "流程定义ID不能为空");
-        FlowDefinition definition = definitionMapper.selectById(definitionId);
+        FlowDefinition definition = definitionMapper.selectOneById(definitionId);
         AssertUtil.notNull(definition, ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getCode(),
                 ResultCodeEnum.WORKFLOW_DEF_NOT_FOUND.getMessage());
 
@@ -226,10 +226,10 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Override
     public FlowDefinitionVO getDefinitionByKey(String key) {
         AssertUtil.notBlank(key, "流程定义标识不能为空");
-        QueryWrapper<FlowDefinition> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("definition_key", key);
-        wrapper.orderByDesc("version");
-        wrapper.last("LIMIT 1");
+        wrapper.orderBy("version", false);
+        wrapper.limit(1);
         FlowDefinition definition = definitionMapper.selectOne(wrapper);
         if (definition == null) {
             throw new NotFoundException("流程定义不存在: " + key);
@@ -240,8 +240,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
     @Override
     public PageResult<FlowDefinitionVO> listDefinitions(Integer pageNum, Integer pageSize,
                                                          Long categoryId, Integer status) {
-        Page<FlowDefinition> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<FlowDefinition> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
 
         if (categoryId != null) {
             wrapper.eq("category_id", categoryId);
@@ -250,14 +249,14 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
             wrapper.eq("status", status);
         }
 
-        wrapper.orderByDesc("create_time");
-        Page<FlowDefinition> result = definitionMapper.selectPage(page, wrapper);
+        wrapper.orderBy("create_time", false);
+        Page<FlowDefinition> result = definitionMapper.paginate(pageNum, pageSize, wrapper);
 
         List<FlowDefinitionVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return PageResult.of(result.getTotal(), voList, pageNum, pageSize);
+        return PageResult.of(result.getTotalRow(), voList, pageNum, pageSize);
     }
 
     /**
@@ -269,7 +268,7 @@ public class FlowDefinitionServiceImpl implements FlowDefinitionService {
 
         // Load category name
         if (definition.getCategoryId() != null) {
-            FlowCategory category = categoryMapper.selectById(definition.getCategoryId());
+            FlowCategory category = categoryMapper.selectOneById(definition.getCategoryId());
             if (category != null) {
                 vo.setCategoryName(category.getCategoryName());
             }

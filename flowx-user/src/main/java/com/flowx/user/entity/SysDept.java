@@ -1,7 +1,7 @@
 package com.flowx.user.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_dept")
+@Table("sys_dept")
 public class SysDept extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -22,48 +22,48 @@ public class SysDept extends BaseEntity {
     /**
      * Department name
      */
-    @TableField("dept_name")
+    @Column("dept_name")
     private String deptName;
 
     /**
      * Parent department ID (0 for root)
      */
-    @TableField("parent_id")
+    @Column("parent_id")
     private Long parentId;
 
     /**
      * Sort order
      */
-    @TableField("sort")
+    @Column("sort")
     private Integer sort;
 
     /**
      * Department leader
      */
-    @TableField("leader")
+    @Column("leader")
     private String leader;
 
     /**
      * Contact phone
      */
-    @TableField("phone")
+    @Column("phone")
     private String phone;
 
     /**
      * Contact email
      */
-    @TableField("email")
+    @Column("email")
     private String email;
 
     /**
      * Status (0=disabled, 1=enabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Display order number
      */
-    @TableField("order_num")
+    @Column("order_num")
     private Integer orderNum;
 }

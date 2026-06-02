@@ -2,7 +2,7 @@ package com.flowx.user.mapper;
 
 import com.flowx.user.entity.SysPosition;
 import org.apache.ibatis.annotations.Mapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.flowx.infrastructure.persistence.FlexBaseMapper;
 
 /**
  * System position mapper
@@ -11,5 +11,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 1.0.0
  */
 @Mapper
-public interface SysPositionMapper extends BaseMapper<SysPosition> {
+public interface SysPositionMapper extends FlexBaseMapper<SysPosition> {
 }

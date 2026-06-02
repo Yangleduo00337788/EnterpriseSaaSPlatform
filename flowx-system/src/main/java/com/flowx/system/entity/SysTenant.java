@@ -1,7 +1,7 @@
 package com.flowx.system.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.flowx.common.core.base.BaseEntity;
 import lombok.Data;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("sys_tenant")
+@Table("sys_tenant")
 public class SysTenant extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -25,67 +25,67 @@ public class SysTenant extends BaseEntity {
     /**
      * Tenant name
      */
-    @TableField("tenant_name")
+    @Column("tenant_name")
     private String tenantName;
 
     /**
      * Contact person name
      */
-    @TableField("contact_name")
+    @Column("contact_name")
     private String contactName;
 
     /**
      * Contact phone number
      */
-    @TableField("contact_phone")
+    @Column("contact_phone")
     private String contactPhone;
 
     /**
      * Contact email
      */
-    @TableField("contact_email")
+    @Column("contact_email")
     private String contactEmail;
 
     /**
      * Tenant domain
      */
-    @TableField("domain")
+    @Column("domain")
     private String domain;
 
     /**
      * Tenant logo URL
      */
-    @TableField("logo_url")
+    @Column("logo_url")
     private String logoUrl;
 
     /**
      * Status (0=normal, 1=expired, 2=disabled)
      */
-    @TableField("status")
+    @Column("status")
     private Integer status;
 
     /**
      * Expiration time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField("expire_time")
+    @Column("expire_time")
     private LocalDateTime expireTime;
 
     /**
      * Account limit
      */
-    @TableField("account_limit")
+    @Column("account_limit")
     private Integer accountLimit;
 
     /**
      * Tenant package ID
      */
-    @TableField("package_id")
+    @Column("package_id")
     private Long packageId;
 
     /**
      * Remark
      */
-    @TableField("remark")
+    @Column("remark")
     private String remark;
 }

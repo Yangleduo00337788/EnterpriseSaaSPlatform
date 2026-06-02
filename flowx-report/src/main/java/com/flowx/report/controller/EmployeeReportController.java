@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 1.0.0
  */
 @RestController
-@RequestMapping("/api/reports/employees")
+@RequestMapping("/api/report/employee")
 @RequiredArgsConstructor
 public class EmployeeReportController {
 

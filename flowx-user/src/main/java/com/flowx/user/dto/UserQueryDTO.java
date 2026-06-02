@@ -14,6 +14,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class UserQueryDTO extends PageQuery {
 
+    private Long id;
+
     private static final long serialVersionUID = 1L;
 
     /**

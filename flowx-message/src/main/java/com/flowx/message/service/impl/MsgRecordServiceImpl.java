@@ -1,6 +1,6 @@
 package com.flowx.message.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.mybatisflex.core.query.QueryWrapper;
 import com.flowx.common.core.exception.BizException;
 import com.flowx.common.util.AssertUtil;
 import com.flowx.message.config.NotificationConfig;
@@ -109,17 +109,13 @@ public class MsgRecordServiceImpl implements MsgRecordService {
 
     @Override
     public void retryFailedMessages() {
-        QueryWrapper<MsgRecord> wrapper = new QueryWrapper<>();
+        QueryWrapper wrapper = QueryWrapper.create();
         wrapper.eq("send_status", 2) // failed
                 .lt("retry_count", MAX_RETRY_COUNT)
-                .orderByAsc("create_time")
-                .last("LIMIT 100"); // batch size
+                .orderBy("create_time", true)
+                .limit(100); // batch size
 
-        List<MsgRecord> failedRecords = recordMapper.selectBatchIds(
-                recordMapper.selectList(wrapper).stream()
-                        .map(MsgRecord::getId)
-                        .collect(java.util.stream.Collectors.toList())
-        );
+        List<MsgRecord> failedRecords = recordMapper.selectList(wrapper);
 
         for (MsgRecord record : failedRecords) {
             try {
