@@ -1,0 +1,249 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Card, Form, Button, Select, Toast, Upload } from '@douyinfe/semi-ui';
+import type { FormApi } from '@douyinfe/semi-ui/lib/es/form';
+import { getTemplates, submitApproval } from '@/api/approval';
+import { uploadAttachment } from '@/api/attachment';
+import { CATEGORY_MAP } from '@/utils/constants';
+import type { TemplateVO } from '@/types';
+
+interface SchemaField {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'date' | 'select' | 'attachment';
+  required?: boolean;
+  options?: string[];
+  placeholder?: string;
+}
+
+function parseSchema(raw?: string): SchemaField[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.fields) ? parsed.fields : [];
+  } catch {
+    return [];
+  }
+}
+
+function SchemaFieldItem({ field }: { field: SchemaField }) {
+  const baseRules = field.required ? [{ required: true, message: `请填写${field.label}` }] : [];
+  const ph = field.placeholder || `请输入${field.label}`;
+
+  switch (field.type) {
+    case 'select':
+      return (
+        <Form.Select
+          field={`__schema_${field.name}`}
+          label={field.label}
+          rules={baseRules}
+          placeholder={`请选择${field.label}`}
+          style={{ width: '100%' }}
+        >
+          {(field.options || []).map((opt) => (
+            <Select.Option key={opt} value={opt}>{opt}</Select.Option>
+          ))}
+        </Form.Select>
+      );
+    case 'date':
+      return (
+        <Form.DatePicker
+          field={`__schema_${field.name}`}
+          label={field.label}
+          rules={baseRules}
+          placeholder={`请选择${field.label}`}
+          style={{ width: '100%' }}
+          format="yyyy-MM-dd"
+          type="date"
+        />
+      );
+    case 'number':
+      return (
+        <Form.InputNumber
+          field={`__schema_${field.name}`}
+          label={field.label}
+          rules={baseRules}
+          placeholder={ph}
+          style={{ width: '100%' }}
+        />
+      );
+    case 'textarea':
+      return (
+        <Form.TextArea
+          field={`__schema_${field.name}`}
+          label={field.label}
+          rules={baseRules}
+          placeholder={ph}
+          rows={3}
+        />
+      );
+    case 'attachment':
+      return (
+        <Form.Slot label={field.label}>
+          <Upload
+            action=""
+            customRequest={async ({ file, onSuccess, onError }) => {
+              try {
+                const fileObj = (file as { fileInstance?: File }).fileInstance ?? (file as unknown as File);
+                const res = await uploadAttachment(fileObj, undefined, undefined, field.name);
+                onSuccess?.(res.data);
+              } catch (e) {
+                onError?.({ status: 500 });
+              }
+            }}
+            multiple={field.required !== true}
+            accept="*/*"
+          >
+            <Button>点击上传附件</Button>
+          </Upload>
+        </Form.Slot>
+      );
+    default:
+      return (
+        <Form.Input
+          field={`__schema_${field.name}`}
+          label={field.label}
+          rules={baseRules}
+          placeholder={ph}
+        />
+      );
+  }
+}
+
+export default function SubmitApprovalPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get('category');
+  const [templates, setTemplates] = useState<TemplateVO[]>([]);
+  const [schemaFields, setSchemaFields] = useState<SchemaField[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [formApi, setFormApi] = useState<FormApi>();
+  const prevTplId = useRef<number | null>(null);
+
+  useEffect(() => {
+    getTemplates(category || undefined).then((res) => setTemplates(res.data));
+  }, [category]);
+
+  useEffect(() => {
+    if (!formApi || templates.length === 0) return;
+    const tpl = category
+      ? templates.find((t) => t.category === category)
+      : templates[0];
+    if (tpl) {
+      formApi.setValue('templateId', tpl.id);
+      if (!formApi.getValue('title')) {
+        formApi.setValue('title', `${tpl.templateName}申请`);
+      }
+      setSchemaFields(parseSchema(tpl.formSchema));
+    }
+  }, [formApi, templates, category]);
+
+  const handleTemplateChange = (id: number) => {
+    const tpl = templates.find((t) => t.id === id);
+    if (!tpl || !formApi) return;
+
+    // 清空上一个模板的 schema 字段值
+    if (prevTplId.current !== null) {
+      const prev = templates.find((t) => t.id === prevTplId.current);
+      if (prev) {
+        parseSchema(prev.formSchema).forEach((f) => {
+          formApi.setValue(`__schema_${f.name}`, undefined);
+        });
+      }
+    }
+    prevTplId.current = id;
+
+    if (!formApi.getValue('title') || formApi.getValue('title').endsWith('申请')) {
+      formApi.setValue('title', `${tpl.templateName}申请`);
+    }
+    setSchemaFields(parseSchema(tpl.formSchema));
+  };
+
+  const handleSubmit = async (values: Record<string, unknown>) => {
+    const { templateId, title, ...rest } = values;
+
+    // 把 __schema_xxx 字段合并为 formData JSON
+    const formDataObj: Record<string, unknown> = {};
+    schemaFields.forEach((f) => {
+      const v = rest[`__schema_${f.name}`];
+      if (v !== undefined && v !== null && v !== '') {
+        formDataObj[f.name] = v;
+      }
+    });
+
+    setLoading(true);
+    try {
+      const res = await submitApproval({
+        templateId: templateId as number,
+        title: title as string,
+        formData: Object.keys(formDataObj).length ? JSON.stringify(formDataObj) : undefined,
+      });
+      Toast.success('提交成功');
+      navigate(`/approval/detail/${res.data}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="page-container">
+      <div className="page-header">
+        <h2>发起审批</h2>
+        <p>选择审批类型并填写信息</p>
+      </div>
+      <Card style={{ maxWidth: 680 }}>
+        <Form
+          getFormApi={setFormApi}
+          onSubmit={handleSubmit}
+          labelPosition="left"
+          labelWidth={110}
+        >
+          <Form.Select
+            field="templateId"
+            label="审批类型"
+            rules={[{ required: true, message: '请选择审批类型' }]}
+            placeholder="请选择"
+            style={{ width: '100%' }}
+            onChange={(v) => handleTemplateChange(v as number)}
+          >
+            {templates.map((t) => (
+              <Select.Option key={t.id} value={t.id}>
+                {t.templateName}（{CATEGORY_MAP[t.category] || t.category}）
+              </Select.Option>
+            ))}
+          </Form.Select>
+
+          <Form.Input
+            field="title"
+            label="审批标题"
+            rules={[{ required: true, message: '请输入标题' }]}
+            placeholder="请输入审批标题"
+          />
+
+          {schemaFields.map((field) => (
+            <SchemaFieldItem key={field.name} field={field} />
+          ))}
+
+          {schemaFields.length === 0 && (
+            <Form.TextArea
+              field="__fallback_remark"
+              label="申请说明"
+              placeholder="请输入申请详情"
+              rows={4}
+            />
+          )}
+
+          <Button
+            htmlType="submit"
+            type="primary"
+            theme="solid"
+            loading={loading}
+            style={{ marginTop: 16 }}
+          >
+            提交审批
+          </Button>
+        </Form>
+      </Card>
+    </div>
+  );
+}

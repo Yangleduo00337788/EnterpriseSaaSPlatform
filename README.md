@@ -1,444 +1,486 @@
-<div align="center">
+<p align="center">
+  <img src="docs/images/logo.png" alt="FlowCloud Logo" width="120" />
+</p>
 
-# FlowX 流擎
+<h1 align="center">审流云 FlowCloud</h1>
 
-**企业级审批协同与流程自动化平台**
+<p align="center">
+  <strong>企业级审批流程 SaaS 平台</strong>
+</p>
 
-<img src="docs/images/logo.png" width="120" height="120" alt="FlowX Logo" style="border-radius: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" />
+<p align="center">
+  <a href="https://github.com"><img src="https://img.shields.io/badge/JDK-21-green" alt="JDK 21" /></a>
+  <a href="https://github.com"><img src="https://img.shields.io/badge/Spring%20Boot-3.3.5-brightgreen" alt="Spring Boot 3.3.5" /></a>
+  <a href="https://github.com"><img src="https://img.shields.io/badge/React-18-blue" alt="React 18" /></a>
+  <a href="https://github.com"><img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License" /></a>
+  <a href="https://github.com"><img src="https://img.shields.io/badge/MySQL-8.0-blue" alt="MySQL 8" /></a>
+  <a href="https://github.com"><img src="https://img.shields.io/badge/Redis-7.x-red" alt="Redis 7" /></a>
+</p>
 
-
-
-<br />
-
-[![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-green?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Vue.js](https://img.shields.io/badge/Vue.js-3-blue?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.4-blue?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Redis](https://img.shields.io/badge/Redis-7-red?logo=redis&logoColor=white)](https://redis.io/)
-[![License](https://img.shields.io/badge/License-Proprietary-blue)](#license)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker&logoColor=white)](docker/)
-
-<br />
-
-[快速开始](#-快速开始) · [功能特性](#-功能特性) · [系统架构](#-系统架构) · [项目结构](#-项目结构) · [开发指南](#-开发指南) · [部署文档](#-部署方案)
-
-</div>
+<p align="center">让审批像流水一样高效</p>
 
 ---
 
-## 📖 项目简介
+## 目录
 
-**FlowX 流擎** 是一款面向中大型企业的审批协同与流程自动化 SaaS 平台。基于 **模块化单体架构（Modular Monolith）** 设计，集成了 Flowable 工作流引擎、AI 智能助手、多租户体系等核心能力，支持 10 万+ 用户、1000+ 企业租户的高并发场景。
-
-### 核心价值
-
-| 价值维度 | 说明 |
-|---------|------|
-| 🏢 **多租户 SaaS** | 数据库共享 + 字段级租户隔离，支持租户套餐、容量管理 |
-| ⚙️ **流程自动化** | 基于 Flowable 7.x 的 BPMN 2.0 工作流引擎，支持会签/或签/加签/转办 |
-| 🤖 **AI 智能** | 统一 AIProvider 抽象，接入 DeepSeek / OpenAI / Claude / Gemini / 通义千问 |
-| 🔐 **企业级安全** | JWT + RBAC + 数据权限 + 接口限流 + 操作审计 |
-| 📊 **数据洞察** | 内置审批、员工、组织、租户、运营多维度报表 |
+- [项目简介](#项目简介)
+- [系统架构](#系统架构)
+- [技术栈](#技术栈)
+- [模块说明](#模块说明)
+- [数据库设计](#数据库设计)
+- [核心功能](#核心功能)
+- [API 文档](#api-文档)
+- [快速启动](#快速启动)
+- [部署方案](#部署方案)
+- [项目规范](#项目规范)
+- [扩展规划](#扩展规划)
 
 ---
 
-## ✨ 功能特性
+## 项目简介
 
-<details>
-<summary><b>👤 用户中心</b></summary>
+**审流云（FlowCloud）** 是一套面向中大型企业的审批流程 SaaS 平台，支持多租户数据隔离、RBAC 权限体系、多级审批流程引擎、数据报表与消息通知。采用模块化单体架构，可按业务模块平滑拆分为微服务。
 
-- 用户注册 / 手机号登录 / 邮箱登录
-- JWT 认证 + 多端登录 + 设备管理
-- 密码找回 / 验证码 / 登录风控
-</details>
+**核心价值：**
 
-<details>
-<summary><b>🔐 RBAC 权限体系</b></summary>
+- **多租户 SaaS**：企业注册即用，数据严格隔离，支持自定义主题与 Logo
+- **灵活审批引擎**：模板化流程配置，支持多级节点、会签、自审等审批模式
+- **RBAC 权限体系**：用户-角色-权限三级模型，菜单与按钮级细粒度控制
+- **企业级规范**：遵循腾讯 T4 / 阿里 P8 / 字节 2-2 级别代码与架构标准
 
-- 用户 / 角色 / 菜单 / 按钮权限 / 数据权限
-- 组织架构 / 部门管理 / 岗位管理
-- 五级数据权限：全部 / 本部门 / 本部门及以下 / 仅本人 / 自定义
-</details>
+---
 
-<details>
-<summary><b>🏢 多租户体系</b></summary>
+## 系统架构
 
-- 租户管理 / 租户套餐 / 租户管理员
-- 租户资源统计 / 容量管理
-- 数据库共享 + tenant_id 字段隔离
-</details>
+```
+┌──────────────────────────────────────────────────────────────┐
+│                     flowcloud-web (React 18)                  │
+│            Semi Design + Redux Toolkit + TypeScript           │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ HTTP / JWT Bearer
+┌────────────────────────────▼─────────────────────────────────┐
+│                      flowcloud-admin                          │
+│          Spring Boot 3.3 + AuthInterceptor + Swagger          │
+├────────────┬────────────┬──────────────┬───────────────────────┤
+│  system    │  approval  │ notification│  report               │
+│ 用户/角色   │ 模板/实例   │  站内消息    │  仪表盘/统计           │
+│ 权限/租户   │ 任务/记录   │  通知推送    │  数据导出              │
+├────────────┴────────────┴──────────────┴───────────────────────┤
+│                      flowcloud-common                          │
+│        Result<T> / JwtUtils / TenantContext / BaseEntity       │
+│        BusinessException / GlobalExceptionHandler / PageResult │
+├───────────────────────────────────────────────────────────────┤
+│                      基础设施层                                 │
+│   MySQL 8  │  Redis 7  │  RabbitMQ  │  Kafka  │  MinIO  │ Nacos│
+└───────────────────────────────────────────────────────────────┘
+```
 
-<details>
-<summary><b>✅ 审批中心</b></summary>
+**架构原则：**
 
-- 请假 / 报销 / 采购 / 合同 / 自定义审批
-- 会签 / 或签 / 加签 / 转办 / 抄送
-- 撤回 / 催办 / 审批意见 / 流程追踪
-</details>
+| 原则 | 说明 |
+|------|------|
+| 模块化单体 | 各模块独立 jar，通过 admin 统一启动，后续可拆分微服务 |
+| 多租户隔离 | 数据库层 `tenant_id` + MyBatis-Flex 自动注入 + 请求层 JWT 解析 |
+| 分层架构 | Controller → Service → Mapper，严格单向依赖 |
+| 统一返回 | `Result<T>` 封装，code / message / data 三段式响应 |
 
-<details>
-<summary><b>🤖 AI 助手</b></summary>
+---
 
-- AI 审批建议 / AI 流程生成
-- AI 知识问答 / AI 报表分析 / AI 数据洞察
-- 支持：OpenAI · DeepSeek · 通义千问 · Claude · Gemini
-</details>
+## 技术栈
 
-<details>
-<summary><b>💬 消息中心</b></summary>
+### 后端
 
-- 站内信 / 邮件通知 / 短信通知
-- 企业微信通知 / 钉钉通知
-- Kafka 异步消息队列
-</details>
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| JDK | 21 | 运行时 |
+| Spring Boot | 3.3.5 | 应用框架 |
+| MyBatis-Flex | 1.9.7 | ORM 框架（多租户、逻辑删除、分页） |
+| MySQL | 8.0+ | 关系型数据库 |
+| Redis | 7.x | 缓存 / 会话 / 分布式锁 |
+| RabbitMQ | 3.x | 消息队列（审批通知） |
+| Kafka | Latest | 消息队列（日志/事件流） |
+| MinIO | Latest | 对象存储 |
+| Nacos | Latest | 配置中心 / 服务注册 |
+| JWT (jjwt) | 0.12.6 | 认证令牌 |
+| Hutool | 5.8.32 | 工具库 |
+| SpringDoc | 2.6.0 | API 文档 |
+| EasyExcel | 4.0.3 | 数据导出 |
+| Lombok | 1.18.34 | 代码简化 |
 
-<details>
-<summary><b>📁 文件中心</b></summary>
+### 前端
 
-- 文件上传 / 下载 / 预览 / 分类
-- 版本管理 / 权限控制
-- MinIO 对象存储
-</details>
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| React | 18.3 | UI 框架 |
+| TypeScript | 5.6 | 类型安全 |
+| Vite | 6.0 | 构建工具 |
+| Semi Design | 2.70 | UI 组件库 |
+| Redux Toolkit | 2.5 | 状态管理 |
+| React Router | 6.28 | 路由管理 |
+| Axios | 1.7 | HTTP 客户端 |
+| ECharts | 5.5 | 数据可视化 |
 
-<details>
-<summary><b>📊 数据报表</b></summary>
+---
 
-- 审批统计 / 员工统计 / 组织统计
-- 租户统计 / 运营统计
+## 模块说明
+
+```
+EnterpriseSaaSPlatform/
+├── flowcloud-common/          # 公共基础模块
+│   ├── config/                #   MyBatis-Flex 配置
+│   ├── context/               #   租户上下文（TenantContext）
+│   ├── entity/                #   基础实体（BaseEntity）
+│   ├── exception/             #   全局异常处理
+│   ├── result/                #   统一返回（Result / PageResult / ResultCode）
+│   └── security/              #   安全工具（JwtUtils / LoginUser）
+│
+├── flowcloud-system/          # 系统管理模块
+│   ├── controller/            #   AuthController / SysUserController
+│   ├── dto/                   #   LoginDTO / RegisterDTO / UserDTO
+│   ├── entity/                #   SysUser / SysRole / SysPermission / SysDept / SysTenant
+│   ├── mapper/                #   MyBatis-Flex Mapper
+│   ├── service/               #   AuthService / SysUserService / RoleAuthService
+│   └── vo/                    #   LoginVO / UserVO
+│
+├── flowcloud-approval/        # 审批流程模块
+│   ├── controller/            #   TemplateController / InstanceController / TaskController
+│   ├── dto/                   #   SubmitApprovalDTO / TaskCompleteDTO / TemplateDTO / FlowNodeDTO
+│   ├── entity/                #   ApprovalTemplate / Instance / Task / Record
+│   ├── enums/                 #   ApprovalStatus / TaskStatus
+│   ├── mapper/                #   MyBatis-Flex Mapper
+│   ├── service/               #   TemplateService / InstanceService / TaskService
+│   └── vo/                    #   TemplateVO / InstanceVO / TaskVO / RecordVO
+│
+├── flowcloud-notification/    # 消息通知模块
+│   ├── controller/            #   MessageController
+│   ├── entity/                #   SysMessage
+│   ├── mapper/                #   SysMessageMapper
+│   └── service/               #   MessageService
+│
+├── flowcloud-report/          # 数据报表模块
+│   ├── controller/            #   ReportController
+│   ├── service/               #   ReportService
+│   └── vo/                    #   DashboardVO
+│
+├── flowcloud-admin/           # 启动入口模块
+│   ├── config/                #   WebConfig / OpenApiConfig
+│   ├── interceptor/           #   AuthInterceptor（JWT 解析 + 租户上下文注入）
+│   └── FlowCloudApplication   #   Spring Boot 启动类
+│
+├── flowcloud-web/             # 前端 React 项目
+│   ├── api/                   #   API 请求封装
+│   ├── hooks/                 #   自定义 Hooks
+│   ├── layouts/               #   布局组件（MainLayout）
+│   ├── pages/                 #   页面组件
+│   ├── router/                #   路由配置 + 鉴权守卫
+│   ├── store/                 #   Redux Store（authSlice）
+│   ├── styles/                #   全局样式
+│   ├── types/                 #   TypeScript 类型定义
+│   └── utils/                 #   工具函数（request / permissions / constants）
+│
+├── sql/                       # 数据库脚本
+│   ├── schema.sql             #   建表脚本
+│   └── data.sql               #   测试数据
+│
+└── docs/                      # 项目文档
+    ├── architecture.md        #   架构设计文档
+    └── images/                #   图片资源
+        └── logo.png           #   项目 Logo
+```
+
+---
+
+## 数据库设计
+
+### ER 关系概览
+
+```
+sys_tenant ──1:N── sys_dept ──1:N── sys_user
+     │                       │
+     └──1:N── sys_role       └──N:N── sys_role ──N:N── sys_permission
+
+approval_template ──1:N── approval_instance ──1:N── approval_task
+                            │
+                            └──1:N── approval_record
+
+sys_message (独立，关联 user_id + tenant_id)
+```
+
+### 表清单
+
+| 表名 | 说明 | 核心字段 |
+|------|------|----------|
+| `sys_tenant` | 租户（企业） | tenant_code, tenant_name, plan_type, max_users |
+| `sys_dept` | 部门 | tenant_id, parent_id, dept_name, leader |
+| `sys_user` | 用户 | tenant_id, username, password, real_name, dept_id, is_admin |
+| `sys_role` | 角色 | tenant_id, role_code, role_name |
+| `sys_user_role` | 用户角色关联 | user_id, role_id |
+| `sys_permission` | 权限 | perm_code, perm_type(menu/button), path, icon |
+| `sys_role_permission` | 角色权限关联 | role_id, permission_id |
+| `approval_template` | 审批模板 | tenant_id, template_code, category, form_schema, flow_config |
+| `approval_instance` | 审批实例 | tenant_id, instance_no, template_id, applicant_id, status |
+| `approval_task` | 审批任务 | tenant_id, instance_id, node_index, approver_id, status |
+| `approval_record` | 审批记录 | tenant_id, instance_id, operator_id, action, comment |
+| `sys_message` | 消息通知 | tenant_id, user_id, type, biz_type, is_read |
+
+### 公共字段规范
+
+所有业务表均包含以下审计字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | BIGINT | 主键（自增，后续可切换 Snowflake） |
+| `create_time` | DATETIME | 创建时间（自动填充） |
+| `update_time` | DATETIME | 更新时间（自动填充） |
+| `deleted` | TINYINT | 逻辑删除标记（0 正常 / 1 删除） |
+
+---
+
+## 核心功能
+
+### 多租户 SaaS
+
+- 企业注册自动初始化：根部门、默认角色（管理员 / 审批人 / 普通员工）
+- 数据隔离：`tenant_id` 字段 + MyBatis-Flex `TenantFactory` 自动注入查询条件
+- 请求隔离：`AuthInterceptor` 解析 JWT → `TenantContext` 线程级缓存 → 请求结束清理
+
+### RBAC 权限体系
+
+- **用户**：归属租户与部门，分配角色
+- **角色**：租户级角色（admin / approver / employee），绑定权限
+- **权限**：菜单级（menu）+ 按钮级（button），前端路由守卫 `canAccessPath`
+
+### 审批流程引擎
+
+```
+模板配置(flow_config JSON) → 提交审批 → 创建实例 + 首节点任务
+                                        ↓
+                              审批人处理任务（通过/驳回）
+                                        ↓
+                         同节点全部通过 → 流转下一节点 → ... → 审批结束
+                         任一驳回 → 流程终止
+```
+
+**支持审批类型：** 请假、报销、采购、合同、自定义
+
+### 数据报表
+
+- 仪表盘统计：审批总数、待办数、通过率、类型分布
 - ECharts 可视化图表
-</details>
+
+### 消息通知
+
+- 站内消息：审批提醒、状态更新通知
+- 可扩展：邮件、企业微信、飞书推送
 
 ---
 
-## 🏗️ 系统架构
+## API 文档
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         客户端层                                 │
-│   ┌──────────┐    ┌──────────┐    ┌──────────┐                  │
-│   │  浏览器   │    │  移动端   │    │  API     │                  │
-│   │ (Vue 3)  │    │ (Future) │    │  调用方   │                  │
-│   └────┬─────┘    └────┬─────┘    └────┬─────┘                  │
-└────────┼──────────────┼──────────────┼───────────────────────────┘
-         │              │              │
-         ▼              ▼              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Nginx 反向代理 (80/443)                       │
-│          静态资源 · API 转发 · SSL/TLS · 限流                     │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              FlowX 应用 (Spring Boot 3.5 · Port 8080)           │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐            │   │
-│  │  │ 认证   │ │ 用户   │ │ 系统   │ │ 流程   │            │   │
-│  │  │ 中心   │ │ 中心   │ │ 管理   │ │ 引擎   │            │   │
-│  │  └────────┘ └────────┘ └────────┘ └────────┘            │   │
-│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐            │   │
-│  │  │ 审批   │ │ 消息   │ │ 文件   │ │  AI    │            │   │
-│  │  │ 中心   │ │ 中心   │ │ 中心   │ │ 助手   │            │   │
-│  │  └────────┘ └────────┘ └────────┘ └────────┘            │   │
-│  │  ┌────────┐ ┌────────┐ ┌──────────────────┐             │   │
-│  │  │ 报表   │ │ 管理   │ │    基础设施       │             │   │
-│  │  │ 中心   │ │ 后台   │ │ Redis·Kafka·MinIO │             │   │
-│  │  └────────┘ └────────┘ └──────────────────┘             │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└────────────────────────┬────────────────────────────────────────┘
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-   ┌────────────┐ ┌────────────┐ ┌────────────┐
-   │ MySQL 8.4  │ │  Redis 7   │ │   Kafka    │
-   │  (3306)    │ │  (6379)    │ │  (9092)    │
-   └────────────┘ └────────────┘ └────────────┘
-          │
-          ▼
-   ┌────────────┐
-   │   MinIO    │
-   │  (9000)    │
-   └────────────┘
-```
+启动后端后访问 Swagger UI：http://localhost:8080/swagger-ui.html
 
-### 模块依赖关系
+### 认证模块
 
-```
-flowx-admin (应用入口，聚合所有模块)
-  ├── flowx-auth          (认证中心)
-  ├── flowx-user          (用户中心)
-  ├── flowx-system        (系统管理)
-  ├── flowx-workflow      (流程引擎)
-  ├── flowx-approval      (审批中心)
-  ├── flowx-message       (消息中心)
-  ├── flowx-file          (文件中心)
-  ├── flowx-ai            (AI 助手)
-  ├── flowx-report        (数据报表)
-  └── flowx-infrastructure(基础设施)
-        └── flowx-common  (公共模块，无外部依赖)
-```
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/auth/register` | 企业注册 |
+| POST | `/api/auth/login` | 用户登录 |
+| GET | `/api/auth/me` | 获取当前用户信息 |
 
----
+### 系统模块
 
-## 🛠️ 技术栈
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/system/users` | 员工列表 |
+| POST | `/api/system/users` | 新增员工 |
+| PUT | `/api/system/users/{id}` | 编辑员工 |
+| DELETE | `/api/system/users/{id}` | 删除员工 |
 
-| 层级 | 技术选型 | 版本 |
-|------|---------|------|
-| **语言** | Java | 21 LTS |
-| **框架** | Spring Boot | 3.5+ |
-| **安全** | Spring Security + JWT | 6.x |
-| **ORM** | MyBatis-Flex | 1.9+ |
-| **数据库** | MySQL | 8.4 |
-| **缓存** | Redis + Redisson | 7.x |
-| **消息队列** | Apache Kafka (KRaft) | 3.8+ |
-| **对象存储** | MinIO | Latest |
-| **工作流** | Flowable | 7.1+ |
-| **定时任务** | Quartz | - |
-| **前端框架** | Vue 3 + TypeScript | 3.5+ |
-| **构建工具** | Vite | 5.x |
-| **UI 组件** | Naive UI | 2.39+ |
-| **CSS 引擎** | UnoCSS | 0.62+ |
-| **图表** | ECharts | 5.5+ |
-| **API 文档** | SpringDoc + Knife4j | 2.6+ |
-| **容器化** | Docker + Docker Compose | - |
-| **CI/CD** | Jenkins / GitHub Actions | - |
+### 审批模块
 
----
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/approval/templates` | 模板列表 |
+| POST | `/api/approval/templates` | 创建模板 |
+| PUT | `/api/approval/templates/{id}` | 编辑模板 |
+| DELETE | `/api/approval/templates/{id}` | 删除模板 |
+| POST | `/api/approval/instances` | 提交审批 |
+| GET | `/api/approval/instances/my` | 我的申请 |
+| GET | `/api/approval/instances/all` | 全部审批 |
+| GET | `/api/approval/instances/{id}` | 审批详情 |
+| POST | `/api/approval/instances/{id}/cancel` | 撤销审批 |
+| GET | `/api/approval/tasks/pending` | 待办任务 |
+| POST | `/api/approval/tasks/complete` | 处理任务 |
 
-## 📁 项目结构
+### 报表模块
 
-```
-flowx-platform/
-│
-├── flowx-common/                # 公共模块：基础实体、统一响应、异常、工具类
-│   └── src/
-│
-├── flowx-infrastructure/        # 基础设施：Redis、Kafka、MinIO、MyBatis 配置
-│   └── src/
-│
-├── flowx-auth/                  # 认证中心：JWT、登录注册、验证码、安全配置
-│   └── src/
-│
-├── flowx-user/                  # 用户中心：用户、角色、菜单、部门、岗位
-│   └── src/
-│
-├── flowx-system/                # 系统管理：租户、字典、配置、日志
-│   └── src/
-│
-├── flowx-workflow/              # 流程引擎：Flowable 集成、流程定义与实例
-│   └── src/
-│
-├── flowx-approval/              # 审批中心：审批类型、审批实例、审批监听
-│   └── src/
-│
-├── flowx-message/               # 消息中心：站内信、邮件、短信、企微、钉钉
-│   └── src/
-│
-├── flowx-file/                  # 文件中心：MinIO 文件上传下载、预览
-│   └── src/
-│
-├── flowx-ai/                    # AI 助手：多模型 Provider、对话、Prompt 模板
-│   └── src/
-│
-├── flowx-report/                # 数据报表：审批、员工、组织、租户、运营统计
-│   └── src/
-│
-├── flowx-admin/                 # 管理后台：应用入口、全局异常、API 文档配置
-│   └── src/
-│
-├── flowx-ui/                    # 前端项目：Vue 3 + TypeScript + Naive UI
-│   ├── src/
-│   │   ├── api/                 # API 接口封装
-│   │   ├── layouts/             # 布局组件
-│   │   ├── router/              # 路由配置
-│   │   ├── stores/              # Pinia 状态管理
-│   │   ├── utils/               # 工具函数
-│   │   └── views/               # 页面视图
-│   └── package.json
-│
-├── sql/                         # 数据库初始化脚本（28 张表 + 种子数据）
-│   └── flowx_init.sql
-│
-├── docker/                      # Docker 与 Nginx 配置
-│   ├── docker-compose.yml
-│   └── nginx.conf
-│
-├── docs/                        # 项目文档
-│   ├── images/logo.png
-│   └── deployment.md
-│
-├── Dockerfile                   # 多阶段 Docker 构建
-├── Jenkinsfile                  # Jenkins CI/CD 流水线
-├── .github/workflows/ci.yml    # GitHub Actions CI
-├── pom.xml                      # Maven 父 POM
-└── README.md                    # 项目说明
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/report/dashboard` | 仪表盘统计 |
+
+### 消息模块
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/messages` | 消息列表 |
+| GET | `/api/messages/unread-count` | 未读消息数 |
+
+### 统一返回格式
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {},
+  "timestamp": 1717660800000
+}
 ```
 
 ---
 
-## 🚀 快速开始
+## 快速启动
 
-### 环境要求
+### 环境依赖
 
-| 工具 | 版本要求 |
-|------|---------|
-| JDK | 21+ |
-| Maven | 3.9+ |
-| Node.js | 18+ |
-| Docker | 24+ |
-| Docker Compose | 2.20+ |
+| 依赖 | 版本要求 | 说明 |
+|------|----------|------|
+| JDK | 21+ | 后端运行时 |
+| Node.js | 18+ | 前端构建 |
+| MySQL | 8.0+ | 数据库 |
+| Redis | 7.x | 缓存 |
+| Maven | 3.8+ | 后端构建 |
 
-### 方式一：Docker Compose 一键启动
+### 1. 初始化数据库
 
 ```bash
-# 1. 克隆项目
-git clone https://github.com/flowx/flowx-platform.git
-cd flowx-platform
-
-# 2. 启动所有服务
-cd docker
-docker-compose up -d
-
-# 3. 查看日志
-docker-compose logs -f flowx-app
-
-# 4. 访问系统
-#    前端页面：http://localhost
-#    API 文档：http://localhost:8080/doc.html
-#    默认账号：admin / admin123
+mysql -u root -p < sql/schema.sql
+mysql -u root -p < sql/data.sql
 ```
 
-### 方式二：本地开发
+### 2. 中间件配置
+
+| 服务 | 地址 | 用户名 | 密码 |
+|------|------|--------|------|
+| MySQL | localhost:3306 | root | root |
+| Redis | localhost:6379 | - | redis123 |
+| RabbitMQ | localhost:5672（管理台 15672） | admin | admin123 |
+| Kafka | localhost:9092 | - | PLAINTEXT |
+| MinIO | API: 9000 / Console: 9001 | minioadmin | minioadmin123 |
+| Nacos | http://localhost:8848/nacos | nacos | nacos |
+
+> 配置文件路径：`flowcloud-admin/src/main/resources/application.yml`
+
+### 3. 启动后端
 
 ```bash
-# 1. 启动基础设施
-cd docker
-docker-compose up -d mysql redis kafka minio
-
-# 2. 初始化数据库
-mysql -u root -p < sql/flowx_init.sql
-
-# 3. 构建后端
-cd ..
+# 构建
 mvn clean package -DskipTests
 
-# 4. 启动后端（IDE 中运行 FlowxAdminApplication）
-java -jar flowx-admin/target/flowx-admin-1.0.0-SNAPSHOT.jar
+# 启动
+java -jar flowcloud-admin/target/flowcloud-admin-1.0.0-SNAPSHOT.jar
+```
 
-# 5. 启动前端
-cd flowx-ui
+后端启动成功后访问：
+- API 服务：http://localhost:8080
+- Swagger 文档：http://localhost:8080/swagger-ui.html
+
+### 4. 启动前端
+
+```bash
+cd flowcloud-web
 npm install
 npm run dev
 ```
 
-### 访问地址
+前端访问：http://localhost:5173
 
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| **FlowX 前端** | http://localhost:5173 | 开发模式前端 |
-| **FlowX 后端** | http://localhost:8080 | API 服务 |
-| **API 文档** | http://localhost:8080/doc.html | Knife4j 接口文档 |
-| **MinIO 控制台** | http://localhost:9001 | minioadmin / minioadmin |
+### 5. 测试账号
+
+| 租户 | 用户名 | 密码 | 角色 |
+|------|--------|------|------|
+| 演示科技企业 | admin | 123456 | 管理员 |
+| 演示科技企业 | manager | 123456 | 审批人 |
+| 演示科技企业 | zhangsan | 123456 | 普通员工 |
 
 ---
 
-## 💻 开发指南
+## 部署方案
 
-### 后端开发
-
-```bash
-# 导入 IntelliJ IDEA
-# 主入口类：com.flowx.admin.FlowxAdminApplication
-# 端口：8080
-# API 前缀：/api/
-```
-
-### 前端开发
+### Docker 部署（推荐）
 
 ```bash
-cd flowx-ui
-npm install
-npm run dev     # 启动开发服务器
-npm run build   # 构建生产版本
+# 构建后端镜像
+docker build -t flowcloud-admin:latest .
+
+# 构建前端镜像
+cd flowcloud-web
+docker build -t flowcloud-web:latest .
+
+# 启动全部服务
+docker-compose up -d
 ```
 
-### API 规范
+### 生产环境检查清单
 
-统一响应格式：
+- [ ] 修改 `flowcloud.jwt.secret` 为生产密钥（至少 32 字符）
+- [ ] 修改数据库密码、Redis 密码、RabbitMQ 密码
+- [ ] 修改 MinIO AccessKey / SecretKey
+- [ ] 关闭 Swagger（`springdoc.api-docs.enabled=false`）
+- [ ] 配置 HTTPS 反向代理（Nginx）
+- [ ] 开启 MySQL 慢查询日志
+- [ ] 配置 Redis 持久化（AOF / RDB）
+- [ ] 配置日志收集（ELK / Loki）
 
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {}
-}
-```
+---
 
-分页响应格式：
+## 项目规范
 
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {
-    "total": 100,
-    "list": [],
-    "pageNum": 1,
-    "pageSize": 10
-  }
-}
-```
+### 代码规范
 
-### 提交规范
-
-遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
-
-| 前缀 | 说明 |
+| 规范 | 说明 |
 |------|------|
-| `feat:` | 新功能 |
-| `fix:` | Bug 修复 |
-| `docs:` | 文档更新 |
-| `style:` | 代码格式（不影响逻辑） |
-| `refactor:` | 代码重构 |
-| `test:` | 测试相关 |
-| `chore:` | 构建/工具变更 |
+| Clean Code | 代码整洁，无 TODO 遗留，无魔法数字 |
+| DDD 分层 | Controller → Service → Mapper，严格单向依赖 |
+| SOLID | 单一职责、开闭原则、依赖倒置 |
+| KISS | 保持简单，避免过度设计 |
+| DRY | 公共逻辑抽取至 common 模块 |
+
+### 命名规范
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 数据库表 | `sys_` / `approval_` 前缀 + 小写下划线 | `sys_user`, `approval_instance` |
+| 主键 | BIGINT 自增 | `id` |
+| Java 类 | 大驼峰 | `ApprovalInstanceService` |
+| Java 方法 | 小驼峰 | `submitApproval` |
+| REST API | 小写连字符 + 路径参数 | `/api/approval/instances/{id}` |
+| 分支名 | `feature/` `fix/` `refactor/` 前缀 | `feature/approval-engine` |
+
+### 安全规范
+
+- JWT 认证：AccessToken + RefreshToken
+- RBAC 权限：用户 → 角色 → 菜单/按钮
+- 防攻击：XSS 过滤、CSRF Token、SQL 注入防护（MyBatis-Flex 参数化查询）
+- 限流：接口级限流（可扩展 Sentinel）
+- 验证码：注册/登录验证码（可扩展）
 
 ---
 
-## 📦 部署方案
+## 扩展规划
 
-详细的生产环境部署指南请参阅 [docs/deployment.md](docs/deployment.md)。
-
-### 部署架构
-
-```
-                    ┌─────────────┐
-                    │   Nginx     │
-                    │  (80/443)   │
-                    └──────┬──────┘
-                           │
-                    ┌──────┴──────┐
-                    │  FlowX App  │
-                    │  (8080)     │
-                    └──────┬──────┘
-              ┌────────────┼────────────┐
-              ▼            ▼            ▼
-       ┌──────────┐ ┌──────────┐ ┌──────────┐
-       │  MySQL   │ │  Redis   │ │  Kafka   │
-       │  主从    │ │  哨兵    │ │  集群    │
-       └──────────┘ └──────────┘ └──────────┘
-```
+| 方向 | 说明 | 优先级 |
+|------|------|--------|
+| 拖拽流程编辑器 | 可视化配置审批节点与流转条件 | P1 |
+| OAuth2 SSO | 对接企业微信 / 飞书单点登录 | P1 |
+| 消息推送 | 邮件 / 企业微信 / 飞书通知 | P1 |
+| 报表导出 | EasyExcel / PDF 导出 | P2 |
+| AI 审批建议 | 基于历史数据的审批建议与流程优化 | P2 |
+| 微服务拆分 | Spring Cloud + Nacos 注册发现 | P3 |
+| 分库分表 | ShardingSphere 按租户分库 | P3 |
+| 审计日志 | 操作记录全链路追踪 | P3 |
 
 ---
 
-## 📄 License
-
-Copyright © 2026 FlowX Team. All rights reserved.
-
-本项目为商业软件，未经授权禁止复制、修改、分发或使用。
-
----
-
-<div align="center">
-
-**FlowX 流擎** — 让审批更高效，让协作更智能
-
-</div>
+<p align="center">
+  <sub>Built with enterprise-grade standards · Inspired by Tencent / Alibaba / ByteDance best practices</sub>
+</p>

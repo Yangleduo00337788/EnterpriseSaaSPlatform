@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:www.baidu.com)",
-      "Read(//d/yangleduo/Develop/MCP/**)",
-      "Bash(node -e ' *)"
-    ]
-  }
-}

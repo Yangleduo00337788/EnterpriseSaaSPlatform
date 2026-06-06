@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+.page-container {
+  padding: 24px;
+  background: #f7f8fa;
+  min-height: calc(100vh - 60px);
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1c1f23;
+}
+
+.page-header p {
+  font-size: 14px;
+  color: #86909c;
+  margin-top: 4px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.stat-card .value {
+  font-size: 32px;
+  font-weight: 600;
+  color: #3370ff;
+}
+
+.stat-card .label {
+  font-size: 14px;
+  color: #86909c;
+  margin-top: 8px;
+}

@@ -1,0 +1,2 @@
+-- Flyway baseline marker for existing deployments.
+-- Fresh installs should run sql/schema.sql and sql/data.sql first, or rely on V2+ incremental migrations.

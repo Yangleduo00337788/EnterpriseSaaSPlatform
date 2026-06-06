@@ -1,0 +1,32 @@
+{
+  "name": "flowcloud-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@douyinfe/semi-icons": "^2.70.0",
+    "@douyinfe/semi-ui": "^2.70.0",
+    "@reduxjs/toolkit": "^2.5.0",
+    "axios": "^1.7.9",
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "sass": "^1.100.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.3"
+  }
+}

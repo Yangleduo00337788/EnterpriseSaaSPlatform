@@ -1,0 +1,99 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: flowcloud-admin
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    locations: classpath:db/migration
+  datasource:
+    url: jdbc:mysql://localhost:3306/flowcloud?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis123
+      database: 0
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
+    virtual-host: /
+    listener:
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: true
+          max-attempts: 3
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: flowcloud-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+mybatis-flex:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    print-banner: false
+    logic-delete-column: deleted
+    tenant-column: tenant_id
+
+flowcloud:
+  approval:
+    remind-hours: 48
+    timeout-days: 7
+    compensation-cron: "0 0 */2 * * ?"
+  jwt:
+    secret: FlowCloudSecretKeyForJwtTokenGeneration2026!MustBe32Chars
+    expiration: 86400000
+  upload:
+    path: ${user.home}/flowcloud-uploads
+    base-url: http://localhost:8080/uploads
+  nacos:
+    server-addr: localhost:8848
+    username: nacos
+    password: nacos
+    namespace: public
+    group: DEFAULT_GROUP
+  minio:
+    endpoint: http://localhost:9000
+    console-url: http://localhost:9001
+    access-key: minioadmin
+    secret-key: minioadmin123
+    bucket: flowcloud
+  mq:
+    enabled: true
+    exchange: flowcloud.exchange
+    approval-routing-key: approval.notify
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.flowcloud: debug
