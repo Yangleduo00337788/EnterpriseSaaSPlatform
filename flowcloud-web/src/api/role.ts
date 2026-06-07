@@ -1,8 +1,5 @@
 import request from '@/utils/request';
-import type { ApiResult, PermissionVO, RoleOptionVO, RoleVO } from '@/types';
-
-export const getRoleOptions = () =>
-  request.get<unknown, ApiResult<RoleOptionVO[]>>('/system/roles/options');
+import type { ApiResult, PermissionVO, RoleVO } from '@/types';
 
 export const getRoleList = () =>
   request.get<unknown, ApiResult<RoleVO[]>>('/system/roles');

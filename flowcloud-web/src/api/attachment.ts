@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+import type { ApiResult } from '@/types';
 
 export interface AttachmentVO {
   id: number;
@@ -36,5 +37,5 @@ export function getAttachments(bizType: string, bizId: number, fieldName?: strin
 }
 
 export function deleteAttachment(id: number) {
-  return request.delete(`/attachments/${id}`);
+  return request.delete<unknown, ApiResult<void>>(`/attachments/${id}`);
 }

@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS sys_tenant (
     status TINYINT DEFAULT 1 COMMENT '状态 0禁用 1启用',
     plan_type VARCHAR(32) DEFAULT 'basic' COMMENT '套餐类型',
     max_users INT DEFAULT 50 COMMENT '最大用户数',
+    expire_time DATETIME NULL COMMENT '套餐到期时间',
+    package_config TEXT NULL COMMENT '套餐配置JSON',
+    feature_config TEXT NULL COMMENT '功能开关JSON',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted TINYINT DEFAULT 0
@@ -27,6 +30,8 @@ CREATE TABLE IF NOT EXISTS sys_dept (
     parent_id BIGINT DEFAULT 0 COMMENT '父部门ID',
     dept_name VARCHAR(128) NOT NULL COMMENT '部门名称',
     leader VARCHAR(64) COMMENT '负责人',
+    leader_user_id BIGINT NULL COMMENT '负责人用户ID',
+    ancestors VARCHAR(512) DEFAULT '0' COMMENT '祖级链路',
     sort INT DEFAULT 0,
     status TINYINT DEFAULT 1,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -46,6 +51,9 @@ CREATE TABLE IF NOT EXISTS sys_user (
     phone VARCHAR(20) COMMENT '手机号',
     avatar VARCHAR(512) COMMENT '头像',
     dept_id BIGINT COMMENT '部门ID',
+    manager_id BIGINT NULL COMMENT '直属上级ID',
+    job_title VARCHAR(64) NULL COMMENT '岗位',
+    work_status VARCHAR(32) DEFAULT 'active' COMMENT '在岗状态',
     status TINYINT DEFAULT 1 COMMENT '状态 0禁用 1启用',
     is_admin TINYINT DEFAULT 0 COMMENT '是否管理员',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -62,6 +70,7 @@ CREATE TABLE IF NOT EXISTS sys_role (
     role_code VARCHAR(64) NOT NULL COMMENT '角色编码',
     role_name VARCHAR(64) NOT NULL COMMENT '角色名称',
     description VARCHAR(256) COMMENT '描述',
+    data_scope VARCHAR(32) DEFAULT 'SELF' COMMENT '数据范围',
     sort INT DEFAULT 0,
     status TINYINT DEFAULT 1,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -137,6 +146,7 @@ CREATE TABLE IF NOT EXISTS approval_instance (
     status VARCHAR(16) DEFAULT 'pending',
     current_node INT DEFAULT 0,
     current_approvers VARCHAR(512),
+    flow_config_snapshot TEXT NULL COMMENT '提交时流程配置快照',
     submit_time DATETIME,
     finish_time DATETIME,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -197,16 +207,6 @@ CREATE TABLE IF NOT EXISTS sys_message (
     INDEX idx_user_read (user_id, is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息通知';
 
-ALTER TABLE sys_tenant ADD COLUMN IF NOT EXISTS expire_time DATETIME NULL COMMENT '套餐到期时间';
-ALTER TABLE sys_tenant ADD COLUMN IF NOT EXISTS package_config TEXT NULL COMMENT '套餐配置JSON';
-ALTER TABLE sys_tenant ADD COLUMN IF NOT EXISTS feature_config TEXT NULL COMMENT '功能开关JSON';
-ALTER TABLE sys_dept ADD COLUMN IF NOT EXISTS leader_user_id BIGINT NULL COMMENT '负责人用户ID';
-ALTER TABLE sys_dept ADD COLUMN IF NOT EXISTS ancestors VARCHAR(512) DEFAULT '0' COMMENT '祖级链路';
-ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS manager_id BIGINT NULL COMMENT '直属上级ID';
-ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS job_title VARCHAR(64) NULL COMMENT '岗位';
-ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS work_status VARCHAR(32) DEFAULT 'active' COMMENT '在岗状态';
-ALTER TABLE sys_role ADD COLUMN IF NOT EXISTS data_scope VARCHAR(32) DEFAULT 'SELF' COMMENT '数据范围';
-
 -- 岗位表
 CREATE TABLE IF NOT EXISTS sys_position (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -261,9 +261,6 @@ CREATE TABLE IF NOT EXISTS attachment_file (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_biz (biz_type, biz_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='附件文件';
-
--- 扩展实例快照字段（已发布版本快照）
-ALTER TABLE approval_instance ADD COLUMN IF NOT EXISTS flow_config_snapshot TEXT NULL COMMENT '提交时流程配置快照';
 
 -- 审计日志表
 CREATE TABLE IF NOT EXISTS sys_audit_log (

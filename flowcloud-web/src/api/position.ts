@@ -17,7 +17,7 @@ export function deletePosition(id: number) {
   return request.delete(`/system/positions/${id}`);
 }
 
-export function getUserPositions(userId: number) {
+export function getUserPositionIds(userId: number) {
   return request.get<number[]>(`/system/positions/user/${userId}`);
 }
 

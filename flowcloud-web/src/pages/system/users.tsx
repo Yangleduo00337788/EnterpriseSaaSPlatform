@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Table, Button, Card, Modal, Form, Tag, Toast, Input, Switch } from '@douyinfe/semi-ui';
-import { getUserList, createUser, updateUser, deleteUser, toggleUserStatus, getRoleOptions, getUserOptions, exportUsers, importUsers } from '@/api/user';
+import { getUserList, createUser, updateUser, deleteUser, toggleUserStatus, getRoleOptions, getUserOptions, exportUsers, importUsers, resetUserPassword } from '@/api/user';
 import { getDeptTree } from '@/api/dept';
+import { assignUserPositions, getPositions, getUserPositionIds } from '@/api/position';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
-import type { DeptVO, RoleOptionVO, UserOptionVO, UserVO } from '@/types';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS, WORK_STATUS_OPTIONS } from '@/utils/statusDisplay';
+import type { DeptVO, PositionVO, RoleOptionVO, UserOptionVO, UserVO } from '@/types';
 
 function flattenDeptOptions(nodes: DeptVO[], level = 0): Array<{ value: number; label: string }> {
   return nodes.flatMap((node) => [
@@ -26,7 +28,11 @@ export default function UserListPage() {
   const [editing, setEditing] = useState<UserVO | null>(null);
   const [deptTree, setDeptTree] = useState<DeptVO[]>([]);
   const [roles, setRoles] = useState<RoleOptionVO[]>([]);
+  const [positions, setPositions] = useState<PositionVO[]>([]);
   const [userOptions, setUserOptions] = useState<UserOptionVO[]>([]);
+  const [resetPasswordTarget, setResetPasswordTarget] = useState<UserVO | null>(null);
+  const [assignPositionTarget, setAssignPositionTarget] = useState<UserVO | null>(null);
+  const [selectedPositionIds, setSelectedPositionIds] = useState<number[]>([]);
 
   const deptOptions = useMemo(() => flattenDeptOptions(deptTree), [deptTree]);
   const managerOptions = useMemo(
@@ -55,8 +61,29 @@ export default function UserListPage() {
   useEffect(() => {
     getDeptTree().then((res) => setDeptTree(res.data));
     getRoleOptions().then((res) => setRoles(res.data));
+    getPositions().then((res) => setPositions(res.data)).catch(() => {});
     getUserOptions().then((res) => setUserOptions(res.data)).catch(() => {});
   }, []);
+
+  const openAssignPositions = async (record: UserVO) => {
+    const res = await getUserPositionIds(record.id);
+    setAssignPositionTarget(record);
+    setSelectedPositionIds(res.data || []);
+  };
+
+  const handleResetPassword = async (values: { password: string }) => {
+    if (!resetPasswordTarget) return;
+    await resetUserPassword(resetPasswordTarget.id, values.password);
+    Toast.success(`已重置 ${resetPasswordTarget.realName} 的密码`);
+    setResetPasswordTarget(null);
+  };
+
+  const handleAssignPositions = async () => {
+    if (!assignPositionTarget) return;
+    await assignUserPositions(assignPositionTarget.id, selectedPositionIds);
+    Toast.success(`已保存 ${assignPositionTarget.realName} 的岗位设置`);
+    setAssignPositionTarget(null);
+  };
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     if (editing) {
@@ -85,7 +112,9 @@ export default function UserListPage() {
     },
     {
       title: '状态', dataIndex: 'status', width: 150,
-      render: (v: number, record: UserVO) =>
+      render: (v: number, record: UserVO) => {
+        const statusMeta = ENABLED_STATUS_META[v];
+        return (
         canEditUser ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
             <Switch
@@ -96,20 +125,28 @@ export default function UserListPage() {
                 fetchData();
               }}
             />
-            <span style={{ color: v === 1 ? '#00b42a' : '#f53f3f', fontSize: 12 }}>
-              {v === 1 ? '启用' : '禁用'}
+            <span style={{ color: statusMeta?.color ?? '#86909c', fontSize: 12 }}>
+              {statusMeta?.text || v}
             </span>
           </div>
         ) : (
-          <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '启用' : '禁用'}</Tag>
-        ),
+          <Tag color={statusMeta?.color ?? 'grey'}>{statusMeta?.text || v}</Tag>
+        )
+        );
+      },
     },
     ...(canEditUser ? [{
-      title: '操作', width: 140,
+      title: '操作', width: 280,
       render: (_: unknown, record: UserVO) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
           <Button size="small" onClick={() => { setEditing(record); setModalVisible(true); }}>
             编辑
+          </Button>
+          <Button size="small" onClick={() => setResetPasswordTarget(record)}>
+            重置密码
+          </Button>
+          <Button size="small" onClick={() => openAssignPositions(record)}>
+            分配岗位
           </Button>
           <Button size="small" type="danger" onClick={async () => { await deleteUser(record.id); fetchData(); }}>
             删除
@@ -194,24 +231,64 @@ export default function UserListPage() {
             placeholder="请选择直属上级（可搜索）"
           />
           <Form.Input field="jobTitle" label="岗位" />
-          <Form.Select field="workStatus" label="在岗状态" optionList={[
-            { label: '在岗', value: 'active' },
-            { label: '试用', value: 'probation' },
-            { label: '离职', value: 'inactive' },
-          ]} />
+          <Form.Select field="workStatus" label="在岗状态" optionList={WORK_STATUS_OPTIONS} />
           <Form.Select
             field="roleIds"
             label="角色"
             multiple
             optionList={roles.map((role) => ({ label: role.roleName, value: role.id }))}
           />
-          <Form.Select field="status" label="状态" optionList={[
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
-          ]} />
+          <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
           <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
             保存
           </Button>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={`重置密码${resetPasswordTarget ? ` - ${resetPasswordTarget.realName}` : ''}`}
+        visible={!!resetPasswordTarget}
+        onCancel={() => setResetPasswordTarget(null)}
+        footer={null}
+        width={420}
+      >
+        <Form onSubmit={handleResetPassword} initValues={{ password: '123456' }}>
+          <Form.Input
+            field="password"
+            label="新密码"
+            type="password"
+            rules={[{ required: true, message: '请输入新密码' }]}
+            placeholder="请输入新密码"
+          />
+          <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
+            确认重置
+          </Button>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={`分配岗位${assignPositionTarget ? ` - ${assignPositionTarget.realName}` : ''}`}
+        visible={!!assignPositionTarget}
+        onOk={handleAssignPositions}
+        onCancel={() => setAssignPositionTarget(null)}
+        okText="保存岗位"
+        width={520}
+      >
+        <Form>
+          <Form.Select
+            field="positionIds"
+            label="岗位"
+            multiple
+            filter
+            value={selectedPositionIds}
+            onChange={(value) => setSelectedPositionIds((value as number[]) || [])}
+            optionList={positions.map((position) => ({
+              label: `${position.positionName}${position.deptName ? ` - ${position.deptName}` : ''}`,
+              value: position.id,
+            }))}
+            placeholder="请选择岗位"
+            style={{ width: '100%' }}
+          />
         </Form>
       </Modal>
     </div>

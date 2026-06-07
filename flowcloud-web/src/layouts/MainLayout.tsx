@@ -15,6 +15,7 @@ const { Header, Sider, Content } = Layout;
 const ALL_MENU_ITEMS = [
   { itemKey: '/dashboard', text: '工作台', icon: <IconHome /> },
   { itemKey: '/approval/pending', text: '待我审批', icon: <IconList /> },
+  { itemKey: '/approval/handled', text: '已办任务', icon: <IconList /> },
   { itemKey: '/approval/my', text: '我的申请', icon: <IconSend /> },
   { itemKey: '/approval/submit', text: '发起审批', icon: <IconPlus /> },
   { itemKey: '/approval/all', text: '全部审批', icon: <IconFile /> },

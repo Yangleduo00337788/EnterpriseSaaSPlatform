@@ -9,6 +9,7 @@ import LoginPage from '@/pages/login';
 import RegisterPage from '@/pages/register';
 import DashboardPage from '@/pages/dashboard';
 import PendingTasksPage from '@/pages/approval/pending';
+import HandledTasksPage from '@/pages/approval/handled';
 import MySubmissionsPage from '@/pages/approval/my-submissions';
 import SubmitApprovalPage from '@/pages/approval/submit';
 import InstanceDetailPage from '@/pages/approval/detail';
@@ -29,6 +30,7 @@ import MessageTemplatesPage from '@/pages/system/message-templates';
 const ACCESSIBLE_FALLBACK_PATHS = [
   '/dashboard',
   '/approval/pending',
+  '/approval/handled',
   '/approval/my',
   '/approval/all',
   '/approval/submit',
@@ -55,8 +57,10 @@ function RoleRoute({ children, path }: { children: React.ReactNode; path: string
   const user = useAppSelector((s) => s.auth.user);
   const loading = useAppSelector((s) => s.auth.loading);
   const location = useLocation();
+  const token = localStorage.getItem('token');
 
-  if (loading) {
+  // Keep the user on the current route while auth state is restoring from /auth/me.
+  if (loading || (token && !user)) {
     return <Spin style={{ display: 'block', margin: '100px auto' }} />;
   }
   if (!user) {
@@ -92,6 +96,7 @@ export default function AppRouter() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<RoleRoute path="/dashboard"><DashboardPage /></RoleRoute>} />
         <Route path="approval/pending" element={<RoleRoute path="/approval/pending"><PendingTasksPage /></RoleRoute>} />
+        <Route path="approval/handled" element={<RoleRoute path="/approval/handled"><HandledTasksPage /></RoleRoute>} />
         <Route path="approval/my" element={<RoleRoute path="/approval/my"><MySubmissionsPage /></RoleRoute>} />
         <Route path="approval/all" element={<RoleRoute path="/approval/all"><AllInstancesPage /></RoleRoute>} />
         <Route path="approval/submit" element={<RoleRoute path="/approval/submit"><SubmitApprovalPage /></RoleRoute>} />

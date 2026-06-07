@@ -4,6 +4,7 @@ import { createDict, deleteDict, getDictById, getDictList, updateDict } from '@/
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import type { DictDataVO, DictTypeVO } from '@/types';
 
 export default function DictsPage() {
@@ -61,7 +62,7 @@ export default function DictsPage() {
     { title: '备注', dataIndex: 'remark', ellipsis: true },
     {
       title: '状态', dataIndex: 'status', width: 80,
-      render: (v: number) => <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '启用' : '禁用'}</Tag>,
+      render: (v: number) => <Tag color={ENABLED_STATUS_META[v]?.color ?? 'grey'}>{ENABLED_STATUS_META[v]?.text || v}</Tag>,
     },
     {
       title: '操作', width: 160,
@@ -97,7 +98,7 @@ export default function DictsPage() {
           <Form.Input field="dictCode" label="字典编码" rules={[{ required: true, message: '必填' }]} disabled={!!editing} />
           <Form.Input field="dictName" label="字典名称" rules={[{ required: true, message: '必填' }]} />
           <Form.TextArea field="remark" label="备注" />
-          <Form.Switch field="status" label="启用" />
+          <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
           <div style={{ margin: '12px 0', fontWeight: 600 }}>字典项</div>
           {items.map((item, index) => (
             <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 80px 80px auto', gap: 8, marginBottom: 8 }}>

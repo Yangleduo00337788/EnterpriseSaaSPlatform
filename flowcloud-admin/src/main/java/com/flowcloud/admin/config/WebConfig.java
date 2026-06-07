@@ -2,6 +2,7 @@ package com.flowcloud.admin.config;
 
 import com.flowcloud.admin.interceptor.AuthInterceptor;
 import com.flowcloud.admin.interceptor.FeatureGateInterceptor;
+import com.flowcloud.common.security.crypto.ApiCryptoConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +44,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/auth/login",
                         "/api/auth/register",
+                        ApiCryptoConstants.PUBLIC_KEY_PATH,
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/uploads/**",

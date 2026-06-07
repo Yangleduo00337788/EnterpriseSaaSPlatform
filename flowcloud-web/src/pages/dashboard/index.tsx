@@ -4,15 +4,16 @@ import { Card, Row, Col, Button, Spin } from '@douyinfe/semi-ui';
 import { IconPlus, IconList } from '@douyinfe/semi-icons';
 import ReactECharts from 'echarts-for-react';
 import { getDashboard } from '@/api/report';
+import { useApprovalCategory } from '@/hooks/useApprovalCategory';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
-import { CATEGORY_MAP } from '@/utils/constants';
 import type { DashboardVO } from '@/types';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { hasPermission } = usePermission();
+  const { labelMap: categoryLabelMap } = useApprovalCategory();
   const [data, setData] = useState<DashboardVO | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +35,7 @@ export default function DashboardPage() {
       type: 'pie',
       radius: ['40%', '70%'],
       data: (data?.categoryStats || []).map((item) => ({
-        name: CATEGORY_MAP[item.category] || item.category,
+        name: categoryLabelMap[item.category] || item.category,
         value: item.count,
       })),
     }],

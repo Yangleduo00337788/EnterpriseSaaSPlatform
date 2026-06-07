@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, Form, Button, Select, Toast, Upload } from '@douyinfe/semi-ui';
+import { Card, Form, Button, Select, Toast, Upload, Tag } from '@douyinfe/semi-ui';
 import type { FormApi } from '@douyinfe/semi-ui/lib/es/form';
 import { getTemplates, submitApproval } from '@/api/approval';
 import { uploadAttachment } from '@/api/attachment';
-import { CATEGORY_MAP } from '@/utils/constants';
+import { useApprovalCategory } from '@/hooks/useApprovalCategory';
 import type { TemplateVO } from '@/types';
 
 interface SchemaField {
@@ -26,7 +26,17 @@ function parseSchema(raw?: string): SchemaField[] {
   }
 }
 
-function SchemaFieldItem({ field }: { field: SchemaField }) {
+function SchemaFieldItem({
+  field,
+  attachments,
+  onAddAttachment,
+  onRemoveAttachment,
+}: {
+  field: SchemaField;
+  attachments: File[];
+  onAddAttachment: (fieldName: string, file: File) => void;
+  onRemoveAttachment: (fieldName: string, index: number) => void;
+}) {
   const baseRules = field.required ? [{ required: true, message: `请填写${field.label}` }] : [];
   const ph = field.placeholder || `请输入${field.label}`;
 
@@ -85,17 +95,31 @@ function SchemaFieldItem({ field }: { field: SchemaField }) {
             customRequest={async ({ file, onSuccess, onError }) => {
               try {
                 const fileObj = (file as { fileInstance?: File }).fileInstance ?? (file as unknown as File);
-                const res = await uploadAttachment(fileObj, undefined, undefined, field.name);
-                onSuccess?.(res.data);
-              } catch (e) {
+                onAddAttachment(field.name, fileObj);
+                onSuccess?.({});
+              } catch {
                 onError?.({ status: 500 });
               }
             }}
-            multiple={field.required !== true}
+            multiple
             accept="*/*"
+            showUploadList={false}
           >
             <Button>点击上传附件</Button>
           </Upload>
+          {attachments.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+              {attachments.map((file, index) => (
+                <Tag
+                  key={`${field.name}-${file.name}-${index}`}
+                  closable
+                  onClose={() => onRemoveAttachment(field.name, index)}
+                >
+                  {file.name}
+                </Tag>
+              ))}
+            </div>
+          )}
         </Form.Slot>
       );
     default:
@@ -119,6 +143,8 @@ export default function SubmitApprovalPage() {
   const [loading, setLoading] = useState(false);
   const [formApi, setFormApi] = useState<FormApi>();
   const prevTplId = useRef<number | null>(null);
+  const [pendingAttachments, setPendingAttachments] = useState<Record<string, File[]>>({});
+  const { labelMap: categoryLabelMap } = useApprovalCategory();
 
   useEffect(() => {
     getTemplates(category || undefined).then((res) => setTemplates(res.data));
@@ -135,6 +161,8 @@ export default function SubmitApprovalPage() {
         formApi.setValue('title', `${tpl.templateName}申请`);
       }
       setSchemaFields(parseSchema(tpl.formSchema));
+      prevTplId.current = tpl.id;
+      setPendingAttachments({});
     }
   }, [formApi, templates, category]);
 
@@ -152,6 +180,7 @@ export default function SubmitApprovalPage() {
       }
     }
     prevTplId.current = id;
+    setPendingAttachments({});
 
     if (!formApi.getValue('title') || formApi.getValue('title').endsWith('申请')) {
       formApi.setValue('title', `${tpl.templateName}申请`);
@@ -159,26 +188,64 @@ export default function SubmitApprovalPage() {
     setSchemaFields(parseSchema(tpl.formSchema));
   };
 
+  const addAttachment = (fieldName: string, file: File) => {
+    setPendingAttachments((prev) => ({
+      ...prev,
+      [fieldName]: [...(prev[fieldName] || []), file],
+    }));
+  };
+
+  const removeAttachment = (fieldName: string, index: number) => {
+    setPendingAttachments((prev) => ({
+      ...prev,
+      [fieldName]: (prev[fieldName] || []).filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSubmit = async (values: Record<string, unknown>) => {
     const { templateId, title, ...rest } = values;
+    let formData: string | undefined;
 
-    // 把 __schema_xxx 字段合并为 formData JSON
-    const formDataObj: Record<string, unknown> = {};
-    schemaFields.forEach((f) => {
-      const v = rest[`__schema_${f.name}`];
-      if (v !== undefined && v !== null && v !== '') {
-        formDataObj[f.name] = v;
-      }
-    });
+    if (schemaFields.length === 0) {
+      const fallbackRemark = rest.__fallback_remark;
+      formData = fallbackRemark ? String(fallbackRemark) : undefined;
+    } else {
+      // 把 __schema_xxx 字段合并为 formData JSON
+      const formDataObj: Record<string, unknown> = {};
+      schemaFields.forEach((f) => {
+        if (f.type === 'attachment') {
+          return;
+        }
+        const v = rest[`__schema_${f.name}`];
+        if (v !== undefined && v !== null && v !== '') {
+          formDataObj[f.name] = v;
+        }
+      });
+      formData = Object.keys(formDataObj).length ? JSON.stringify(formDataObj) : undefined;
+    }
 
     setLoading(true);
     try {
       const res = await submitApproval({
         templateId: templateId as number,
         title: title as string,
-        formData: Object.keys(formDataObj).length ? JSON.stringify(formDataObj) : undefined,
+        formData,
       });
-      Toast.success('提交成功');
+      const instanceId = res.data;
+      const uploadTasks = schemaFields
+        .filter((field) => field.type === 'attachment')
+        .flatMap((field) =>
+          (pendingAttachments[field.name] || []).map((file) =>
+            uploadAttachment(file, 'instance', instanceId, field.name),
+          ),
+        );
+      const uploadResults = await Promise.allSettled(uploadTasks);
+      const failedUploads = uploadResults.filter((item) => item.status === 'rejected').length;
+      if (failedUploads > 0) {
+        Toast.warning(`审批已提交，但有 ${failedUploads} 个附件上传失败`);
+      } else {
+        Toast.success('提交成功');
+      }
       navigate(`/approval/detail/${res.data}`);
     } finally {
       setLoading(false);
@@ -208,7 +275,7 @@ export default function SubmitApprovalPage() {
           >
             {templates.map((t) => (
               <Select.Option key={t.id} value={t.id}>
-                {t.templateName}（{CATEGORY_MAP[t.category] || t.category}）
+                {t.templateName}（{categoryLabelMap[t.category] || t.category}）
               </Select.Option>
             ))}
           </Form.Select>
@@ -221,7 +288,13 @@ export default function SubmitApprovalPage() {
           />
 
           {schemaFields.map((field) => (
-            <SchemaFieldItem key={field.name} field={field} />
+            <SchemaFieldItem
+              key={field.name}
+              field={field}
+              attachments={pendingAttachments[field.name] || []}
+              onAddAttachment={addAttachment}
+              onRemoveAttachment={removeAttachment}
+            />
           ))}
 
           {schemaFields.length === 0 && (

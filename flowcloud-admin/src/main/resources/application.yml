@@ -1,58 +1,58 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
-    name: flowcloud-admin
+    name: ${SPRING_APPLICATION_NAME:flowcloud-admin}
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 1
-    locations: classpath:db/migration
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:true}
+    baseline-version: ${SPRING_FLYWAY_BASELINE_VERSION:1}
+    locations: ${SPRING_FLYWAY_LOCATIONS:classpath:db/migration}
   datasource:
-    url: jdbc:mysql://localhost:3306/flowcloud?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/flowcloud?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
   servlet:
     encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-      force-request: true
-      force-response: true
+      charset: ${SPRING_SERVLET_ENCODING_CHARSET:UTF-8}
+      enabled: ${SPRING_SERVLET_ENCODING_ENABLED:true}
+      force: ${SPRING_SERVLET_ENCODING_FORCE:true}
+      force-request: ${SPRING_SERVLET_ENCODING_FORCE_REQUEST:true}
+      force-response: ${SPRING_SERVLET_ENCODING_FORCE_RESPONSE:true}
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: redis123
-      database: 0
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:redis123}
+      database: ${SPRING_DATA_REDIS_DATABASE:0}
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: admin
-    password: admin123
-    virtual-host: /
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:admin}
+    password: ${SPRING_RABBITMQ_PASSWORD:admin123}
+    virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:/}
     listener:
       simple:
-        acknowledge-mode: auto
+        acknowledge-mode: ${SPRING_RABBITMQ_LISTENER_SIMPLE_ACKNOWLEDGE_MODE:auto}
         retry:
-          enabled: true
-          max-attempts: 3
+          enabled: ${SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_ENABLED:true}
+          max-attempts: ${SPRING_RABBITMQ_LISTENER_SIMPLE_RETRY_MAX_ATTEMPTS:3}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      key-serializer: ${SPRING_KAFKA_PRODUCER_KEY_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
+      value-serializer: ${SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
     consumer:
-      group-id: flowcloud-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      auto-offset-reset: earliest
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:flowcloud-group}
+      key-deserializer: ${SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER:org.apache.kafka.common.serialization.StringDeserializer}
+      value-deserializer: ${SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER:org.apache.kafka.common.serialization.StringDeserializer}
+      auto-offset-reset: ${SPRING_KAFKA_CONSUMER_AUTO_OFFSET_RESET:earliest}
   jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Shanghai
-    default-property-inclusion: non_null
+    date-format: ${SPRING_JACKSON_DATE_FORMAT:yyyy-MM-dd HH:mm:ss}
+    time-zone: ${SPRING_JACKSON_TIME_ZONE:Asia/Shanghai}
+    default-property-inclusion: ${SPRING_JACKSON_DEFAULT_PROPERTY_INCLUSION:non_null}
 
 mybatis-flex:
   configuration:
@@ -64,36 +64,41 @@ mybatis-flex:
 
 flowcloud:
   approval:
-    remind-hours: 48
-    timeout-days: 7
-    compensation-cron: "0 0 */2 * * ?"
+    remind-hours: ${FLOWCLOUD_APPROVAL_REMIND_HOURS:48}
+    timeout-days: ${FLOWCLOUD_APPROVAL_TIMEOUT_DAYS:7}
+    compensation-cron: ${FLOWCLOUD_APPROVAL_COMPENSATION_CRON:0 0 */2 * * ?}
   jwt:
-    secret: FlowCloudSecretKeyForJwtTokenGeneration2026!MustBe32Chars
-    expiration: 86400000
+    secret: ${FLOWCLOUD_JWT_SECRET:FlowCloudSecretKeyForJwtTokenGeneration2026!MustBe32Chars}
+    expiration: ${FLOWCLOUD_JWT_EXPIRATION:86400000}
+  api-crypto:
+    private-key: ${FLOWCLOUD_API_CRYPTO_PRIVATE_KEY:}
+    public-key: ${FLOWCLOUD_API_CRYPTO_PUBLIC_KEY:}
+    private-key-location: ${FLOWCLOUD_API_CRYPTO_PRIVATE_KEY_LOCATION:}
+    public-key-location: ${FLOWCLOUD_API_CRYPTO_PUBLIC_KEY_LOCATION:}
   upload:
-    path: ${user.home}/flowcloud-uploads
-    base-url: http://localhost:8080/uploads
+    path: ${FLOWCLOUD_UPLOAD_PATH:${user.home}/flowcloud-uploads}
+    base-url: ${FLOWCLOUD_UPLOAD_BASE_URL:http://localhost:8080/uploads}
   nacos:
-    server-addr: localhost:8848
-    username: nacos
-    password: nacos
-    namespace: public
-    group: DEFAULT_GROUP
+    server-addr: ${FLOWCLOUD_NACOS_SERVER_ADDR:localhost:8848}
+    username: ${FLOWCLOUD_NACOS_USERNAME:nacos}
+    password: ${FLOWCLOUD_NACOS_PASSWORD:nacos}
+    namespace: ${FLOWCLOUD_NACOS_NAMESPACE:public}
+    group: ${FLOWCLOUD_NACOS_GROUP:DEFAULT_GROUP}
   minio:
-    endpoint: http://localhost:9000
-    console-url: http://localhost:9001
-    access-key: minioadmin
-    secret-key: minioadmin123
-    bucket: flowcloud
+    endpoint: ${FLOWCLOUD_MINIO_ENDPOINT:http://localhost:9000}
+    console-url: ${FLOWCLOUD_MINIO_CONSOLE_URL:http://localhost:9001}
+    access-key: ${FLOWCLOUD_MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${FLOWCLOUD_MINIO_SECRET_KEY:minioadmin123}
+    bucket: ${FLOWCLOUD_MINIO_BUCKET:flowcloud}
   mq:
-    enabled: true
-    exchange: flowcloud.exchange
-    approval-routing-key: approval.notify
+    enabled: ${FLOWCLOUD_MQ_ENABLED:true}
+    exchange: ${FLOWCLOUD_MQ_EXCHANGE:flowcloud.exchange}
+    approval-routing-key: ${FLOWCLOUD_MQ_APPROVAL_ROUTING_KEY:approval.notify}
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
 
 logging:
   level:
-    com.flowcloud: debug
+    com.flowcloud: ${LOGGING_LEVEL_COM_FLOWCLOUD:debug}

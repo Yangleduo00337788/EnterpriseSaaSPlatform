@@ -6,6 +6,7 @@ import {
 import { getDeptTree } from '@/api/dept';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import type { DeptVO, PositionVO } from '@/types';
 
 function flattenTree(nodes: DeptVO[], level = 0): Array<{ value: number; label: string }> {
@@ -86,7 +87,7 @@ export default function PositionsPage() {
             {
               title: '状态', dataIndex: 'status', width: 90,
               render: (v: number) => (
-                <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '启用' : '禁用'}</Tag>
+                <Tag color={ENABLED_STATUS_META[v]?.color ?? 'grey'}>{ENABLED_STATUS_META[v]?.text || v}</Tag>
               ),
             },
             { title: '备注', dataIndex: 'remark', render: (v?: string) => v || '-' },
@@ -141,7 +142,7 @@ export default function PositionsPage() {
           <Form.InputNumber field="sort" label="排序" />
           <Form.Select
             field="status" label="状态"
-            optionList={[{ label: '启用', value: 1 }, { label: '禁用', value: 0 }]}
+            optionList={ENABLED_STATUS_OPTIONS}
           />
           <Form.TextArea field="remark" label="备注" rows={2} />
           <Button htmlType="submit" type="primary" block style={{ marginTop: 16 }}>

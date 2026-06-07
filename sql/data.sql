@@ -311,10 +311,10 @@ ALTER TABLE approval_instance AUTO_INCREMENT = 9;
 ALTER TABLE approval_task AUTO_INCREMENT = 11;
 
 -- 审计日志权限
-INSERT IGNORE INTO sys_permission (tenant_id, perm_code, perm_name, perm_type, path, parent_id, sort, create_time)
+INSERT IGNORE INTO sys_permission (perm_code, perm_name, perm_type, path, parent_id, sort, create_time)
 VALUES
-  (1, 'system:audit',      '审计日志',    'menu',   '/system/audit-logs', 0, 90, NOW()),
-  (1, 'system:audit:view', '查看审计日志', 'button', NULL,                 0, 91, NOW());
+  ('system:audit',      '审计日志',    'menu',   '/system/audit-logs', 0, 90, NOW()),
+  ('system:audit:view', '查看审计日志', 'button', NULL,                 0, 91, NOW());
 
 -- 将审计权限绑定到管理员角色（role_id=1 对应 admin）
 INSERT IGNORE INTO sys_role_permission (role_id, permission_id)

@@ -3,27 +3,20 @@ import { Button, Card, Form, Switch, Tag, Toast } from '@douyinfe/semi-ui';
 import { getCurrentTenant, updateCurrentTenant } from '@/api/tenant';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
+import { TENANT_FEATURE_DEFAULTS, TENANT_FEATURE_DISABLED_DEFAULTS, TENANT_FEATURE_LABEL_MAP, TENANT_FEATURE_OPTIONS } from '@/utils/featureDisplay';
+import { EXPIRY_STATUS_META, TENANT_STATUS_META } from '@/utils/statusDisplay';
 import type { TenantProfileVO } from '@/types';
 
 export default function TenantPage() {
   const { hasPermission } = usePermission();
   const canEditTenant = hasPermission(PERM.TENANT_EDIT);
   const [initialValues, setInitialValues] = useState<Partial<TenantProfileVO>>({});
-  const [featureFlags, setFeatureFlags] = useState({
-    approval: true,
-    report: true,
-    message: true,
-    tenantSettings: true,
-  });
-  const featureLabels = useMemo(() => {
-    const mapping: Record<string, string> = {
-      approval: '审批流',
-      report: '报表分析',
-      message: '消息中心',
-      tenantSettings: '租户设置',
-    };
-    return (initialValues.enabledFeatures || []).map((key) => mapping[key] || key);
-  }, [initialValues.enabledFeatures]);
+  const [featureFlags, setFeatureFlags] = useState({ ...TENANT_FEATURE_DEFAULTS });
+  const featureLabels = useMemo(
+    () => (initialValues.enabledFeatures || []).map((key) => TENANT_FEATURE_LABEL_MAP[key] || key),
+    [initialValues.enabledFeatures],
+  );
+  const tenantStatusMeta = TENANT_STATUS_META[initialValues.status ?? 0];
 
   useEffect(() => {
     getCurrentTenant().then((res) => {
@@ -36,7 +29,7 @@ export default function TenantPage() {
           // ignore invalid json
         }
       } else if (res.data.enabledFeatures) {
-        const flags = { approval: false, report: false, message: false, tenantSettings: false };
+        const flags = { ...TENANT_FEATURE_DISABLED_DEFAULTS };
         res.data.enabledFeatures.forEach((key) => {
           if (key in flags) flags[key as keyof typeof flags] = true;
         });
@@ -67,8 +60,8 @@ export default function TenantPage() {
           <div>
             <div style={{ color: '#86909c', fontSize: 12 }}>租户状态</div>
             <div style={{ marginTop: 8 }}>
-              <Tag color={initialValues.status === 1 ? 'green' : 'red'}>
-                {initialValues.status === 1 ? '启用中' : '已停用'}
+              <Tag color={tenantStatusMeta?.color ?? 'grey'}>
+                {tenantStatusMeta?.text || initialValues.status || '-'}
               </Tag>
             </div>
           </div>
@@ -91,7 +84,7 @@ export default function TenantPage() {
           <div>
             <span style={{ color: '#86909c', marginRight: 8 }}>到期时间</span>
             <span>{initialValues.expireTime || '-'}</span>
-            {initialValues.expired && <Tag color="red" style={{ marginLeft: 8 }}>已到期</Tag>}
+            {initialValues.expired && <Tag color={EXPIRY_STATUS_META.expired.color} style={{ marginLeft: 8 }}>{EXPIRY_STATUS_META.expired.text}</Tag>}
           </div>
           <div>
             <span style={{ color: '#86909c', marginRight: 8 }}>已启用能力</span>
@@ -114,12 +107,7 @@ export default function TenantPage() {
           <Form.TextArea field="packageConfig" label="套餐配置JSON" disabled={!canEditTenant} />
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>功能开关</div>
-            {[
-              { key: 'approval', label: '审批流' },
-              { key: 'report', label: '报表分析' },
-              { key: 'message', label: '消息中心' },
-              { key: 'tenantSettings', label: '租户设置' },
-            ].map((item) => (
+            {TENANT_FEATURE_OPTIONS.map((item) => (
               <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <span>{item.label}</span>
                 <Switch

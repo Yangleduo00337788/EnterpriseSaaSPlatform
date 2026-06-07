@@ -19,6 +19,9 @@ export const deleteUser = (id: number) =>
 export const toggleUserStatus = (id: number) =>
   request.put<unknown, ApiResult<void>>(`/system/users/${id}/status`);
 
+export const resetUserPassword = (id: number, password: string) =>
+  request.put<unknown, ApiResult<void>>(`/system/users/${id}/reset-password`, { password });
+
 export const getRoleOptions = () =>
   request.get<unknown, ApiResult<RoleOptionVO[]>>('/system/roles/options');
 

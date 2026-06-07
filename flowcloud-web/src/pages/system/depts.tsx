@@ -3,6 +3,7 @@ import { Button, Card, Form, Modal, Table, Tag, Toast } from '@douyinfe/semi-ui'
 import { createDept, deleteDept, getDeptTree, updateDept } from '@/api/dept';
 import { getUserOptions } from '@/api/user';
 import { usePermission } from '@/hooks/usePermission';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import { PERM } from '@/utils/permissions';
 import type { DeptVO, UserOptionVO } from '@/types';
 
@@ -74,7 +75,7 @@ export default function DeptPage() {
             { title: '排序', dataIndex: 'sort', width: 100 },
             {
               title: '状态', dataIndex: 'status', width: 100,
-              render: (value: number) => <Tag color={value === 1 ? 'green' : 'red'}>{value === 1 ? '启用' : '禁用'}</Tag>,
+              render: (value: number) => <Tag color={ENABLED_STATUS_META[value]?.color ?? 'grey'}>{ENABLED_STATUS_META[value]?.text || value}</Tag>,
             },
             ...(canEditDept ? [{
               title: '操作', width: 180,
@@ -118,10 +119,7 @@ export default function DeptPage() {
           />
           <Form.Input field="leader" label="负责人姓名" placeholder="自动从选人带入，或手动输入" />
           <Form.InputNumber field="sort" label="排序" />
-          <Form.Select field="status" label="状态" optionList={[
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
-          ]} />
+          <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
           <Button htmlType="submit" type="primary" block style={{ marginTop: 16 }}>保存</Button>
         </Form>
       </Modal>

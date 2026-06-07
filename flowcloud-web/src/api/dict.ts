@@ -7,7 +7,7 @@ export const getDictList = () =>
 export const getDictById = (id: number) =>
   request.get<unknown, ApiResult<DictTypeVO>>(`/system/dicts/${id}`);
 
-export const getDictByCode = (dictCode: string) =>
+export const getDictDataByCode = (dictCode: string) =>
   request.get<unknown, ApiResult<DictDataVO[]>>(`/system/dicts/code/${dictCode}`);
 
 export const createDict = (data: Partial<DictTypeVO> & { items?: DictDataVO[] }) =>

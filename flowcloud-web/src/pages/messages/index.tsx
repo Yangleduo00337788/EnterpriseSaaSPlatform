@@ -3,12 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Table, Card, Tag, Button, Toast } from '@douyinfe/semi-ui';
 import { getMessages, markMessageRead, markAllMessagesRead, markBatchMessagesRead } from '@/api/message';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
+import { MESSAGE_READ_STATUS_META, MESSAGE_TYPE_META } from '@/utils/statusDisplay';
 import type { MessageVO } from '@/types';
-
-const TYPE_MAP: Record<string, { text: string; color: string }> = {
-  approval: { text: '审批', color: 'blue' },
-  system: { text: '系统', color: 'grey' },
-};
 
 export default function MessagesPage() {
   const navigate = useNavigate();
@@ -45,7 +41,7 @@ export default function MessagesPage() {
     {
       title: '类型', dataIndex: 'type', width: 80,
       render: (v: string) => {
-        const t = TYPE_MAP[v] || { text: v, color: 'grey' };
+        const t = MESSAGE_TYPE_META[v] || { text: v, color: 'grey' as const };
         return <Tag color={t.color as 'blue'}>{t.text}</Tag>;
       },
     },
@@ -53,7 +49,7 @@ export default function MessagesPage() {
     { title: '内容', dataIndex: 'content', ellipsis: true },
     {
       title: '状态', dataIndex: 'isRead', width: 80,
-      render: (v: number) => <Tag color={v === 1 ? 'green' : 'orange'}>{v === 1 ? '已读' : '未读'}</Tag>,
+      render: (v: number) => <Tag color={MESSAGE_READ_STATUS_META[v]?.color ?? 'grey'}>{MESSAGE_READ_STATUS_META[v]?.text || v}</Tag>,
     },
     { title: '时间', dataIndex: 'createTime', width: 180 },
     {

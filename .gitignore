@@ -1,4 +1,4 @@
-# Build
+# 构建产物
 target/
 dist/
 node_modules/
@@ -6,24 +6,27 @@ node_modules/
 *.jar
 *.war
 
-# IDE
+# 开发工具
 .idea/
 *.iml
 .vscode/
 *.swp
 
-# OS
+# 系统文件
 .DS_Store
 Thumbs.db
 
-# Logs
+# 日志文件
 *.log
 logs/
 
-# Env
+# 环境与密钥
 .env
 .env.local
+application.env
+.密钥/
+*.pem
 
-# Maven
+# Maven 备份
 pom.xml.tag
 pom.xml.releaseBackup

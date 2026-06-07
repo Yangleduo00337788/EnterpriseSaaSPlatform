@@ -18,7 +18,8 @@ public enum ResultCode {
     PASSWORD_ERROR(1003, "密码错误"),
     USER_DISABLED(1004, "用户已禁用"),
     TOKEN_EXPIRED(1005, "Token已过期"),
-    DUPLICATE_USERNAME(1006, "用户名已存在");
+    DUPLICATE_USERNAME(1006, "用户名已存在"),
+    API_CRYPTO_KEY_EXPIRED(4601, "接口加密密钥已失效");
 
     private final int code;
     private final String message;

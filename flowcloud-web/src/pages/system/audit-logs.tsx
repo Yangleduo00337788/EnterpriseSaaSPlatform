@@ -5,27 +5,17 @@ import {
 } from '@douyinfe/semi-ui';
 import type { ColumnProps } from '@douyinfe/semi-ui/lib/es/table';
 import { getAuditLogs, type AuditLogVO, type AuditLogQuery } from '@/api/audit';
+import { useDictOptions } from '@/hooks/useDictOptions';
+import { AUDIT_ACTION_META, AUDIT_RESULT_META } from '@/utils/statusDisplay';
 
 const { Title } = Typography;
 
-const MODULE_OPTIONS = [
-  { label: '全部', value: '' },
-  { label: '登录', value: 'login' },
-  { label: '审批', value: 'approval' },
-  { label: '系统', value: 'system' },
-];
-
-const ACTION_COLOR: Record<string, string> = {
-  LOGIN: 'green',
-  LOGOUT: 'grey',
-  PUBLISH_TEMPLATE: 'blue',
-  DISABLE_TEMPLATE: 'orange',
-  SUBMIT_APPROVAL: 'teal',
-  APPROVE_TASK: 'green',
-  REJECT_TASK: 'red',
-};
-
 export default function AuditLogsPage() {
+  const { options: moduleOptions, labelMap: moduleLabelMap } = useDictOptions('audit_module', [
+    { label: '登录', value: 'login' },
+    { label: '审批', value: 'approval' },
+    { label: '系统', value: 'system' },
+  ]);
   const [list, setList] = useState<AuditLogVO[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -88,13 +78,14 @@ export default function AuditLogsPage() {
       dataIndex: 'action',
       width: 160,
       render: (v: string) => (
-        <Tag color={(ACTION_COLOR[v] ?? 'light-blue') as 'green'} size="small">{v}</Tag>
+        <Tag color={AUDIT_ACTION_META[v]?.color ?? 'light-blue'} size="small">{v}</Tag>
       ),
     },
     {
       title: '模块',
       dataIndex: 'targetType',
       width: 90,
+      render: (value: string) => moduleLabelMap[value] || value,
     },
     {
       title: '详情',
@@ -105,11 +96,14 @@ export default function AuditLogsPage() {
       title: '结果',
       dataIndex: 'result',
       width: 70,
-      render: (v: string) => (
-        <Tag color={v === 'success' ? 'green' : 'red'} size="small">
-          {v === 'success' ? '成功' : '失败'}
+      render: (v: string) => {
+        const resultMeta = AUDIT_RESULT_META[v] ?? { text: v, color: 'grey' as const };
+        return (
+        <Tag color={resultMeta.color} size="small">
+          {resultMeta.text}
         </Tag>
-      ),
+        );
+      },
     },
     {
       title: 'IP',
@@ -134,7 +128,7 @@ export default function AuditLogsPage() {
           placeholder="模块"
           value={targetType}
           onChange={(v) => setTargetType(v as string)}
-          optionList={MODULE_OPTIONS}
+          optionList={[{ label: '全部', value: '' }, ...moduleOptions]}
           style={{ width: 120 }}
         />
         <DatePicker

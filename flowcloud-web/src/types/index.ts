@@ -222,7 +222,10 @@ export interface FlowNode {
   index: number;
   name: string;
   type: string;
+  nodeMode?: string;
+  approverSource?: string;
   approverIds: number[];
+  condition?: string;
 }
 
 export interface InstanceVO {

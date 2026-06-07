@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Tag, Button, Card, Select } from '@douyinfe/semi-ui';
 import { getMySubmissions, cancelInstance } from '@/api/approval';
+import { useApprovalCategory } from '@/hooks/useApprovalCategory';
+import { useApprovalStatus } from '@/hooks/useApprovalStatus';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
-import { STATUS_MAP, CATEGORY_MAP } from '@/utils/constants';
 import type { InstanceVO } from '@/types';
 
 export default function MySubmissionsPage() {
@@ -13,6 +14,8 @@ export default function MySubmissionsPage() {
   const [loading, setLoading] = useState(false);
   const [pageNum, setPageNum] = useState(1);
   const [status, setStatus] = useState<string>();
+  const { options: statusOptions, getStatusMeta } = useApprovalStatus();
+  const { labelMap: categoryLabelMap } = useApprovalCategory();
 
   const fetchData = async (page = pageNum) => {
     setLoading(true);
@@ -39,12 +42,12 @@ export default function MySubmissionsPage() {
     { title: '标题', dataIndex: 'title' },
     {
       title: '类型', dataIndex: 'category', width: 100,
-      render: (v: string) => CATEGORY_MAP[v] || v,
+      render: (v: string) => categoryLabelMap[v] || v,
     },
     {
       title: '状态', dataIndex: 'status', width: 100,
       render: (v: string) => {
-        const s = STATUS_MAP[v];
+        const s = getStatusMeta(v);
         return <Tag color={s?.color as 'blue'}>{s?.text || v}</Tag>;
       },
     },
@@ -79,7 +82,7 @@ export default function MySubmissionsPage() {
           value={status} onChange={(v) => setStatus(v as string)}
           optionList={[
             { value: '', label: '全部' },
-            ...Object.entries(STATUS_MAP).map(([k, v]) => ({ value: k, label: v.text })),
+            ...statusOptions,
           ]}
         />
       </div>

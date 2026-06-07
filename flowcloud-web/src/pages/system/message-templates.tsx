@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Button, Card, Form, Modal, Table, Tag, Toast } from '@douyinfe/semi-ui';
 import { createMessageTemplate, deleteMessageTemplate, getMessageTemplates, updateMessageTemplate } from '@/api/messageTemplate';
+import { useDictOptions } from '@/hooks/useDictOptions';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import type { MessageTemplateVO } from '@/types';
-
-const EVENT_OPTIONS = [
-  { value: 'TASK_ASSIGNED', label: '任务分配' },
-  { value: 'APPROVED', label: '审批通过' },
-  { value: 'REJECTED', label: '审批驳回' },
-  { value: 'CANCELLED', label: '审批撤销' },
-  { value: 'REMIND', label: '审批催办' },
-];
 
 export default function MessageTemplatesPage() {
   const { hasPermission } = usePermission();
   const canEdit = hasPermission(PERM.MESSAGE_TEMPLATE_EDIT);
+  const { options: eventOptions, labelMap: eventLabelMap } = useDictOptions('message_event_type', [
+    { value: 'TASK_ASSIGNED', label: '任务分配' },
+    { value: 'APPROVED', label: '审批通过' },
+    { value: 'REJECTED', label: '审批驳回' },
+    { value: 'CANCELLED', label: '审批撤销' },
+    { value: 'REMIND', label: '审批催办' },
+  ]);
   const [data, setData] = useState<MessageTemplateVO[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -50,11 +51,11 @@ export default function MessageTemplatesPage() {
   const columns = [
     { title: '模板编码', dataIndex: 'templateCode', width: 140 },
     { title: '模板名称', dataIndex: 'templateName', width: 140 },
-    { title: '事件类型', dataIndex: 'eventType', width: 120 },
+    { title: '事件类型', dataIndex: 'eventType', width: 120, render: (value: string) => eventLabelMap[value] || value },
     { title: '标题模板', dataIndex: 'titleTemplate', ellipsis: true },
     {
       title: '状态', dataIndex: 'status', width: 80,
-      render: (v: number) => <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '启用' : '禁用'}</Tag>,
+      render: (v: number) => <Tag color={ENABLED_STATUS_META[v]?.color ?? 'grey'}>{ENABLED_STATUS_META[v]?.text || v}</Tag>,
     },
     {
       title: '操作', width: 160,
@@ -89,10 +90,10 @@ export default function MessageTemplatesPage() {
         <Form key={editing?.id || 'new'} initValues={editing || { status: 1, eventType: 'TASK_ASSIGNED' }} onSubmit={handleSubmit} disabled={!canEdit}>
           <Form.Input field="templateCode" label="模板编码" rules={[{ required: true, message: '必填' }]} disabled={!!editing} />
           <Form.Input field="templateName" label="模板名称" rules={[{ required: true, message: '必填' }]} />
-          <Form.Select field="eventType" label="事件类型" optionList={EVENT_OPTIONS} />
+          <Form.Select field="eventType" label="事件类型" optionList={eventOptions} />
           <Form.Input field="titleTemplate" label="标题模板" rules={[{ required: true, message: '必填' }]} />
           <Form.TextArea field="contentTemplate" label="内容模板" rules={[{ required: true, message: '必填' }]} />
-          <Form.Switch field="status" label="启用" />
+          <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
           {canEdit && <Button type="primary" htmlType="submit">保存</Button>}
         </Form>
       </Modal>

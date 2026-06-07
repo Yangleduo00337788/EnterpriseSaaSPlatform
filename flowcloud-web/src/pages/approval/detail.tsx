@@ -4,10 +4,11 @@ import {
   Card, Tag, Timeline, Spin, Descriptions, Button, Form, Modal, Toast,
 } from '@douyinfe/semi-ui';
 import { cancelInstance, completeTask, getInstanceDetail, getTemplate, remindTask } from '@/api/approval';
-import { getAttachments } from '@/api/attachment';
+import { deleteAttachment, getAttachments } from '@/api/attachment';
 import type { AttachmentVO } from '@/api/attachment';
+import { useApprovalCategory } from '@/hooks/useApprovalCategory';
+import { useApprovalStatus } from '@/hooks/useApprovalStatus';
 import { useAppSelector } from '@/hooks/useAppDispatch';
-import { STATUS_MAP, CATEGORY_MAP } from '@/utils/constants';
 import type { InstanceVO, TemplateVO } from '@/types';
 
 interface SchemaField {
@@ -45,10 +46,14 @@ function FormDataDisplay({
   formData,
   formSchema,
   attachments,
+  canDeleteAttachment,
+  onDeleteAttachment,
 }: {
   formData?: string;
   formSchema?: string;
   attachments: AttachmentVO[];
+  canDeleteAttachment: boolean;
+  onDeleteAttachment: (attachment: AttachmentVO) => void;
 }) {
   const fields = parseSchema(formSchema);
   const data = parseFormData(formData);
@@ -69,11 +74,22 @@ function FormDataDisplay({
               {fieldAttachments.length === 0 ? '-' : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {fieldAttachments.map((att) => (
-                    <a key={att.id} href={att.fileUrl} target="_blank" rel="noreferrer"
-                      style={{ color: '#3370ff' }}>
-                      📎 {att.originalName}
-                      {att.fileSize ? ` (${(att.fileSize / 1024).toFixed(1)}KB)` : ''}
-                    </a>
+                    <div key={att.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <a href={att.fileUrl} target="_blank" rel="noreferrer" style={{ color: '#3370ff' }}>
+                        {att.originalName}
+                        {att.fileSize ? ` (${(att.fileSize / 1024).toFixed(1)}KB)` : ''}
+                      </a>
+                      {canDeleteAttachment && (
+                        <Button
+                          size="small"
+                          type="danger"
+                          theme="borderless"
+                          onClick={() => onDeleteAttachment(att)}
+                        >
+                          删除
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -98,6 +114,8 @@ export default function InstanceDetailPage() {
   const [attachments, setAttachments] = useState<AttachmentVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionModal, setActionModal] = useState<{ visible: boolean; action?: string }>({ visible: false });
+  const { getStatusMeta } = useApprovalStatus();
+  const { labelMap: categoryLabelMap } = useApprovalCategory();
 
   const loadDetail = async () => {
     if (!id) return;
@@ -128,6 +146,7 @@ export default function InstanceDetailPage() {
     [data?.tasks],
   );
   const canRemind = data?.status === 'pending' && data.applicantId === user?.userId && !!pendingTaskForRemind;
+  const canDeleteAttachment = data?.status === 'pending' && data.applicantId === user?.userId;
 
   const handleTaskAction = async (values: { comment?: string }) => {
     if (!currentPendingTask || !actionModal.action) return;
@@ -154,10 +173,22 @@ export default function InstanceDetailPage() {
     Toast.success('已发送催办提醒');
   };
 
+  const handleDeleteAttachment = (attachment: AttachmentVO) => {
+    Modal.confirm({
+      title: '确认删除附件',
+      content: `确定删除附件「${attachment.originalName}」吗？`,
+      onOk: async () => {
+        await deleteAttachment(attachment.id);
+        Toast.success('附件已删除');
+        setAttachments((prev) => prev.filter((item) => item.id !== attachment.id));
+      },
+    });
+  };
+
   if (loading) return <Spin style={{ display: 'block', margin: '100px auto' }} />;
   if (!data) return <div className="page-container">审批单不存在</div>;
 
-  const statusInfo = STATUS_MAP[data.status];
+  const statusInfo = getStatusMeta(data.status);
 
   return (
     <div className="page-container">
@@ -181,7 +212,7 @@ export default function InstanceDetailPage() {
       <Card title="基本信息" style={{ marginBottom: 16 }}>
         <Descriptions align="left">
           <Descriptions.Item itemKey="标题">{data.title}</Descriptions.Item>
-          <Descriptions.Item itemKey="类型">{CATEGORY_MAP[data.category] || data.category}</Descriptions.Item>
+          <Descriptions.Item itemKey="类型">{categoryLabelMap[data.category] || data.category}</Descriptions.Item>
           <Descriptions.Item itemKey="申请人">{data.applicantName}</Descriptions.Item>
           <Descriptions.Item itemKey="状态">
             <Tag color={statusInfo?.color as 'blue'}>{statusInfo?.text || data.status}</Tag>
@@ -199,6 +230,8 @@ export default function InstanceDetailPage() {
             formData={data.formData}
             formSchema={template?.formSchema}
             attachments={attachments}
+            canDeleteAttachment={!!canDeleteAttachment}
+            onDeleteAttachment={handleDeleteAttachment}
           />
         </Descriptions>
       </Card>

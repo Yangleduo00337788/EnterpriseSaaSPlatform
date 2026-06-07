@@ -36,6 +36,7 @@ export const PERM = {
 
 const PATH_FEATURE: Record<string, string> = {
   '/approval/pending': 'approval',
+  '/approval/handled': 'approval',
   '/approval/my': 'approval',
   '/approval/submit': 'approval',
   '/approval/all': 'approval',
@@ -48,6 +49,7 @@ const PATH_FEATURE: Record<string, string> = {
 const MENU_PERM: Record<string, string> = {
   '/dashboard': PERM.DASHBOARD,
   '/approval/pending': PERM.PENDING,
+  '/approval/handled': PERM.PENDING,
   '/approval/my': PERM.MY,
   '/approval/submit': PERM.SUBMIT,
   '/approval/all': PERM.ALL,
@@ -89,5 +91,4 @@ export function canAccessPath(user: UserInfo | null, path: string): boolean {
   if (!perm) return true;
   return hasPermission(user, perm);
 }
-
 

@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Button, Card, Form, Modal, Table, Tag, Toast, Tree } from '@douyinfe/semi-ui';
 import { createRole, deleteRole, getPermissionTree, getRoleById, getRoleList, updateRole } from '@/api/role';
+import { useDictOptions } from '@/hooks/useDictOptions';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
+import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import type { PermissionVO, RoleVO } from '@/types';
-
-const DATA_SCOPE_OPTIONS = [
-  { value: 'ALL', label: '全部数据' },
-  { value: 'DEPT', label: '本部门' },
-  { value: 'SELF', label: '仅本人' },
-];
 
 export default function RolesPage() {
   const { hasPermission } = usePermission();
   const canEdit = hasPermission(PERM.ROLE_EDIT);
+  const { options: dataScopeOptions, labelMap: dataScopeLabelMap } = useDictOptions('role_data_scope', [
+    { value: 'ALL', label: '全部数据' },
+    { value: 'DEPT', label: '本部门' },
+    { value: 'SELF', label: '仅本人' },
+  ]);
   const [data, setData] = useState<RoleVO[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -81,11 +82,11 @@ export default function RolesPage() {
   const columns = [
     { title: '角色编码', dataIndex: 'roleCode', width: 140 },
     { title: '角色名称', dataIndex: 'roleName', width: 140 },
-    { title: '数据范围', dataIndex: 'dataScope', width: 100 },
+    { title: '数据范围', dataIndex: 'dataScope', width: 100, render: (value: string) => dataScopeLabelMap[value] || value },
     { title: '描述', dataIndex: 'description', ellipsis: true },
     {
       title: '状态', dataIndex: 'status', width: 80,
-      render: (v: number) => <Tag color={v === 1 ? 'green' : 'red'}>{v === 1 ? '启用' : '禁用'}</Tag>,
+      render: (v: number) => <Tag color={ENABLED_STATUS_META[v]?.color ?? 'grey'}>{ENABLED_STATUS_META[v]?.text || v}</Tag>,
     },
     { title: '排序', dataIndex: 'sort', width: 70 },
     {
@@ -129,9 +130,9 @@ export default function RolesPage() {
           <Form.Input field="roleCode" label="角色编码" rules={[{ required: true, message: '必填' }]} disabled={!!editing} />
           <Form.Input field="roleName" label="角色名称" rules={[{ required: true, message: '必填' }]} />
           <Form.TextArea field="description" label="描述" />
-          <Form.Select field="dataScope" label="数据范围" optionList={DATA_SCOPE_OPTIONS} />
+          <Form.Select field="dataScope" label="数据范围" optionList={dataScopeOptions} />
           <Form.InputNumber field="sort" label="排序" />
-          <Form.Switch field="status" label="启用" />
+          <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
           <div style={{ marginBottom: 16 }}>
             <div style={{ marginBottom: 8, fontWeight: 600 }}>权限配置</div>
             <Tree
