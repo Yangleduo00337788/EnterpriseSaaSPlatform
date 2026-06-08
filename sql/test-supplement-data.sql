@@ -152,11 +152,11 @@ INSERT INTO approval_template_version (id, tenant_id, template_id, version, flow
 -- ==================== 附件测试数据 ====================
 DELETE FROM attachment_file WHERE id BETWEEN 3001 AND 3004;
 
-INSERT INTO attachment_file (id, tenant_id, biz_type, biz_id, field_name, original_name, file_key, file_url, file_size, mime_type, uploader_id, uploader_name, create_time) VALUES
-(3001, 1, 'instance', 2, 'invoice', '差旅报销凭证.pdf', 'attachments/instance/2/travel-expense.pdf', 'http://localhost:9000/flowcloud/attachments/instance/2/travel-expense.pdf', 245760, 'application/pdf', 6, '李四', '2026-06-02 10:10:00'),
-(3002, 1, 'instance', 3, 'quotation', '采购报价单.xlsx', 'attachments/instance/3/purchase-quotation.xlsx', 'http://localhost:9000/flowcloud/attachments/instance/3/purchase-quotation.xlsx', 98304, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 7, '王五', '2026-06-03 13:50:00'),
-(3003, 1, 'instance', 8, 'attachment', '自审测试附件.txt', 'attachments/instance/8/self-test.txt', 'http://localhost:9000/flowcloud/attachments/instance/8/self-test.txt', 2048, 'text/plain', 1, '张总', '2026-06-07 09:58:00'),
-(3004, 1, 'template', 4, 'contractTemplate', '合同审批模板说明.docx', 'attachments/template/4/contract-template.docx', 'http://localhost:9000/flowcloud/attachments/template/4/contract-template.docx', 65536, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 1, '张总', '2026-06-04 09:30:00');
+INSERT INTO attachment_file (id, tenant_id, biz_type, biz_id, field_name, original_name, file_key, file_url, storage_type, file_size, mime_type, uploader_id, uploader_name, create_time) VALUES
+(3001, 1, 'instance', 2, 'invoice', '差旅报销凭证.pdf', 'attachments/instance/2/travel-expense.pdf', 'http://localhost:9000/flowcloud/attachments/instance/2/travel-expense.pdf', 'MINIO', 245760, 'application/pdf', 6, '李四', '2026-06-02 10:10:00'),
+(3002, 1, 'instance', 3, 'quotation', '采购报价单.xlsx', 'attachments/instance/3/purchase-quotation.xlsx', 'http://localhost:9000/flowcloud/attachments/instance/3/purchase-quotation.xlsx', 'MINIO', 98304, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 7, '王五', '2026-06-03 13:50:00'),
+(3003, 1, 'instance', 8, 'attachment', '自审测试附件.txt', 'attachments/instance/8/self-test.txt', 'http://localhost:9000/flowcloud/attachments/instance/8/self-test.txt', 'MINIO', 2048, 'text/plain', 1, '张总', '2026-06-07 09:58:00'),
+(3004, 1, 'template', 4, 'contractTemplate', '合同审批模板说明.docx', 'attachments/template/4/contract-template.docx', 'http://localhost:9000/flowcloud/attachments/template/4/contract-template.docx', 'MINIO', 65536, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 1, '张总', '2026-06-04 09:30:00');
 
 -- ==================== 审计日志测试数据 ====================
 DELETE FROM sys_audit_log WHERE id BETWEEN 4001 AND 4010;

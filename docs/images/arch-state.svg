@@ -1,0 +1,54 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="900" height="402" viewBox="0 0 900 402">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .label{font:600 18px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .text{font:15px Arial,'Microsoft YaHei';fill:#2B395B}
+      .small{font:14px Arial,'Microsoft YaHei';fill:#2B395B}
+      .box{fill:#fff;stroke:#0052D9;stroke-width:2}
+      .group{fill:#F3F8FF;stroke:#B5CCFF;stroke-width:2}
+      .infra{fill:#F5F7FA;stroke:#5B6B8C;stroke-width:2}
+      .line{stroke:#4E5969;stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+      
+    </style>
+  </defs>
+  <rect x="0" y="0" width="900" height="402" class="doc-bg"/>
+  <rect x="0" y="0" width="900" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="868" height="282" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 8-1</text>
+  <text x="136" y="41" class="doc-title">审批状态流转图</text>
+  <text x="872" y="41" text-anchor="end" class="doc-subtitle">架构设计说明书 / 审批引擎设计</text>
+  <g transform="translate(0,84)">
+<rect x="80" y="120" width="140" height="56" rx="10" ry="10" class="box"/>
+  <text x="112" y="154" class="label">pending</text>
+  <rect x="300" y="50" width="160" height="56" rx="10" ry="10" class="group"/>
+  <text x="338" y="84" class="label">approved</text>
+  <rect x="300" y="120" width="160" height="56" rx="10" ry="10" class="group"/>
+  <text x="342" y="154" class="label">rejected</text>
+  <rect x="300" y="190" width="160" height="56" rx="10" ry="10" class="group"/>
+  <text x="336" y="224" class="label">cancelled</text>
+  <text x="246" y="92" class="small">all nodes complete</text>
+  <text x="255" y="153" class="small">reject</text>
+  <text x="259" y="223" class="small">cancel</text>
+  <line x1="220" y1="135" x2="300" y2="78" class="line"/>
+  <line x1="220" y1="148" x2="300" y2="148" class="line"/>
+  <line x1="220" y1="161" x2="300" y2="218" class="line"/>
+  </g>
+  <line x1="24" y1="378" x2="876" y2="378" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="398" class="doc-footer">审流云企业审批平台 | 图 8-1 审批状态流转图 | 内部评审稿</text>
+  <text x="872" y="398" text-anchor="end" class="doc-mark">8-1</text>
+</svg>

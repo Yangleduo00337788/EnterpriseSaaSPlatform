@@ -9,12 +9,16 @@ spring:
     baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:true}
     baseline-version: ${SPRING_FLYWAY_BASELINE_VERSION:1}
     locations: ${SPRING_FLYWAY_LOCATIONS:classpath:db/migration}
+    encoding: UTF-8
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/flowcloud?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${SPRING_DATASOURCE_USERNAME:root}
     password: ${SPRING_DATASOURCE_PASSWORD:root}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
   servlet:
+    multipart:
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:50MB}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:50MB}
     encoding:
       charset: ${SPRING_SERVLET_ENCODING_CHARSET:UTF-8}
       enabled: ${SPRING_SERVLET_ENCODING_ENABLED:true}

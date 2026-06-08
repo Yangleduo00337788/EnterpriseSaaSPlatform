@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, Form, Button, Select, Toast, Upload, Tag } from '@douyinfe/semi-ui';
+import {
+  Card, Form, Button, Select, Toast, Upload, Tag, Steps,
+} from '@douyinfe/semi-ui';
 import type { FormApi } from '@douyinfe/semi-ui/lib/es/form';
 import { getTemplates, submitApproval } from '@/api/approval';
 import { uploadAttachment } from '@/api/attachment';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { useApprovalCategory } from '@/hooks/useApprovalCategory';
 import type { TemplateVO } from '@/types';
 
@@ -105,10 +108,10 @@ function SchemaFieldItem({
             accept="*/*"
             showUploadList={false}
           >
-            <Button>点击上传附件</Button>
+            <Button theme="light" className="page-toolbar-button-secondary">点击上传附件</Button>
           </Upload>
           {attachments.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+            <div className="page-link-row" style={{ marginTop: 8 }}>
               {attachments.map((file, index) => (
                 <Tag
                   key={`${field.name}-${file.name}-${index}`}
@@ -143,8 +146,16 @@ export default function SubmitApprovalPage() {
   const [loading, setLoading] = useState(false);
   const [formApi, setFormApi] = useState<FormApi>();
   const prevTplId = useRef<number | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number>();
   const [pendingAttachments, setPendingAttachments] = useState<Record<string, File[]>>({});
   const { labelMap: categoryLabelMap } = useApprovalCategory();
+  const submitSteps = [
+    { title: '选择模板', description: '确认审批类型与流程模板' },
+    { title: '填写内容', description: '补充申请信息与附件材料' },
+    { title: '提交审批', description: '创建流程并进入审批详情' },
+  ];
+  const currentStep = loading ? 2 : selectedTemplateId ? 1 : 0;
+  const currentStepInfo = submitSteps[currentStep];
 
   useEffect(() => {
     getTemplates(category || undefined).then((res) => setTemplates(res.data));
@@ -160,6 +171,7 @@ export default function SubmitApprovalPage() {
       if (!formApi.getValue('title')) {
         formApi.setValue('title', `${tpl.templateName}申请`);
       }
+      setSelectedTemplateId(tpl.id);
       setSchemaFields(parseSchema(tpl.formSchema));
       prevTplId.current = tpl.id;
       setPendingAttachments({});
@@ -180,6 +192,7 @@ export default function SubmitApprovalPage() {
       }
     }
     prevTplId.current = id;
+    setSelectedTemplateId(id);
     setPendingAttachments({});
 
     if (!formApi.getValue('title') || formApi.getValue('title').endsWith('申请')) {
@@ -254,11 +267,29 @@ export default function SubmitApprovalPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h2>发起审批</h2>
-        <p>选择审批类型并填写信息</p>
-      </div>
-      <Card style={{ maxWidth: 680 }}>
+      <PageHeader
+        title="发起审批"
+        description="选择审批类型并填写信息"
+      />
+      <Card className="page-step-card submit-step-card">
+        <div className="submit-step-shell">
+          <div className="submit-step-scroll">
+            <Steps current={currentStep} type="nav" className="submit-nav-steps">
+              {submitSteps.map((step) => (
+                <Steps.Step key={step.title} title={step.title} />
+              ))}
+            </Steps>
+          </div>
+          <div className="submit-step-meta">
+            <span className="submit-step-label">当前阶段</span>
+            <div className="submit-step-copy">
+              <div className="submit-step-title">{currentStepInfo.title}</div>
+              <div className="submit-step-description">{currentStepInfo.description}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+      <Card className="page-form-shell">
         <Form
           getFormApi={setFormApi}
           onSubmit={handleSubmit}
@@ -306,15 +337,16 @@ export default function SubmitApprovalPage() {
             />
           )}
 
-          <Button
-            htmlType="submit"
-            type="primary"
-            theme="solid"
-            loading={loading}
-            style={{ marginTop: 16 }}
-          >
-            提交审批
-          </Button>
+          <PageFormActions>
+            <Button
+              htmlType="submit"
+              type="primary"
+              theme="solid"
+              loading={loading}
+            >
+              提交审批
+            </Button>
+          </PageFormActions>
         </Form>
       </Card>
     </div>

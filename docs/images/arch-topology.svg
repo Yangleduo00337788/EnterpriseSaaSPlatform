@@ -1,0 +1,108 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="930" viewBox="0 0 1480 930">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+    <marker id="topoArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .zone{fill:#F7FAFF;stroke:#B5CCFF;stroke-width:2}
+      .zoneTitle{font:700 20px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0F1F3D}
+      .box{fill:#FFFFFF;stroke:#0052D9;stroke-width:2}
+      .sub{fill:#F3F8FF;stroke:#7AA9FF;stroke-width:1.8}
+      .infra{fill:#F5F7FA;stroke:#A9B8D6;stroke-width:1.8}
+      .label{font:700 18px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0F1F3D}
+      .text{font:14px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#2B395B}
+      .line{stroke:#4E5969;stroke-width:2.2;fill:none;marker-end:url(#topoArrow)}
+      .dash{stroke:#7AA9FF;stroke-width:1.8;stroke-dasharray:7 6;fill:none;marker-end:url(#topoArrow)}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1480" height="930" class="doc-bg"/>
+  <rect x="0" y="0" width="1480" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1448" height="812" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 1-2</text>
+  <text x="136" y="41" class="doc-title">总体拓扑图</text>
+  <text x="1452" y="41" text-anchor="end" class="doc-subtitle">README / 架构概览</text>
+  <g transform="translate(0,82)">
+    <rect x="36" y="24" width="1408" height="116" rx="14" ry="14" class="zone"/>
+    <text x="60" y="56" class="zoneTitle">接入层</text>
+    <rect x="86" y="74" width="210" height="44" rx="10" ry="10" class="box"/>
+    <text x="145" y="101" class="label">浏览器 / H5</text>
+    <rect x="362" y="74" width="220" height="44" rx="10" ry="10" class="box"/>
+    <text x="402" y="101" class="label">Nginx / API 网关</text>
+    <rect x="650" y="74" width="220" height="44" rx="10" ry="10" class="box"/>
+    <text x="698" y="101" class="label">前端静态资源</text>
+    <rect x="938" y="74" width="250" height="44" rx="10" ry="10" class="box"/>
+    <text x="980" y="101" class="label">TLS / JWT / 接口加密</text>
+    <line x1="296" y1="96" x2="362" y2="96" class="line"/>
+    <line x1="582" y1="96" x2="650" y2="96" class="line"/>
+    <line x1="870" y1="96" x2="938" y2="96" class="line"/>
+
+    <rect x="36" y="168" width="1408" height="170" rx="14" ry="14" class="zone"/>
+    <text x="60" y="200" class="zoneTitle">应用层</text>
+    <rect x="98" y="228" width="360" height="74" rx="12" ry="12" class="box"/>
+    <text x="201" y="256" class="label">flowcloud-web</text>
+    <text x="147" y="280" class="text">React 18 / TypeScript / Vite / Semi Design</text>
+    <rect x="520" y="220" width="410" height="90" rx="12" ry="12" class="box"/>
+    <text x="626" y="252" class="label">flowcloud-admin</text>
+    <text x="566" y="276" class="text">启动装配 / WebConfig / Interceptor / Env Loader</text>
+    <rect x="1002" y="228" width="340" height="74" rx="12" ry="12" class="sub"/>
+    <text x="1089" y="256" class="label">flowcloud-common</text>
+    <text x="1031" y="280" class="text">Result / JwtUtils / TenantContext / ApiCrypto / BaseEntity</text>
+    <line x1="760" y1="118" x2="760" y2="220" class="line"/>
+    <line x1="930" y1="265" x2="1002" y2="265" class="line"/>
+
+    <rect x="36" y="366" width="1408" height="208" rx="14" ry="14" class="zone"/>
+    <text x="60" y="398" class="zoneTitle">领域模块层</text>
+    <rect x="90" y="440" width="250" height="74" rx="12" ry="12" class="sub"/>
+    <text x="160" y="468" class="label">flowcloud-system</text>
+    <text x="115" y="492" class="text">认证 / 用户 / 角色 / 租户 / 字典 / 审计</text>
+    <rect x="380" y="440" width="250" height="74" rx="12" ry="12" class="sub"/>
+    <text x="448" y="468" class="label">flowcloud-approval</text>
+    <text x="411" y="492" class="text">模板 / 版本 / 实例 / 任务 / 记录</text>
+    <rect x="670" y="440" width="250" height="74" rx="12" ry="12" class="sub"/>
+    <text x="720" y="468" class="label">flowcloud-notification</text>
+    <text x="714" y="492" class="text">消息 / 模板 / 事件监听</text>
+    <rect x="960" y="440" width="250" height="74" rx="12" ry="12" class="sub"/>
+    <text x="1030" y="468" class="label">flowcloud-report</text>
+    <text x="996" y="492" class="text">工作台统计 / 报表分析 / 聚合查询</text>
+    <line x1="725" y1="310" x2="215" y2="440" class="line"/>
+    <line x1="725" y1="310" x2="505" y2="440" class="line"/>
+    <line x1="725" y1="310" x2="795" y2="440" class="line"/>
+    <line x1="725" y1="310" x2="1085" y2="440" class="line"/>
+
+    <rect x="36" y="602" width="1408" height="164" rx="14" ry="14" class="zone"/>
+    <text x="60" y="634" class="zoneTitle">数据与基础设施层</text>
+    <rect x="104" y="676" width="180" height="52" rx="10" ry="10" class="infra"/>
+    <text x="151" y="707" class="label">MySQL 8.x</text>
+    <rect x="330" y="676" width="180" height="52" rx="10" ry="10" class="infra"/>
+    <text x="386" y="707" class="label">Redis 7.x</text>
+    <rect x="556" y="676" width="180" height="52" rx="10" ry="10" class="infra"/>
+    <text x="595" y="707" class="label">RabbitMQ / Kafka</text>
+    <rect x="782" y="676" width="180" height="52" rx="10" ry="10" class="infra"/>
+    <text x="835" y="707" class="label">MinIO</text>
+    <rect x="1008" y="676" width="180" height="52" rx="10" ry="10" class="infra"/>
+    <text x="1061" y="707" class="label">Nacos</text>
+    <rect x="1234" y="676" width="160" height="52" rx="10" ry="10" class="infra"/>
+    <text x="1264" y="707" class="label">应用配置 应用配置 应用配置 application.env</text>
+    <line x1="215" y1="514" x2="194" y2="676" class="line"/>
+    <line x1="505" y1="514" x2="420" y2="676" class="line"/>
+    <line x1="505" y1="514" x2="646" y2="676" class="line"/>
+    <line x1="505" y1="514" x2="872" y2="676" class="line"/>
+    <line x1="1085" y1="514" x2="1098" y2="676" class="dash"/>
+    <line x1="725" y1="310" x2="1314" y2="676" class="dash"/>
+    <text x="1200" y="654" class="text">配置、密钥与环境变量外置注入</text>
+  </g>
+  <line x1="24" y1="906" x2="1456" y2="906" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="926" class="doc-footer">审流云企业审批平台 | 图 1-2 总体拓扑图 | 内部评审稿</text>
+  <text x="1452" y="926" text-anchor="end" class="doc-mark">1-2</text>
+</svg>

@@ -1,0 +1,133 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="790" viewBox="0 0 1480 790">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+    <marker id="erArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .domain{fill:#F7FAFF;stroke:#B5CCFF;stroke-width:2}
+      .domainTitle{font:700 20px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0F1F3D}
+      .entity{fill:#FFFFFF;stroke:#0052D9;stroke-width:1.8}
+      .entitySub{fill:#F3F8FF;stroke:#7AA9FF;stroke-width:1.6}
+      .label{font:700 17px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0F1F3D}
+      .text{font:13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#2B395B}
+      .line{stroke:#4E5969;stroke-width:2;fill:none;marker-end:url(#erArrow)}
+      .dash{stroke:#7AA9FF;stroke-width:1.7;stroke-dasharray:7 6;fill:none;marker-end:url(#erArrow)}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1480" height="790" class="doc-bg"/>
+  <rect x="0" y="0" width="1480" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1448" height="672" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 4-1</text>
+  <text x="136" y="41" class="doc-title">核心实体关系总览图</text>
+  <text x="1452" y="41" text-anchor="end" class="doc-subtitle">数据库设计说明 / 分层 ER 图</text>
+  <g transform="translate(0,82)">
+    <rect x="30" y="20" width="1420" height="150" rx="14" ry="14" class="domain"/>
+    <text x="54" y="52" class="domainTitle">租户与组织域</text>
+    <rect x="70" y="78" width="220" height="60" rx="12" ry="12" class="entity"/>
+    <text x="135" y="106" class="label">sys_tenant</text>
+    <text x="96" y="126" class="text">租户主表 / feature_config / plan_type</text>
+    <rect x="348" y="78" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="425" y="106" class="label">sys_dept</text>
+    <text x="379" y="126" class="text">部门树 / parent_id / tenant_id</text>
+    <rect x="626" y="78" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="704" y="106" class="label">sys_user</text>
+    <text x="657" y="126" class="text">账号 / dept_id / manager_id / is_admin</text>
+    <rect x="904" y="78" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="966" y="106" class="label">sys_position</text>
+    <text x="932" y="126" class="text">岗位主表 / tenant_id / dept_id</text>
+    <rect x="1182" y="78" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="1244" y="106" class="label">sys_user_position</text>
+    <text x="1216" y="126" class="text">用户岗位关联 / user_id / position_id</text>
+
+    <rect x="30" y="198" width="700" height="190" rx="14" ry="14" class="domain"/>
+    <text x="54" y="230" class="domainTitle">权限域</text>
+    <rect x="74" y="264" width="210" height="60" rx="12" ry="12" class="entity"/>
+    <text x="145" y="292" class="label">sys_role</text>
+    <text x="110" y="312" class="text">角色编码 / 数据范围 / tenant_id</text>
+    <rect x="334" y="264" width="210" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="390" y="292" class="label">sys_permission</text>
+    <text x="356" y="312" class="text">权限编码 / 菜单按钮 / 路由资源</text>
+    <rect x="74" y="332" width="210" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="126" y="360" class="label">sys_user_role</text>
+    <text x="111" y="380" class="text">用户角色关联 / user_id / role_id</text>
+    <rect x="334" y="332" width="210" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="366" y="360" class="label">sys_role_permission</text>
+    <text x="355" y="380" class="text">角色权限关联 / role_id / permission_id</text>
+
+    <rect x="760" y="198" width="690" height="310" rx="14" ry="14" class="domain"/>
+    <text x="784" y="230" class="domainTitle">审批域</text>
+    <rect x="804" y="264" width="220" height="60" rx="12" ry="12" class="entity"/>
+    <text x="850" y="292" class="label">approval_template</text>
+    <text x="835" y="312" class="text">模板定义 / form_schema / flow_config</text>
+    <rect x="1088" y="264" width="250" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="1132" y="292" class="label">approval_template_version</text>
+    <text x="1119" y="312" class="text">版本快照 / template_id / version_no</text>
+    <rect x="804" y="348" width="220" height="60" rx="12" ry="12" class="entity"/>
+    <text x="852" y="376" class="label">approval_instance</text>
+    <text x="818" y="396" class="text">运行态实例 / applicant_id / status</text>
+    <rect x="1088" y="348" width="170" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="1132" y="376" class="label">approval_task</text>
+    <text x="1111" y="396" class="text">待办任务 / approver_id</text>
+    <rect x="1280" y="348" width="130" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="1298" y="376" class="label">attachment_file</text>
+    <text x="1298" y="396" class="text">附件</text>
+    <rect x="1088" y="432" width="170" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="1120" y="460" class="label">approval_record</text>
+    <text x="1115" y="480" class="text">处理轨迹 / action / comment</text>
+
+    <rect x="30" y="416" width="700" height="156" rx="14" ry="14" class="domain"/>
+    <text x="54" y="448" class="domainTitle">通知与字典域</text>
+    <rect x="74" y="480" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="137" y="508" class="label">sys_message</text>
+    <text x="113" y="528" class="text">站内消息 / user_id / biz_type / is_read</text>
+    <rect x="334" y="480" width="220" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="373" y="508" class="label">sys_message_template</text>
+    <text x="370" y="528" class="text">消息模板 / code / title / content</text>
+    <rect x="594" y="480" width="110" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="615" y="508" class="label">sys_dict_type</text>
+    <text x="605" y="528" class="text">字典类型</text>
+    <rect x="594" y="548" width="110" height="60" rx="12" ry="12" class="entitySub"/>
+    <text x="616" y="576" class="label">sys_dict_data</text>
+    <text x="605" y="596" class="text">字典项</text>
+
+    <line x1="290" y1="108" x2="348" y2="108" class="line"/>
+    <line x1="290" y1="108" x2="626" y2="108" class="line"/>
+    <line x1="290" y1="108" x2="904" y2="108" class="line"/>
+    <line x1="846" y1="108" x2="179" y2="264" class="line"/>
+    <line x1="846" y1="108" x2="915" y2="264" class="line"/>
+    <line x1="736" y1="108" x2="179" y2="332" class="dash"/>
+    <line x1="284" y1="294" x2="334" y2="294" class="line"/>
+    <line x1="179" y1="324" x2="179" y2="332" class="line"/>
+    <line x1="439" y1="324" x2="439" y2="332" class="line"/>
+    <line x1="1024" y1="294" x2="1088" y2="294" class="line"/>
+    <line x1="914" y1="324" x2="914" y2="348" class="line"/>
+    <line x1="1024" y1="378" x2="1088" y2="378" class="line"/>
+    <line x1="1024" y1="378" x2="1280" y2="378" class="line"/>
+    <line x1="1173" y1="408" x2="1173" y2="432" class="line"/>
+    <line x1="736" y1="108" x2="74" y2="480" class="dash"/>
+    <line x1="914" y1="408" x2="184" y2="480" class="dash"/>
+    <line x1="649" y1="540" x2="649" y2="548" class="line"/>
+
+    <text x="298" y="92" class="text">1:N</text>
+    <text x="626" y="92" class="text">1:N</text>
+    <text x="914" y="92" class="text">1:N</text>
+    <text x="923" y="338" class="text">1:N</text>
+    <text x="1043" y="282" class="text">1:N</text>
+    <text x="1122" y="336" class="text">1:N</text>
+    <text x="1290" y="336" class="text">1:N</text>
+  </g>
+  <line x1="24" y1="766" x2="1456" y2="766" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="786" class="doc-footer">审流云企业审批平台 | 图 4-1 核心实体关系总览图 | 内部评审稿</text>
+  <text x="1452" y="786" text-anchor="end" class="doc-mark">4-1</text>
+</svg>

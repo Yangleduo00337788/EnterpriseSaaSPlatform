@@ -1,0 +1,51 @@
+﻿flowchart TB
+    Login[/登录页<br/>/login/]
+    Register[/注册页<br/>/register/]
+    Dashboard[/工作台<br/>/dashboard/]
+
+    ApprovalGroup[审批中心]
+    Pending[/待我审批<br/>/approval/pending/]
+    Handled[/已办任务<br/>/approval/handled/]
+    MyApply[/我的申请<br/>/approval/my/]
+    Submit[/发起审批<br/>/approval/submit/]
+    AllApply[/全部审批<br/>/approval/all/]
+    Detail[/审批详情<br/>/approval/detail/:id/]
+    Template[/流程模板<br/>/templates/]
+
+    Message[/消息中心<br/>/messages/]
+    Report[/报表分析<br/>/report/]
+
+    SystemGroup[系统管理]
+    Users[/员工管理<br/>/system/users/]
+    Roles[/角色管理<br/>/system/roles/]
+    Depts[/组织架构<br/>/system/depts/]
+    Positions[/岗位管理<br/>/system/positions/]
+    Tenant[/租户中心<br/>/system/tenant/]
+    Audit[/审计日志<br/>/system/audit-logs/]
+    Dicts[/系统字典<br/>/system/dicts/]
+    MsgTpl[/消息模板<br/>/system/message-templates/]
+
+    Login --> Dashboard
+    Register --> Login
+    Dashboard --> ApprovalGroup
+    ApprovalGroup --> Pending
+    ApprovalGroup --> Handled
+    ApprovalGroup --> MyApply
+    ApprovalGroup --> Submit
+    ApprovalGroup --> AllApply
+    Pending --> Detail
+    Handled --> Detail
+    MyApply --> Detail
+    AllApply --> Detail
+    Dashboard --> Template
+    Dashboard --> Message
+    Dashboard --> Report
+    Dashboard --> SystemGroup
+    SystemGroup --> Users
+    SystemGroup --> Roles
+    SystemGroup --> Depts
+    SystemGroup --> Positions
+    SystemGroup --> Tenant
+    SystemGroup --> Audit
+    SystemGroup --> Dicts
+    SystemGroup --> MsgTpl

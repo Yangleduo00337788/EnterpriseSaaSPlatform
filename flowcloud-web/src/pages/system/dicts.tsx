@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, InputNumber, Modal, Switch, Table, Tag, Toast } from '@douyinfe/semi-ui';
+import {
+  Button, Card, Form, Input, InputNumber, Modal, Switch, Table, Tag, Toast, Space,
+} from '@douyinfe/semi-ui';
 import { createDict, deleteDict, getDictById, getDictList, updateDict } from '@/api/dict';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
@@ -67,8 +70,8 @@ export default function DictsPage() {
     {
       title: '操作', width: 160,
       render: (_: unknown, record: DictTypeVO) => (
-        <>
-          <Button size="small" style={{ marginRight: 8 }} onClick={() => openEdit(record)}>编辑</Button>
+        <Space spacing={8} className="page-inline-actions">
+          <Button size="small" onClick={() => openEdit(record)}>编辑</Button>
           {canEdit && (
             <Button size="small" type="danger" onClick={() => Modal.confirm({
               title: '确认删除',
@@ -76,20 +79,18 @@ export default function DictsPage() {
               onOk: async () => { await deleteDict(record.id); Toast.success('删除成功'); fetchData(); },
             })}>删除</Button>
           )}
-        </>
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>系统字典</h2>
-          <p>维护审批分类、状态等可配置字典项</p>
-        </div>
-        {canEdit && <Button type="primary" onClick={openCreate}>新建字典</Button>}
-      </div>
+      <PageHeader
+        title="系统字典"
+        description="维护审批分类、状态等可配置字典项"
+        actions={canEdit ? <Button type="primary" theme="solid" onClick={openCreate}>新建字典</Button> : undefined}
+      />
       <Card>
         <Table columns={columns} dataSource={data} loading={loading} rowKey="id" pagination={false} />
       </Card>
@@ -99,18 +100,38 @@ export default function DictsPage() {
           <Form.Input field="dictName" label="字典名称" rules={[{ required: true, message: '必填' }]} />
           <Form.TextArea field="remark" label="备注" />
           <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
-          <div style={{ margin: '12px 0', fontWeight: 600 }}>字典项</div>
-          {items.map((item, index) => (
-            <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 80px 80px auto', gap: 8, marginBottom: 8 }}>
+          <div className="page-editor-title">字典项</div>
+          <div className="page-editor-list">
+            {items.map((item, index) => (
+              <div key={index} className="page-editor-row">
               <Input value={item.dictLabel} onChange={(v) => setItems((prev) => prev.map((x, i) => i === index ? { ...x, dictLabel: v } : x))} placeholder="标签" />
               <Input value={item.dictValue} onChange={(v) => setItems((prev) => prev.map((x, i) => i === index ? { ...x, dictValue: v } : x))} placeholder="值" />
               <InputNumber value={item.sort} onChange={(v) => setItems((prev) => prev.map((x, i) => i === index ? { ...x, sort: Number(v) } : x))} placeholder="排序" />
               <Switch checked={item.status === 1} onChange={(v) => setItems((prev) => prev.map((x, i) => i === index ? { ...x, status: v ? 1 : 0 } : x))} />
-              <Button type="danger" onClick={() => setItems((prev) => prev.filter((_, i) => i !== index))}>删</Button>
-            </div>
-          ))}
-          <Button style={{ marginBottom: 16 }} onClick={() => setItems((prev) => [...prev, { id: 0, dictTypeId: 0, dictLabel: '', dictValue: '', sort: prev.length, status: 1 }])}>添加字典项</Button>
-          {canEdit && <Button type="primary" htmlType="submit">保存</Button>}
+              <Button
+                type="danger"
+                theme="light"
+                className="page-action-button page-action-button-danger"
+                onClick={() => setItems((prev) => prev.filter((_, i) => i !== index))}
+              >
+                删除
+              </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            theme="light"
+            className="page-toolbar-button-secondary"
+            onClick={() => setItems((prev) => [...prev, { id: 0, dictTypeId: 0, dictLabel: '', dictValue: '', sort: prev.length, status: 1 }])}
+          >
+            添加字典项
+          </Button>
+          {canEdit && (
+            <PageFormActions>
+              <Button theme="borderless" onClick={() => setModalVisible(false)}>取消</Button>
+              <Button type="primary" theme="solid" htmlType="submit">保存</Button>
+            </PageFormActions>
+          )}
         </Form>
       </Modal>
     </div>

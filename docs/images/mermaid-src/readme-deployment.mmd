@@ -1,0 +1,23 @@
+﻿flowchart TB
+    User[Browser / User]
+    Nginx[Nginx / Gateway]
+    WebStatic[flowcloud-web<br/>静态资源]
+    AdminJar[flowcloud-admin<br/>Spring Boot Application]
+    Modules[system / approval / notification / report / common]
+    Mysql[(MySQL 8.x)]
+    Redis[(Redis 7.x)]
+    Minio[(MinIO)]
+    MQ[(RabbitMQ / Kafka)]
+    Nacos[(Nacos)]
+    Env[application.env / OS Env]
+
+    User --> Nginx
+    Nginx --> WebStatic
+    Nginx -->|/api| AdminJar
+    AdminJar --> Modules
+    AdminJar --> Mysql
+    AdminJar --> Redis
+    AdminJar --> Minio
+    AdminJar --> MQ
+    AdminJar -. optional .-> Nacos
+    Env --> AdminJar

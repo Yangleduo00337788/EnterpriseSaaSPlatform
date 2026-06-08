@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Form, Switch, Tag, Toast } from '@douyinfe/semi-ui';
+import { Button, Card, Form, Switch, Tag, Toast, Descriptions, Space, Typography, Divider } from '@douyinfe/semi-ui';
 import { getCurrentTenant, updateCurrentTenant } from '@/api/tenant';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
+import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { usePermission } from '@/hooks/usePermission';
+import { setUser } from '@/store/authSlice';
 import { PERM } from '@/utils/permissions';
-import { TENANT_FEATURE_DEFAULTS, TENANT_FEATURE_DISABLED_DEFAULTS, TENANT_FEATURE_LABEL_MAP, TENANT_FEATURE_OPTIONS } from '@/utils/featureDisplay';
+import {
+  TENANT_FEATURE_DEFAULTS,
+  TENANT_FEATURE_DISABLED_DEFAULTS,
+  TENANT_FEATURE_LABEL_MAP,
+  TENANT_FEATURE_OPTIONS,
+} from '@/utils/featureDisplay';
 import { EXPIRY_STATUS_META, TENANT_STATUS_META } from '@/utils/statusDisplay';
 import type { TenantProfileVO } from '@/types';
 
+const { Title, Text } = Typography;
+
 export default function TenantPage() {
+  const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((s) => s.auth.user);
   const { hasPermission } = usePermission();
   const canEditTenant = hasPermission(PERM.TENANT_EDIT);
   const [initialValues, setInitialValues] = useState<Partial<TenantProfileVO>>({});
@@ -17,6 +29,30 @@ export default function TenantPage() {
     [initialValues.enabledFeatures],
   );
   const tenantStatusMeta = TENANT_STATUS_META[initialValues.status ?? 0];
+  const tenantSummary = useMemo(() => ([
+    {
+      key: '租户状态',
+      value: <Tag color={tenantStatusMeta?.color ?? 'grey'}>{tenantStatusMeta?.text || initialValues.status || '-'}</Tag>,
+    },
+    { key: '套餐', value: initialValues.planType || '-' },
+    { key: '用户配额', value: `${initialValues.currentUsers || 0} / ${initialValues.maxUsers || '-'}` },
+    { key: '剩余席位', value: initialValues.remainingUserSlots ?? '-' },
+    {
+      key: '到期时间',
+      value: (
+        <Space spacing={8}>
+          <span>{initialValues.expireTime || '-'}</span>
+          {initialValues.expired && <Tag color={EXPIRY_STATUS_META.expired.color}>{EXPIRY_STATUS_META.expired.text}</Tag>}
+        </Space>
+      ),
+    },
+    {
+      key: '已启用能力',
+      value: featureLabels.length > 0
+        ? <Space wrap>{featureLabels.map((item) => <Tag key={item} color="blue">{item}</Tag>)}</Space>
+        : '-',
+    },
+  ]), [featureLabels, initialValues, tenantStatusMeta]);
 
   useEffect(() => {
     getCurrentTenant().then((res) => {
@@ -42,55 +78,30 @@ export default function TenantPage() {
     if (!canEditTenant) {
       return;
     }
-    await updateCurrentTenant({
+    const payload = {
       ...(values as Partial<TenantProfileVO>),
       featureConfig: JSON.stringify(featureFlags),
-    });
+    };
+    await updateCurrentTenant(payload);
+    setInitialValues((current) => ({ ...current, ...payload }));
+    if (currentUser) {
+      dispatch(setUser({
+        ...currentUser,
+        tenantName: String(payload.tenantName ?? currentUser.tenantName),
+        themeColor: String(payload.themeColor ?? currentUser.themeColor ?? ''),
+      }));
+    }
     Toast.success('保存成功');
   };
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h2>租户中心</h2>
-        <p>维护当前租户的品牌、联系人和套餐信息</p>
-      </div>
-      <Card style={{ marginBottom: 16 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16 }}>
-          <div>
-            <div style={{ color: '#86909c', fontSize: 12 }}>租户状态</div>
-            <div style={{ marginTop: 8 }}>
-              <Tag color={tenantStatusMeta?.color ?? 'grey'}>
-                {tenantStatusMeta?.text || initialValues.status || '-'}
-              </Tag>
-            </div>
-          </div>
-          <div>
-            <div style={{ color: '#86909c', fontSize: 12 }}>套餐</div>
-            <div style={{ marginTop: 8, fontWeight: 600 }}>{initialValues.planType || '-'}</div>
-          </div>
-          <div>
-            <div style={{ color: '#86909c', fontSize: 12 }}>用户配额</div>
-            <div style={{ marginTop: 8, fontWeight: 600 }}>
-              {initialValues.currentUsers || 0} / {initialValues.maxUsers || '-'}
-            </div>
-          </div>
-          <div>
-            <div style={{ color: '#86909c', fontSize: 12 }}>剩余席位</div>
-            <div style={{ marginTop: 8, fontWeight: 600 }}>{initialValues.remainingUserSlots ?? '-'}</div>
-          </div>
-        </div>
-        <div style={{ marginTop: 16, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-          <div>
-            <span style={{ color: '#86909c', marginRight: 8 }}>到期时间</span>
-            <span>{initialValues.expireTime || '-'}</span>
-            {initialValues.expired && <Tag color={EXPIRY_STATUS_META.expired.color} style={{ marginLeft: 8 }}>{EXPIRY_STATUS_META.expired.text}</Tag>}
-          </div>
-          <div>
-            <span style={{ color: '#86909c', marginRight: 8 }}>已启用能力</span>
-            {featureLabels.length > 0 ? featureLabels.map((item) => <Tag key={item} color="blue" style={{ marginRight: 8 }}>{item}</Tag>) : '-'}
-          </div>
-        </div>
+      <PageHeader
+        title="租户中心"
+        description="维护当前租户的品牌、联系人和套餐信息"
+      />
+      <Card className="page-card-stack">
+        <Descriptions data={tenantSummary} columns={3} />
       </Card>
       <Card>
         <Form key={initialValues.id || 0} initValues={initialValues} onSubmit={handleSubmit}>
@@ -105,20 +116,27 @@ export default function TenantPage() {
           <Form.InputNumber field="maxUsers" label="最大用户数" disabled={!canEditTenant} />
           <Form.Input field="expireTime" label="到期时间" placeholder="yyyy-MM-dd HH:mm:ss" disabled={!canEditTenant} />
           <Form.TextArea field="packageConfig" label="套餐配置JSON" disabled={!canEditTenant} />
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>功能开关</div>
-            {TENANT_FEATURE_OPTIONS.map((item) => (
-              <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span>{item.label}</span>
-                <Switch
-                  checked={featureFlags[item.key as keyof typeof featureFlags]}
-                  disabled={!canEditTenant}
-                  onChange={(v) => setFeatureFlags((prev) => ({ ...prev, [item.key]: v }))}
-                />
-              </div>
-            ))}
-          </div>
-          {canEditTenant && <Button htmlType="submit" type="primary">保存</Button>}
+          <Divider margin="24px" />
+          <Form.Slot>
+            <Space vertical align="start" spacing={12} className="page-section-stack">
+              <Title heading={6}>功能开关</Title>
+              {TENANT_FEATURE_OPTIONS.map((item) => (
+                <div key={item.key} className="tenant-feature-item">
+                  <Text>{item.label}</Text>
+                  <Switch
+                    checked={featureFlags[item.key as keyof typeof featureFlags]}
+                    disabled={!canEditTenant}
+                    onChange={(v) => setFeatureFlags((prev) => ({ ...prev, [item.key]: v }))}
+                  />
+                </div>
+              ))}
+            </Space>
+          </Form.Slot>
+          {canEditTenant && (
+            <PageFormActions>
+              <Button htmlType="submit" theme="solid" type="primary">保存</Button>
+            </PageFormActions>
+          )}
         </Form>
       </Card>
     </div>

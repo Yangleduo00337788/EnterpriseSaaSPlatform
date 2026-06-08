@@ -16,7 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -98,31 +101,36 @@ public class DictServiceImpl implements DictService {
     }
 
     private void saveItems(Long typeId, List<DictDataDTO> items) {
-        if (items == null) {
+        if (items == null || items.isEmpty()) {
             return;
         }
-        int sort = 0;
+        validateItems(items);
+        int fallbackSort = 0;
         for (DictDataDTO item : items) {
             SysDictData data = new SysDictData();
             data.setTenantId(TenantContext.getTenantId());
             data.setDictTypeId(typeId);
             data.setDictLabel(item.getDictLabel());
             data.setDictValue(item.getDictValue());
-            data.setSort(item.getSort() != null ? item.getSort() : sort++);
+            data.setSort(item.getSort() != null ? item.getSort() : fallbackSort);
             data.setStatus(item.getStatus() != null ? item.getStatus() : 1);
             data.setRemark(item.getRemark());
             dictDataMapper.insert(data);
+            fallbackSort++;
         }
     }
 
     private List<DictDataVO> loadItems(Long typeId) {
-        return dictDataMapper.selectListByQuery(
+        Map<String, DictDataVO> uniqueItems = new LinkedHashMap<>();
+        dictDataMapper.selectListByQuery(
                         QueryWrapper.create()
                                 .where(SysDictData::getDictTypeId).eq(typeId)
-                                .orderBy(SysDictData::getSort, true))
+                                .orderBy(SysDictData::getSort, true)
+                                .orderBy(SysDictData::getId, true))
                 .stream()
                 .map(this::toDataVO)
-                .toList();
+                .forEach(item -> uniqueItems.merge(uniqueItemKey(item), item, this::mergeDuplicateItem));
+        return new ArrayList<>(uniqueItems.values());
     }
 
     private SysDictType getTypeOrThrow(Long id) {
@@ -143,6 +151,39 @@ public class DictServiceImpl implements DictService {
         if (dictTypeMapper.selectCountByQuery(query) > 0) {
             throw new BusinessException("字典编码已存在");
         }
+    }
+
+    private void validateItems(List<DictDataDTO> items) {
+        Map<String, String> existingValues = new LinkedHashMap<>();
+        for (DictDataDTO item : items) {
+            if (item.getDictValue() == null) {
+                continue;
+            }
+            String dictValue = item.getDictValue().trim();
+            if (dictValue.isEmpty()) {
+                continue;
+            }
+            String previousLabel = existingValues.putIfAbsent(dictValue, item.getDictLabel());
+            if (previousLabel != null) {
+                throw new BusinessException("字典项值不能重复: " + dictValue);
+            }
+        }
+    }
+
+    private String uniqueItemKey(DictDataVO item) {
+        if (item.getDictValue() != null && !item.getDictValue().isBlank()) {
+            return item.getDictValue().trim();
+        }
+        return "__label__" + item.getDictLabel();
+    }
+
+    private DictDataVO mergeDuplicateItem(DictDataVO existing, DictDataVO candidate) {
+        if ((existing.getRemark() == null || existing.getRemark().isBlank())
+                && candidate.getRemark() != null
+                && !candidate.getRemark().isBlank()) {
+            existing.setRemark(candidate.getRemark());
+        }
+        return existing;
     }
 
     private DictTypeVO toTypeVO(SysDictType type) {

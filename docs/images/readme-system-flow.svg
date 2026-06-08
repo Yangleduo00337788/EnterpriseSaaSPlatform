@@ -1,0 +1,64 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="562" viewBox="0 0 1400 562">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .label{font:600 17px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .box{fill:#fff;stroke:#0052D9;stroke-width:2}
+      .decision{fill:#F3F8FF;stroke:#0052D9;stroke-width:2}
+      .line{stroke:#4E5969;stroke-width:2.5;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1400" height="562" class="doc-bg"/>
+  <rect x="0" y="0" width="1400" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1368" height="442" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 1-3</text>
+  <text x="136" y="41" class="doc-title">核心业务流转图</text>
+  <text x="1372" y="41" text-anchor="end" class="doc-subtitle">README / 架构概览</text>
+  <g transform="translate(0,84)">
+<rect x="30" y="120" width="130" height="54" rx="10" ry="10" class="box"/><text x="57" y="153" class="label">访问系统</text>
+  <polygon points="220,105 300,147 220,189 140,147" class="decision"/><text x="178" y="153" class="label">已登录?</text>
+  <rect x="340" y="120" width="170" height="54" rx="10" ry="10" class="box"/><text x="370" y="153" class="label">登录 / 注册</text>
+  <rect x="560" y="120" width="190" height="54" rx="10" ry="10" class="box"/><text x="592" y="153" class="label">获取 JWT Token</text>
+  <rect x="800" y="120" width="160" height="54" rx="10" ry="10" class="box"/><text x="838" y="153" class="label">工作台</text>
+  <rect x="1010" y="120" width="160" height="54" rx="10" ry="10" class="box"/><text x="1040" y="153" class="label">发起审批</text>
+  <rect x="1220" y="120" width="150" height="54" rx="10" ry="10" class="box"/><text x="1240" y="153" class="label">选择模板</text>
+  <rect x="30" y="280" width="170" height="54" rx="10" ry="10" class="box"/><text x="61" y="313" class="label">填写并提交</text>
+  <rect x="250" y="280" width="190" height="54" rx="10" ry="10" class="box"/><text x="274" y="313" class="label">创建审批实例</text>
+  <rect x="490" y="280" width="190" height="54" rx="10" ry="10" class="box"/><text x="515" y="313" class="label">生成待办任务</text>
+  <rect x="730" y="280" width="210" height="54" rx="10" ry="10" class="box"/><text x="758" y="313" class="label">消息推送提醒</text>
+  <rect x="990" y="280" width="170" height="54" rx="10" ry="10" class="box"/><text x="1020" y="313" class="label">审批人处理</text>
+  <polygon points="1240,265 1320,307 1240,349 1160,307" class="decision"/><text x="1206" y="313" class="label">结果</text>
+  <rect x="1180" y="30" width="170" height="54" rx="10" ry="10" class="box"/><text x="1212" y="63" class="label">结束或流转</text>
+  <rect x="1180" y="360" width="170" height="54" rx="10" ry="10" class="box"/><text x="1212" y="393" class="label">流程终止</text>
+  <line x1="160" y1="147" x2="140" y2="147" class="line"/>
+  <line x1="300" y1="147" x2="340" y2="147" class="line"/>
+  <line x1="510" y1="147" x2="560" y2="147" class="line"/>
+  <line x1="750" y1="147" x2="800" y2="147" class="line"/>
+  <line x1="960" y1="147" x2="1010" y2="147" class="line"/>
+  <line x1="1170" y1="147" x2="1220" y2="147" class="line"/>
+  <path d="M1295 174 L1295 240 L115 240 L115 280" class="line"/>
+  <line x1="200" y1="307" x2="250" y2="307" class="line"/>
+  <line x1="440" y1="307" x2="490" y2="307" class="line"/>
+  <line x1="680" y1="307" x2="730" y2="307" class="line"/>
+  <line x1="940" y1="307" x2="990" y2="307" class="line"/>
+  <line x1="1240" y1="265" x2="1265" y2="84" class="line"/>
+  <line x1="1240" y1="349" x2="1265" y2="360" class="line"/>
+  </g>
+  <line x1="24" y1="538" x2="1376" y2="538" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="558" class="doc-footer">审流云企业审批平台 | 图 1-3 核心业务流转图 | 内部评审稿</text>
+  <text x="1372" y="558" text-anchor="end" class="doc-mark">1-3</text>
+</svg>

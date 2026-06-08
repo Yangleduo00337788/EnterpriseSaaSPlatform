@@ -254,6 +254,7 @@ CREATE TABLE IF NOT EXISTS attachment_file (
     original_name VARCHAR(256) NOT NULL COMMENT '原始文件名',
     file_key VARCHAR(512) NOT NULL COMMENT '存储路径key',
     file_url VARCHAR(512) NOT NULL COMMENT '访问URL',
+    storage_type VARCHAR(16) COMMENT '存储类型 LOCAL/MINIO',
     file_size BIGINT COMMENT '文件大小(bytes)',
     mime_type VARCHAR(128) COMMENT 'MIME类型',
     uploader_id BIGINT COMMENT '上传人ID',

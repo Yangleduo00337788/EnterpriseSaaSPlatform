@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  Card, Tag, Timeline, Spin, Descriptions, Button, Form, Modal, Toast,
+  Card, Tag, Timeline, Spin, Descriptions, Button, Form, Modal, Toast, Collapse, Space,
 } from '@douyinfe/semi-ui';
 import { cancelInstance, completeTask, getInstanceDetail, getTemplate, remindTask } from '@/api/approval';
 import { deleteAttachment, getAttachments } from '@/api/attachment';
 import type { AttachmentVO } from '@/api/attachment';
+import { PageActionGroup, PageFormActions, PageHeader } from '@/components/page-kit';
 import { useApprovalCategory } from '@/hooks/useApprovalCategory';
 import { useApprovalStatus } from '@/hooks/useApprovalStatus';
 import { useAppSelector } from '@/hooks/useAppDispatch';
+import { openAttachmentPreview } from '@/utils/attachmentPreview';
 import type { InstanceVO, TemplateVO } from '@/types';
 
 interface SchemaField {
@@ -72,10 +74,16 @@ function FormDataDisplay({
           return (
             <Descriptions.Item key={field.name} itemKey={field.label}>
               {fieldAttachments.length === 0 ? '-' : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div className="page-link-list">
                   {fieldAttachments.map((att) => (
-                    <div key={att.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <a href={att.fileUrl} target="_blank" rel="noreferrer" style={{ color: '#3370ff' }}>
+                    <div key={att.id} className="page-link-row">
+                      <a
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          openAttachmentPreview(att);
+                        }}
+                      >
                         {att.originalName}
                         {att.fileSize ? ` (${(att.fileSize / 1024).toFixed(1)}KB)` : ''}
                       </a>
@@ -83,7 +91,8 @@ function FormDataDisplay({
                         <Button
                           size="small"
                           type="danger"
-                          theme="borderless"
+                          theme="light"
+                          className="page-action-button page-action-button-danger"
                           onClick={() => onDeleteAttachment(att)}
                         >
                           删除
@@ -185,37 +194,75 @@ export default function InstanceDetailPage() {
     });
   };
 
-  if (loading) return <Spin style={{ display: 'block', margin: '100px auto' }} />;
+  if (loading) return <Spin className="page-loading-block" />;
   if (!data) return <div className="page-container">审批单不存在</div>;
 
   const statusInfo = getStatusMeta(data.status);
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>审批详情</h2>
-          <p>{data.instanceNo}</p>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {currentPendingTask && (
-            <>
-              <Button type="primary" onClick={() => setActionModal({ visible: true, action: 'approve' })}>通过</Button>
-              <Button type="danger" onClick={() => setActionModal({ visible: true, action: 'reject' })}>驳回</Button>
-            </>
-          )}
-          {canRemind && <Button onClick={handleRemind}>催办</Button>}
-          {canCancel && <Button onClick={handleCancel}>撤销申请</Button>}
-        </div>
-      </div>
+      <PageHeader
+        title="审批详情"
+        description={data.instanceNo}
+        actions={(
+          <PageActionGroup>
+            {currentPendingTask && (
+              <>
+                <Button
+                  type="primary"
+                  theme="solid"
+                  className="page-action-button page-action-button-primary"
+                  onClick={() => setActionModal({ visible: true, action: 'approve' })}
+                >
+                  通过
+                </Button>
+                <Button
+                  type="danger"
+                  theme="light"
+                  className="page-action-button page-action-button-danger"
+                  onClick={() => setActionModal({ visible: true, action: 'reject' })}
+                >
+                  驳回
+                </Button>
+              </>
+            )}
+            {canRemind && (
+              <Button
+                type="tertiary"
+                theme="light"
+                className="page-action-button page-action-button-secondary"
+                onClick={handleRemind}
+              >
+                催办
+              </Button>
+            )}
+            {canCancel && (
+              <Button
+                type="danger"
+                theme="light"
+                className="page-action-button page-action-button-danger"
+                onClick={handleCancel}
+              >
+                撤销申请
+              </Button>
+            )}
+          </PageActionGroup>
+        )}
+      />
 
-      <Card title="基本信息" style={{ marginBottom: 16 }}>
-        <Descriptions align="left">
+      <Card title="基本信息" className="page-card-stack page-detail-card">
+        <Descriptions align="left" className="page-detail-descriptions">
           <Descriptions.Item itemKey="标题">{data.title}</Descriptions.Item>
           <Descriptions.Item itemKey="类型">{categoryLabelMap[data.category] || data.category}</Descriptions.Item>
           <Descriptions.Item itemKey="申请人">{data.applicantName}</Descriptions.Item>
           <Descriptions.Item itemKey="状态">
-            <Tag color={statusInfo?.color as 'blue'}>{statusInfo?.text || data.status}</Tag>
+            <Tag
+              theme="light"
+              color={statusInfo?.color as 'blue'}
+              className={`page-status-tag page-status-tag-${statusInfo.tone}`}
+            >
+              {statusInfo?.text || data.status}
+            </Tag>
           </Descriptions.Item>
           <Descriptions.Item itemKey="提交时间">{data.submitTime}</Descriptions.Item>
           {data.finishTime && (
@@ -224,35 +271,36 @@ export default function InstanceDetailPage() {
         </Descriptions>
       </Card>
 
-      <Card title="申请内容" style={{ marginBottom: 16 }}>
-        <Descriptions align="left">
-          <FormDataDisplay
-            formData={data.formData}
-            formSchema={template?.formSchema}
-            attachments={attachments}
-            canDeleteAttachment={!!canDeleteAttachment}
-            onDeleteAttachment={handleDeleteAttachment}
-          />
-        </Descriptions>
-      </Card>
-
-      <Card title="审批流程">
-        <Timeline>
-          {(data.records || []).map((record, index) => (
-            <Timeline.Item
-              key={index}
-              type={record.action === 'reject' ? 'error' : record.action === 'approve' ? 'success' : 'ongoing'}
-              time={record.createTime}
-            >
-              <div style={{ fontWeight: 600 }}>{record.nodeName}</div>
-              <div style={{ color: '#86909c', fontSize: 13 }}>
-                {record.operatorName} · {record.action === 'submit' ? '提交' : record.action === 'approve' ? '通过' : '驳回'}
-              </div>
-              {record.comment && <div style={{ marginTop: 4 }}>{record.comment}</div>}
-            </Timeline.Item>
-          ))}
-        </Timeline>
-      </Card>
+      <Collapse defaultActiveKey={['content', 'timeline']} className="page-detail-collapse">
+        <Collapse.Panel header="申请内容" itemKey="content">
+          <Descriptions align="left" className="page-detail-descriptions">
+            <FormDataDisplay
+              formData={data.formData}
+              formSchema={template?.formSchema}
+              attachments={attachments}
+              canDeleteAttachment={!!canDeleteAttachment}
+              onDeleteAttachment={handleDeleteAttachment}
+            />
+          </Descriptions>
+        </Collapse.Panel>
+        <Collapse.Panel header="审批流程" itemKey="timeline">
+          <Timeline className="page-detail-timeline">
+            {(data.records || []).map((record, index) => (
+              <Timeline.Item
+                key={index}
+                type={record.action === 'reject' ? 'error' : record.action === 'approve' ? 'success' : 'ongoing'}
+                time={record.createTime}
+              >
+                <div className="page-timeline-title">{record.nodeName}</div>
+                <div className="page-timeline-meta">
+                  {record.operatorName} · {record.action === 'submit' ? '提交' : record.action === 'approve' ? '通过' : '驳回'}
+                </div>
+                {record.comment && <div className="page-timeline-comment">{record.comment}</div>}
+              </Timeline.Item>
+            ))}
+          </Timeline>
+        </Collapse.Panel>
+      </Collapse>
 
       <Modal
         title={actionModal.action === 'approve' ? '审批通过' : '审批驳回'}
@@ -262,9 +310,24 @@ export default function InstanceDetailPage() {
       >
         <Form onSubmit={handleTaskAction}>
           <Form.TextArea field="comment" label="审批意见" placeholder="请输入审批意见（可选）" />
-          <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
-            确认
-          </Button>
+          <PageFormActions>
+            <Button
+              type="tertiary"
+              theme="light"
+              className="page-action-button"
+              onClick={() => setActionModal({ visible: false })}
+            >
+              取消
+            </Button>
+            <Button
+              htmlType="submit"
+              type="primary"
+              theme="solid"
+              className="page-action-button page-action-button-primary"
+            >
+              确认
+            </Button>
+          </PageFormActions>
         </Form>
       </Modal>
     </div>

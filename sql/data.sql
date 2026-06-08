@@ -83,10 +83,11 @@ INSERT INTO sys_permission (id, parent_id, perm_code, perm_name, perm_type, path
 (4,  2, 'approval:my',   '我的申请',   'menu', '/approval/my',        NULL,        1, 1),
 (5,  2, 'approval:pending','待我审批', 'menu', '/approval/pending',   NULL,        2, 1),
 (6,  2, 'approval:all',  '全部审批',   'menu', '/approval/all',       NULL,        3, 1),
-(7,  0, 'template',      '流程模板',   'menu', '/templates',          'template',  2, 1),
+(7,  2, 'template',      '流程模板',   'menu', '/templates',          'template',  4, 1),
+(40, 0, 'insight',       '消息与分析', 'menu', NULL,                  'report',    2, 1),
 (8,  0, 'system',        '系统管理',   'menu', NULL,                  'setting',   3, 1),
 (9,  8, 'system:user',   '用户管理',   'menu', '/system/users',       NULL,        0, 1),
-(22, 0, 'messages',      '消息中心',   'menu', '/messages',           'bell',      4, 1);
+(22, 40, 'messages',     '消息中心',   'menu', '/messages',           'bell',      0, 1);
 
 INSERT INTO sys_role_permission (role_id, permission_id) VALUES
 (1,1),(1,2),(1,3),(1,4),(1,5),(1,6),(1,7),(1,8),(1,9),(1,22),
@@ -305,7 +306,7 @@ ALTER TABLE sys_tenant AUTO_INCREMENT = 3;
 ALTER TABLE sys_dept AUTO_INCREMENT = 11;
 ALTER TABLE sys_role AUTO_INCREMENT = 7;
 ALTER TABLE sys_user AUTO_INCREMENT = 10;
-ALTER TABLE sys_permission AUTO_INCREMENT = 22;
+ALTER TABLE sys_permission AUTO_INCREMENT = 41;
 ALTER TABLE approval_template AUTO_INCREMENT = 6;
 ALTER TABLE approval_instance AUTO_INCREMENT = 9;
 ALTER TABLE approval_task AUTO_INCREMENT = 11;
@@ -313,7 +314,7 @@ ALTER TABLE approval_task AUTO_INCREMENT = 11;
 -- 审计日志权限
 INSERT IGNORE INTO sys_permission (perm_code, perm_name, perm_type, path, parent_id, sort, create_time)
 VALUES
-  ('system:audit',      '审计日志',    'menu',   '/system/audit-logs', 0, 90, NOW()),
+  ('system:audit',      '审计日志',    'menu',   '/system/audit-logs', 8, 11, NOW()),
   ('system:audit:view', '查看审计日志', 'button', NULL,                 0, 91, NOW());
 
 -- 将审计权限绑定到管理员角色（role_id=1 对应 admin）
@@ -324,14 +325,18 @@ SELECT 1, id FROM sys_permission WHERE perm_code IN ('system:audit', 'system:aud
 INSERT IGNORE INTO sys_permission (id, parent_id, perm_code, perm_name, perm_type, path, sort, status) VALUES
 (26, 8, 'system:role', '角色管理', 'menu', '/system/roles', 5, 1),
 (27, 26, 'system:role:edit', '编辑角色', 'button', NULL, 1, 1),
-(28, 0, 'report', '报表分析', 'menu', '/report', 5, 1),
+(28, 40, 'report', '报表分析', 'menu', '/report', 1, 1),
 (29, 8, 'system:dict', '系统字典', 'menu', '/system/dicts', 6, 1),
 (30, 29, 'system:dict:edit', '编辑字典', 'button', NULL, 1, 1),
 (31, 8, 'system:message-template', '消息模板', 'menu', '/system/message-templates', 7, 1),
-(32, 31, 'system:message-template:edit', '编辑消息模板', 'button', NULL, 1, 1);
+(32, 31, 'system:message-template:edit', '编辑消息模板', 'button', NULL, 1, 1),
+(33, 8, 'system:file', '文件管理', 'menu', '/system/files', 8, 1),
+(34, 33, 'system:file:view', '查看文件', 'button', NULL, 1, 1),
+(35, 33, 'system:file:download', '下载文件', 'button', NULL, 2, 1),
+(36, 33, 'system:file:delete', '删除文件', 'button', NULL, 3, 1);
 
 INSERT IGNORE INTO sys_role_permission (role_id, permission_id) VALUES
-(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32);
+(1,26),(1,27),(1,28),(1,29),(1,30),(1,31),(1,32),(1,33),(1,34),(1,35),(1,36);
 
 INSERT IGNORE INTO sys_dict_type (tenant_id, dict_code, dict_name, status, remark) VALUES
 (1, 'approval_category', '审批分类', 1, '审批模板分类'),

@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Table, Button, Card, Modal, Form, Tag, Toast, Input, Switch } from '@douyinfe/semi-ui';
+import {
+  Table, Button, Card, Modal, Form, Tag, Toast, Input, Switch, Space,
+} from '@douyinfe/semi-ui';
 import { getUserList, createUser, updateUser, deleteUser, toggleUserStatus, getRoleOptions, getUserOptions, exportUsers, importUsers, resetUserPassword } from '@/api/user';
 import { getDeptTree } from '@/api/dept';
 import { assignUserPositions, getPositions, getUserPositionIds } from '@/api/position';
+import { PageActionGroup, PageFilterCard, PageFormActions, PageHeader } from '@/components/page-kit';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
@@ -43,10 +46,10 @@ export default function UserListPage() {
     [userOptions],
   );
 
-  const fetchData = async (page = pageNum) => {
+  const fetchData = async (page = pageNum, nextKeyword = keyword) => {
     setLoading(true);
     try {
-      const res = await getUserList({ keyword, pageNum: page, pageSize: 10 });
+      const res = await getUserList({ keyword: nextKeyword, pageNum: page, pageSize: 10 });
       setData(res.data.records);
       setTotal(res.data.total);
     } finally {
@@ -98,6 +101,31 @@ export default function UserListPage() {
     fetchData();
   };
 
+  const handleSearch = () => {
+    setPageNum(1);
+    fetchData(1);
+  };
+
+  const handleResetFilters = () => {
+    setKeyword('');
+    setPageNum(1);
+    fetchData(1, '');
+  };
+
+  const handleImport = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xlsx,.xls';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const res = await importUsers(file);
+      Toast.success(`导入完成：成功 ${res.data.successCount} 条，失败 ${res.data.failCount} 条`);
+      fetchData();
+    };
+    input.click();
+  };
+
   const columns = [
     { title: '用户名', dataIndex: 'username', width: 120 },
     { title: '姓名', dataIndex: 'realName', width: 100 },
@@ -108,7 +136,11 @@ export default function UserListPage() {
     { title: '直属上级', dataIndex: 'managerName', width: 120, render: (value?: string) => value || '-' },
     {
       title: '角色', dataIndex: 'roleNames', width: 180,
-      render: (roleNames: string[]) => roleNames?.map((r) => <Tag key={r} style={{ marginRight: 4 }}>{r}</Tag>),
+      render: (roleNames: string[]) => (
+        <div className="page-tag-list">
+          {roleNames?.map((r) => <Tag key={r}>{r}</Tag>)}
+        </div>
+      ),
     },
     {
       title: '状态', dataIndex: 'status', width: 150,
@@ -116,7 +148,7 @@ export default function UserListPage() {
         const statusMeta = ENABLED_STATUS_META[v];
         return (
         canEditUser ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+          <PageActionGroup>
             <Switch
               checked={v === 1}
               onChange={async () => {
@@ -125,10 +157,10 @@ export default function UserListPage() {
                 fetchData();
               }}
             />
-            <span style={{ color: statusMeta?.color ?? '#86909c', fontSize: 12 }}>
+            <span className="page-status-text" style={{ color: statusMeta?.color ?? 'var(--semi-color-text-2)' }}>
               {statusMeta?.text || v}
             </span>
-          </div>
+          </PageActionGroup>
         ) : (
           <Tag color={statusMeta?.color ?? 'grey'}>{statusMeta?.text || v}</Tag>
         )
@@ -138,7 +170,7 @@ export default function UserListPage() {
     ...(canEditUser ? [{
       title: '操作', width: 280,
       render: (_: unknown, record: UserVO) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+        <PageActionGroup>
           <Button size="small" onClick={() => { setEditing(record); setModalVisible(true); }}>
             编辑
           </Button>
@@ -151,49 +183,43 @@ export default function UserListPage() {
           <Button size="small" type="danger" onClick={async () => { await deleteUser(record.id); fetchData(); }}>
             删除
           </Button>
-        </div>
+        </PageActionGroup>
       ),
     }] : []),
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>员工管理</h2>
-          <p>管理企业员工、部门归属、直属上级和角色</p>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Input
-            placeholder="搜索用户名/姓名"
-            style={{ width: 200 }}
-            value={keyword}
-            onChange={setKeyword}
-            onEnterPress={() => { setPageNum(1); fetchData(1); }}
-          />
-          {canEditUser && (
-            <>
-              <Button onClick={() => exportUsers()}>导出 Excel</Button>
-              <Button onClick={() => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.xlsx,.xls';
-                input.onchange = async () => {
-                  const file = input.files?.[0];
-                  if (!file) return;
-                  const res = await importUsers(file);
-                  Toast.success(`导入完成：成功 ${res.data.successCount} 条，失败 ${res.data.failCount} 条`);
-                  fetchData();
-                };
-                input.click();
-              }}>导入 Excel</Button>
-              <Button type="primary" onClick={() => { setEditing(null); setModalVisible(true); }}>
-                添加员工
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="员工管理"
+        description="管理企业员工、部门归属、直属上级和角色"
+      />
+      <PageFilterCard>
+        <Form>
+          <Space wrap spacing={16} align="center" className="page-filter-space">
+            <Space wrap spacing={12} className="page-filter-fields">
+              <Input
+                placeholder="搜索用户名/姓名"
+                style={{ width: 220 }}
+                value={keyword}
+                onChange={setKeyword}
+                onEnterPress={handleSearch}
+              />
+              <Button type="primary" theme="solid" onClick={handleSearch}>查询</Button>
+              <Button theme="solid" onClick={handleResetFilters}>重置</Button>
+            </Space>
+            {canEditUser && (
+              <Space wrap spacing={12} className="page-filter-actions">
+                <Button theme="solid" onClick={() => exportUsers()}>导出 Excel</Button>
+                <Button theme="solid" onClick={handleImport}>导入 Excel</Button>
+                <Button theme="solid" type="primary" onClick={() => { setEditing(null); setModalVisible(true); }}>
+                  添加员工
+                </Button>
+              </Space>
+            )}
+          </Space>
+        </Form>
+      </PageFilterCard>
       <Card>
         <Table
           columns={columns}
@@ -239,9 +265,10 @@ export default function UserListPage() {
             optionList={roles.map((role) => ({ label: role.roleName, value: role.id }))}
           />
           <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
-          <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
-            保存
-          </Button>
+          <PageFormActions>
+            <Button onClick={() => { setModalVisible(false); setEditing(null); }}>取消</Button>
+            <Button htmlType="submit" type="primary" theme="solid">保存</Button>
+          </PageFormActions>
         </Form>
       </Modal>
 
@@ -260,9 +287,10 @@ export default function UserListPage() {
             rules={[{ required: true, message: '请输入新密码' }]}
             placeholder="请输入新密码"
           />
-          <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
-            确认重置
-          </Button>
+          <PageFormActions>
+            <Button onClick={() => setResetPasswordTarget(null)}>取消</Button>
+            <Button htmlType="submit" type="primary" theme="solid">确认重置</Button>
+          </PageFormActions>
         </Form>
       </Modal>
 

@@ -33,10 +33,14 @@ export interface UserInfo {
   token: string;
   userId: number;
   tenantId: number;
+  tenantCode: string;
   deptId?: number;
   username: string;
   realName: string;
+  email?: string;
+  phone?: string;
   avatar?: string;
+  jobTitle?: string;
   tenantName: string;
   logo?: string;
   themeColor?: string;
@@ -44,6 +48,22 @@ export interface UserInfo {
   roles: string[];
   permissions: string[];
   enabledFeatures?: string[];
+}
+
+export interface ProfileUpdatePayload {
+  realName: string;
+  phone?: string;
+  email?: string;
+  avatar?: string;
+}
+
+export interface AvatarUploadResult {
+  avatarUrl: string;
+}
+
+export interface ChangePasswordPayload {
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface UserVO {
@@ -112,6 +132,20 @@ export interface PermissionVO {
   path?: string;
   sort?: number;
   children?: PermissionVO[];
+}
+
+export interface MenuVO {
+  id: number;
+  parentId?: number;
+  permCode: string;
+  permName: string;
+  permType: string;
+  path?: string;
+  icon?: string;
+  sort?: number;
+  status: number;
+  createTime?: string;
+  children?: MenuVO[];
 }
 
 export interface DictTypeVO {

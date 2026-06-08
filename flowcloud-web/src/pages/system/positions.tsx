@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Form, Modal, Table, Tag, Toast } from '@douyinfe/semi-ui';
+import {
+  Button, Card, Form, Modal, Table, Tag, Toast, Space,
+} from '@douyinfe/semi-ui';
 import {
   createPosition, deletePosition, getPositions, updatePosition,
 } from '@/api/position';
 import { getDeptTree } from '@/api/dept';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { usePermission } from '@/hooks/usePermission';
 import { PERM } from '@/utils/permissions';
 import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
@@ -60,17 +63,20 @@ export default function PositionsPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>岗位管理</h2>
-          <p>维护岗位信息，用于审批人来源配置</p>
-        </div>
-        {canEdit && (
-          <Button type="primary" onClick={() => { setEditing(null); setVisible(true); }}>
+      <PageHeader
+        title="岗位管理"
+        description="维护岗位信息，用于审批人来源配置"
+        actions={canEdit ? (
+          <Button
+            type="primary"
+            theme="solid"
+            className="page-toolbar-button"
+            onClick={() => { setEditing(null); setVisible(true); }}
+          >
             新增岗位
           </Button>
-        )}
-      </div>
+        ) : undefined}
+      />
       <Card>
         <Table
           rowKey="id"
@@ -94,17 +100,26 @@ export default function PositionsPage() {
             ...(canEdit ? [{
               title: '操作', width: 160,
               render: (_: unknown, record: PositionVO) => (
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Button size="small" onClick={() => { setEditing(record); setVisible(true); }}>
+                <Space spacing={8} className="page-inline-actions">
+                  <Button
+                    size="small"
+                    type="primary"
+                    theme="light"
+                    className="page-action-button page-action-button-secondary"
+                    onClick={() => { setEditing(record); setVisible(true); }}
+                  >
                     编辑
                   </Button>
                   <Button
-                    size="small" type="danger"
+                    size="small"
+                    type="danger"
+                    theme="light"
+                    className="page-action-button page-action-button-danger"
                     onClick={() => handleDelete(record.id)}
                   >
                     删除
                   </Button>
-                </div>
+                </Space>
               ),
             }] : []),
           ]}
@@ -145,9 +160,10 @@ export default function PositionsPage() {
             optionList={ENABLED_STATUS_OPTIONS}
           />
           <Form.TextArea field="remark" label="备注" rows={2} />
-          <Button htmlType="submit" type="primary" block style={{ marginTop: 16 }}>
-            保存
-          </Button>
+          <PageFormActions>
+            <Button theme="borderless" onClick={() => { setVisible(false); setEditing(null); }}>取消</Button>
+            <Button htmlType="submit" type="primary" theme="solid">保存</Button>
+          </PageFormActions>
         </Form>
       </Modal>
     </div>

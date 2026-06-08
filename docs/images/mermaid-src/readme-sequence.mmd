@@ -1,0 +1,31 @@
+﻿sequenceDiagram
+    participant U as Browser
+    participant R as request.ts
+    participant C as apiCrypto.ts
+    participant A as flowcloud-admin
+    participant I as AuthInterceptor
+    participant S as Controller / Service
+    participant D as MySQL / Redis
+
+    U->>R: 发起业务请求
+    R->>R: 注入 Authorization Token
+    alt 启用接口加密
+        R->>C: attachApiCryptoHeaders()
+        C->>A: GET /api/security/public-key
+        A-->>C: 返回 RSA 公钥与指纹
+        C-->>R: 返回 AES 会话密钥与加密请求头
+        R->>R: AES 加密请求体
+    end
+    R->>A: 发送 /api/** 请求
+    A->>I: 解析 JWT / 写入用户与租户上下文
+    I->>S: 放行业务请求
+    S->>D: 查询或更新数据
+    D-->>S: 返回结果
+    S-->>A: Result<T>
+    alt 响应启用加密
+        A-->>R: 返回加密响应体
+        R->>R: 解密响应并统一处理 code/message
+    else 响应不加密
+        A-->>R: 返回标准 JSON
+    end
+    R-->>U: 页面更新 / Toast 提示

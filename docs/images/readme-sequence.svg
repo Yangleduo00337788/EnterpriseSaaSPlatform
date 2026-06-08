@@ -1,0 +1,60 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="902" viewBox="0 0 1400 902">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .actor{font:600 18px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .text{font:15px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .line{stroke:#9ca3af;stroke-width:2}
+      .msg{stroke:#0052D9;stroke-width:2.2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1400" height="902" class="doc-bg"/>
+  <rect x="0" y="0" width="1400" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1368" height="782" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 5-1</text>
+  <text x="136" y="41" class="doc-title">应用请求时序图</text>
+  <text x="1372" y="41" text-anchor="end" class="doc-subtitle">架构设计说明书 / 请求链路设计</text>
+  <g transform="translate(0,84)">
+<text x="90" y="95" class="actor">Browser</text>
+  <text x="260" y="95" class="actor">request.ts</text>
+  <text x="470" y="95" class="actor">apiCrypto.ts</text>
+  <text x="690" y="95" class="actor">flowcloud-admin</text>
+  <text x="930" y="95" class="actor">AuthInterceptor</text>
+  <text x="1150" y="95" class="actor">Service / DB</text>
+  <line x1="120" y1="110" x2="120" y2="720" class="line"/>
+  <line x1="310" y1="110" x2="310" y2="720" class="line"/>
+  <line x1="520" y1="110" x2="520" y2="720" class="line"/>
+  <line x1="760" y1="110" x2="760" y2="720" class="line"/>
+  <line x1="995" y1="110" x2="995" y2="720" class="line"/>
+  <line x1="1210" y1="110" x2="1210" y2="720" class="line"/>
+  <line x1="120" y1="150" x2="310" y2="150" class="msg"/><text x="155" y="142" class="text">1. 发起业务请求</text>
+  <line x1="310" y1="200" x2="312" y2="200" class="msg"/><text x="328" y="205" class="text">2. 注入 Authorization</text>
+  <line x1="310" y1="250" x2="520" y2="250" class="msg"/><text x="335" y="242" class="text">3. attachApiCryptoHeaders()</text>
+  <line x1="520" y1="300" x2="760" y2="300" class="msg"/><text x="560" y="292" class="text">4. GET /api/security/public-key</text>
+  <line x1="760" y1="350" x2="520" y2="350" class="msg"/><text x="560" y="342" class="text">5. 返回公钥与指纹</text>
+  <line x1="520" y1="400" x2="310" y2="400" class="msg"/><text x="340" y="392" class="text">6. 返回 AES key / headers</text>
+  <line x1="310" y1="450" x2="760" y2="450" class="msg"/><text x="460" y="442" class="text">7. 发送 /api/** 请求</text>
+  <line x1="760" y1="500" x2="995" y2="500" class="msg"/><text x="790" y="492" class="text">8. 解析 JWT / 上下文写入</text>
+  <line x1="995" y1="550" x2="1210" y2="550" class="msg"/><text x="1030" y="542" class="text">9. 执行业务与数据访问</text>
+  <line x1="1210" y1="610" x2="760" y2="610" class="msg"/><text x="970" y="602" class="text">10. 返回 Result&lt;T&gt;</text>
+  <line x1="760" y1="660" x2="310" y2="660" class="msg"/><text x="500" y="652" class="text">11. 返回标准 JSON 或加密响应</text>
+  <line x1="310" y1="705" x2="120" y2="705" class="msg"/><text x="160" y="697" class="text">12. 页面更新 / Toast</text>
+  </g>
+  <line x1="24" y1="878" x2="1376" y2="878" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="898" class="doc-footer">审流云企业审批平台 | 图 5-1 应用请求时序图 | 内部评审稿</text>
+  <text x="1372" y="898" text-anchor="end" class="doc-mark">5-1</text>
+</svg>

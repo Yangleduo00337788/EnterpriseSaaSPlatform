@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Spin } from '@douyinfe/semi-ui';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
-import { fetchCurrentUser } from '@/store/authSlice';
+import { fetchCurrentMenus, fetchCurrentUser } from '@/store/authSlice';
 import { canAccessPath } from '@/utils/permissions';
+import { filterAccessibleMenus, findFirstMenuPath } from '@/utils/menuTree';
 import MainLayout from '@/layouts/MainLayout';
 import LoginPage from '@/pages/login';
 import RegisterPage from '@/pages/register';
@@ -16,16 +17,20 @@ import InstanceDetailPage from '@/pages/approval/detail';
 import TemplateListPage from '@/pages/template';
 import UserListPage from '@/pages/system/users';
 import DeptPage from '@/pages/system/depts';
+import FilesPage from '@/pages/system/files';
 import TenantPage from '@/pages/system/tenant';
 import AllInstancesPage from '@/pages/approval/all';
 import MessagesPage from '@/pages/messages';
+import ProfilePage from '@/pages/profile';
 
 import PositionsPage from '@/pages/system/positions';
 import AuditLogsPage from '@/pages/system/audit-logs';
 import RolesPage from '@/pages/system/roles';
+import MenusPage from '@/pages/system/menus';
 import DictsPage from '@/pages/system/dicts';
 import ReportPage from '@/pages/report';
 import MessageTemplatesPage from '@/pages/system/message-templates';
+import SystemSettingsPage from '@/pages/system/settings';
 
 const ACCESSIBLE_FALLBACK_PATHS = [
   '/dashboard',
@@ -39,9 +44,12 @@ const ACCESSIBLE_FALLBACK_PATHS = [
   '/system/users',
   '/system/depts',
   '/system/positions',
+  '/system/files',
+  '/system/settings',
   '/system/tenant',
   '/system/audit-logs',
   '/system/roles',
+  '/system/menus',
   '/system/dicts',
   '/report',
   '/system/message-templates',
@@ -56,18 +64,22 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function RoleRoute({ children, path }: { children: React.ReactNode; path: string }) {
   const user = useAppSelector((s) => s.auth.user);
   const loading = useAppSelector((s) => s.auth.loading);
+  const menus = useAppSelector((s) => s.auth.menus);
+  const menuLoading = useAppSelector((s) => s.auth.menuLoading);
+  const menusLoaded = useAppSelector((s) => s.auth.menusLoaded);
   const location = useLocation();
   const token = localStorage.getItem('token');
 
   // Keep the user on the current route while auth state is restoring from /auth/me.
-  if (loading || (token && !user)) {
+  if (loading || menuLoading || (token && (!user || !menusLoaded))) {
     return <Spin style={{ display: 'block', margin: '100px auto' }} />;
   }
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
   if (!canAccessPath(user, path)) {
-    const fallbackPath = ACCESSIBLE_FALLBACK_PATHS.find((item) => canAccessPath(user, item));
+    const fallbackPath = findFirstMenuPath(filterAccessibleMenus(user, menus))
+      || ACCESSIBLE_FALLBACK_PATHS.find((item) => canAccessPath(user, item));
     if (!fallbackPath || fallbackPath === path) {
       return <Navigate to="/login" replace state={{ from: location }} />;
     }
@@ -80,6 +92,8 @@ export default function AppRouter() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
   const loading = useAppSelector((s) => s.auth.loading);
+  const menuLoading = useAppSelector((s) => s.auth.menuLoading);
+  const menusLoaded = useAppSelector((s) => s.auth.menusLoaded);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -88,6 +102,13 @@ export default function AppRouter() {
     }
   }, [dispatch, loading, user]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && user && !menusLoaded && !menuLoading) {
+      dispatch(fetchCurrentMenus());
+    }
+  }, [dispatch, menuLoading, menusLoaded, user]);
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -95,6 +116,7 @@ export default function AppRouter() {
       <Route path="/" element={<PrivateRoute><MainLayout /></PrivateRoute>}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<RoleRoute path="/dashboard"><DashboardPage /></RoleRoute>} />
+        <Route path="profile" element={<RoleRoute path="/profile"><ProfilePage /></RoleRoute>} />
         <Route path="approval/pending" element={<RoleRoute path="/approval/pending"><PendingTasksPage /></RoleRoute>} />
         <Route path="approval/handled" element={<RoleRoute path="/approval/handled"><HandledTasksPage /></RoleRoute>} />
         <Route path="approval/my" element={<RoleRoute path="/approval/my"><MySubmissionsPage /></RoleRoute>} />
@@ -106,9 +128,12 @@ export default function AppRouter() {
         <Route path="system/users" element={<RoleRoute path="/system/users"><UserListPage /></RoleRoute>} />
         <Route path="system/depts" element={<RoleRoute path="/system/depts"><DeptPage /></RoleRoute>} />
         <Route path="system/positions" element={<RoleRoute path="/system/positions"><PositionsPage /></RoleRoute>} />
+        <Route path="system/files" element={<RoleRoute path="/system/files"><FilesPage /></RoleRoute>} />
+        <Route path="system/settings" element={<RoleRoute path="/system/settings"><SystemSettingsPage /></RoleRoute>} />
         <Route path="system/tenant" element={<RoleRoute path="/system/tenant"><TenantPage /></RoleRoute>} />
         <Route path="system/audit-logs" element={<RoleRoute path="/system/audit-logs"><AuditLogsPage /></RoleRoute>} />
         <Route path="system/roles" element={<RoleRoute path="/system/roles"><RolesPage /></RoleRoute>} />
+        <Route path="system/menus" element={<RoleRoute path="/system/menus"><MenusPage /></RoleRoute>} />
         <Route path="system/dicts" element={<RoleRoute path="/system/dicts"><DictsPage /></RoleRoute>} />
         <Route path="report" element={<RoleRoute path="/report"><ReportPage /></RoleRoute>} />
         <Route path="system/message-templates" element={<RoleRoute path="/system/message-templates"><MessageTemplatesPage /></RoleRoute>} />

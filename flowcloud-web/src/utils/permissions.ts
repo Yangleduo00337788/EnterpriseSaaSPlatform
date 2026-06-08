@@ -20,6 +20,10 @@ export const PERM = {
   TENANT: 'system:tenant',
   TENANT_VIEW: 'system:tenant:view',
   TENANT_EDIT: 'system:tenant:edit',
+  FILE: 'system:file',
+  FILE_VIEW: 'system:file:view',
+  FILE_DOWNLOAD: 'system:file:download',
+  FILE_DELETE: 'system:file:delete',
   POSITION: 'system:position',
   POSITION_EDIT: 'system:position:edit',
   AUDIT: 'system:audit',
@@ -27,6 +31,9 @@ export const PERM = {
   ROLE: 'system:role',
   ROLE_VIEW: 'system:role:view',
   ROLE_EDIT: 'system:role:edit',
+  MENU: 'system:menu',
+  MENU_VIEW: 'system:menu:view',
+  MENU_EDIT: 'system:menu:edit',
   DICT: 'system:dict',
   DICT_EDIT: 'system:dict:edit',
   REPORT: 'report',
@@ -43,6 +50,8 @@ const PATH_FEATURE: Record<string, string> = {
   '/templates': 'approval',
   '/messages': 'message',
   '/report': 'report',
+  '/system/files': 'tenantSettings',
+  '/system/settings': 'tenantSettings',
   '/system/tenant': 'tenantSettings',
 };
 
@@ -58,9 +67,12 @@ const MENU_PERM: Record<string, string> = {
   '/system/users': PERM.USER,
   '/system/depts': PERM.DEPT,
   '/system/positions': PERM.POSITION,
+  '/system/files': PERM.FILE,
+  '/system/settings': PERM.TENANT,
   '/system/tenant': PERM.TENANT,
   '/system/audit-logs': PERM.AUDIT,
   '/system/roles': PERM.ROLE,
+  '/system/menus': PERM.MENU,
   '/system/dicts': PERM.DICT,
   '/report': PERM.REPORT,
   '/system/message-templates': PERM.MESSAGE_TEMPLATE,
@@ -91,4 +103,3 @@ export function canAccessPath(user: UserInfo | null, path: string): boolean {
   if (!perm) return true;
   return hasPermission(user, perm);
 }
-

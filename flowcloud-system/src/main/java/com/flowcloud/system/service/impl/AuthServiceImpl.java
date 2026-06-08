@@ -4,24 +4,32 @@ import com.flowcloud.common.context.TenantContext;
 import com.flowcloud.common.exception.BusinessException;
 import com.flowcloud.common.result.ResultCode;
 import com.flowcloud.common.security.JwtUtils;
+import com.flowcloud.system.dto.ChangePasswordDTO;
 import com.flowcloud.system.dto.LoginDTO;
+import com.flowcloud.system.dto.ProfileUpdateDTO;
 import com.flowcloud.system.dto.RegisterDTO;
 import com.flowcloud.system.entity.SysDept;
 import com.flowcloud.system.entity.SysPermission;
+import com.flowcloud.system.entity.SysPosition;
 import com.flowcloud.system.entity.SysRole;
 import com.flowcloud.system.entity.SysRolePermission;
 import com.flowcloud.system.entity.SysTenant;
 import com.flowcloud.system.entity.SysUser;
+import com.flowcloud.system.entity.SysUserPosition;
 import com.flowcloud.system.entity.SysUserRole;
 import com.flowcloud.system.mapper.SysDeptMapper;
 import com.flowcloud.system.mapper.SysPermissionMapper;
+import com.flowcloud.system.mapper.SysPositionMapper;
 import com.flowcloud.system.mapper.SysRoleMapper;
 import com.flowcloud.system.mapper.SysRolePermissionMapper;
 import com.flowcloud.system.mapper.SysTenantMapper;
 import com.flowcloud.system.mapper.SysUserMapper;
+import com.flowcloud.system.mapper.SysUserPositionMapper;
 import com.flowcloud.system.mapper.SysUserRoleMapper;
 import com.flowcloud.system.service.AuthService;
+import com.flowcloud.system.service.StorageService;
 import com.flowcloud.system.service.TenantFeatureService;
+import com.flowcloud.system.service.UserAvatarFileService;
 import com.flowcloud.system.support.DataScopeType;
 import com.flowcloud.system.vo.LoginVO;
 import com.flowcloud.common.event.AuditEvent;
@@ -31,7 +39,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +57,8 @@ public class AuthServiceImpl implements AuthService {
     private final SysUserMapper userMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserRoleMapper userRoleMapper;
+    private final SysUserPositionMapper userPositionMapper;
+    private final SysPositionMapper positionMapper;
     private final SysRolePermissionMapper rolePermissionMapper;
     private final SysPermissionMapper permissionMapper;
     private final SysDeptMapper deptMapper;
@@ -53,6 +66,8 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final ApplicationEventPublisher eventPublisher;
     private final TenantFeatureService tenantFeatureService;
+    private final StorageService storageService;
+    private final UserAvatarFileService userAvatarFileService;
 
     @Override
     public LoginVO login(LoginDTO dto) {
@@ -194,6 +209,90 @@ public class AuthServiceImpl implements AuthService {
         return buildLoginVO(user, tenant);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public LoginVO updateCurrentProfile(ProfileUpdateDTO dto) {
+        Long userId = TenantContext.getUserId();
+        Long tenantId = TenantContext.getTenantId();
+        if (userId == null || tenantId == null) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED);
+        }
+        SysUser user = userMapper.selectOneById(userId);
+        SysTenant tenant = tenantMapper.selectOneById(tenantId);
+        if (user == null || tenant == null) {
+            throw new BusinessException(ResultCode.USER_NOT_FOUND);
+        }
+        user.setRealName(normalizeText(dto.getRealName()));
+        user.setPhone(normalizeText(dto.getPhone()));
+        user.setEmail(normalizeText(dto.getEmail()));
+        user.setAvatar(normalizeText(dto.getAvatar()));
+        userMapper.update(user);
+        userAvatarFileService.retainSelectedAvatarFile(tenantId, userId, user.getAvatar());
+        return buildLoginVO(user, tenant);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String uploadCurrentUserAvatar(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("请选择要上传的头像文件");
+        }
+        Long userId = TenantContext.getUserId();
+        Long tenantId = TenantContext.getTenantId();
+        if (userId == null || tenantId == null) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED);
+        }
+        SysUser user = userMapper.selectOneById(userId);
+        if (user == null || !tenantId.equals(user.getTenantId())) {
+            throw new BusinessException(ResultCode.USER_NOT_FOUND);
+        }
+        String contentType = file.getContentType();
+        if (!StringUtils.hasText(contentType) || !contentType.startsWith("image/")) {
+            throw new BusinessException("头像仅支持图片文件");
+        }
+        if (file.getSize() > 5 * 1024 * 1024) {
+            throw new BusinessException("头像大小不能超过 5MB");
+        }
+        StorageService.StoredFileResult storedFileResult = storageService.store(file, "avatar");
+        try {
+            userAvatarFileService.recordUploadedAvatarFile(user, file, storedFileResult);
+            return storedFileResult.fileUrl();
+        } catch (RuntimeException ex) {
+            storageService.delete(storedFileResult.storageType(), storedFileResult.fileKey());
+            throw ex;
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void changeCurrentPassword(ChangePasswordDTO dto) {
+        Long userId = TenantContext.getUserId();
+        Long tenantId = TenantContext.getTenantId();
+        if (userId == null || tenantId == null) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED);
+        }
+
+        SysUser user = userMapper.selectOneById(userId);
+        if (user == null || !tenantId.equals(user.getTenantId())) {
+            throw new BusinessException(ResultCode.USER_NOT_FOUND);
+        }
+
+        String oldPassword = normalizeRequiredText(dto.getOldPassword(), "原密码不能为空");
+        String newPassword = normalizeRequiredText(dto.getNewPassword(), "新密码不能为空");
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("原密码不正确");
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new BusinessException("新密码不能与原密码相同");
+        }
+        if (newPassword.length() < 6) {
+            throw new BusinessException("新密码长度不能少于 6 位");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.update(user);
+    }
+
     private LoginVO buildLoginVO(SysUser user, SysTenant tenant) {
         Set<String> roles = getUserRoles(user.getId());
         Set<String> permissions = getUserPermissions(user.getId());
@@ -204,10 +303,14 @@ public class AuthServiceImpl implements AuthService {
         vo.setToken(token);
         vo.setUserId(user.getId());
         vo.setTenantId(tenant.getId());
+        vo.setTenantCode(tenant.getTenantCode());
         vo.setDeptId(user.getDeptId());
         vo.setUsername(user.getUsername());
         vo.setRealName(user.getRealName());
+        vo.setEmail(user.getEmail());
+        vo.setPhone(user.getPhone());
         vo.setAvatar(user.getAvatar());
+        vo.setJobTitle(resolveCurrentUserJobTitle(user));
         vo.setTenantName(tenant.getTenantName());
         vo.setLogo(tenant.getLogo());
         vo.setThemeColor(tenant.getThemeColor());
@@ -252,6 +355,43 @@ public class AuthServiceImpl implements AuthService {
                 QueryWrapper.create().where(SysPermission::getId).in(permissionIds));
         permissions.addAll(dbPermissions.stream().map(SysPermission::getPermCode).collect(Collectors.toSet()));
         return permissions;
+    }
+
+    private String normalizeText(String value) {
+        return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    private String normalizeRequiredText(String value, String message) {
+        String normalized = normalizeText(value);
+        if (!StringUtils.hasText(normalized)) {
+            throw new BusinessException(message);
+        }
+        return normalized;
+    }
+
+    private String resolveCurrentUserJobTitle(SysUser user) {
+        List<SysUserPosition> relations = userPositionMapper.selectListByQuery(
+                QueryWrapper.create().where(SysUserPosition::getUserId).eq(user.getId()));
+        if (relations.isEmpty()) {
+            return normalizeText(user.getJobTitle());
+        }
+
+        List<Long> positionIds = relations.stream()
+                .map(SysUserPosition::getPositionId)
+                .distinct()
+                .toList();
+        List<SysPosition> positions = positionMapper.selectListByQuery(
+                QueryWrapper.create()
+                        .where(SysPosition::getId).in(positionIds)
+                        .and(SysPosition::getTenantId).eq(user.getTenantId())
+                        .orderBy(SysPosition::getSort, true)
+                        .orderBy(SysPosition::getCreateTime, true));
+        return positions.stream()
+                .map(SysPosition::getPositionName)
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .findFirst()
+                .orElse(normalizeText(user.getJobTitle()));
     }
 
     private String getUserDataScope(SysUser user) {

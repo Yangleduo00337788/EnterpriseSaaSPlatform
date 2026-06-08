@@ -1,0 +1,60 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="462" viewBox="0 0 1180 462">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .label{font:600 18px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .text{font:15px Arial,'Microsoft YaHei';fill:#2B395B}
+      .small{font:14px Arial,'Microsoft YaHei';fill:#2B395B}
+      .box{fill:#fff;stroke:#0052D9;stroke-width:2}
+      .group{fill:#F3F8FF;stroke:#B5CCFF;stroke-width:2}
+      .infra{fill:#F5F7FA;stroke:#5B6B8C;stroke-width:2}
+      .line{stroke:#4E5969;stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+      
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1180" height="462" class="doc-bg"/>
+  <rect x="0" y="0" width="1180" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1148" height="342" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 4-4</text>
+  <text x="136" y="41" class="doc-title">审批域实体关系图</text>
+  <text x="1152" y="41" text-anchor="end" class="doc-subtitle">数据库设计说明 / 分层 ER 图</text>
+  <g transform="translate(0,84)">
+<rect x="60" y="130" width="170" height="56" rx="10" ry="10" class="box"/>
+  <text x="90" y="164" class="label">approval_template</text>
+  <rect x="290" y="50" width="220" height="56" rx="10" ry="10" class="infra"/>
+  <text x="318" y="84" class="label">approval_template_version</text>
+  <rect x="290" y="130" width="170" height="56" rx="10" ry="10" class="group"/>
+  <text x="320" y="164" class="label">approval_instance</text>
+  <rect x="520" y="50" width="160" height="56" rx="10" ry="10" class="group"/>
+  <text x="557" y="84" class="label">approval_task</text>
+  <rect x="520" y="130" width="170" height="56" rx="10" ry="10" class="group"/>
+  <text x="555" y="164" class="label">approval_record</text>
+  <rect x="520" y="210" width="160" height="56" rx="10" ry="10" class="group"/>
+  <text x="550" y="244" class="label">attachment_file</text>
+  <rect x="760" y="130" width="130" height="56" rx="10" ry="10" class="box"/>
+  <text x="792" y="164" class="label">sys_user</text>
+  <line x1="230" y1="148" x2="290" y2="78" class="line"/>
+  <line x1="230" y1="148" x2="290" y2="148" class="line"/>
+  <line x1="460" y1="148" x2="520" y2="78" class="line"/>
+  <line x1="460" y1="148" x2="520" y2="148" class="line"/>
+  <line x1="460" y1="148" x2="520" y2="238" class="line"/>
+  <line x1="690" y1="148" x2="760" y2="148" class="line"/>
+  </g>
+  <line x1="24" y1="438" x2="1156" y2="438" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="458" class="doc-footer">审流云企业审批平台 | 图 4-4 审批域实体关系图 | 内部评审稿</text>
+  <text x="1152" y="458" text-anchor="end" class="doc-mark">4-4</text>
+</svg>

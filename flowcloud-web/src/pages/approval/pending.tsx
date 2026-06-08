@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Card, Modal, Form, Toast } from '@douyinfe/semi-ui';
+import {
+  Table, Button, Card, Modal, Form, Toast, Space,
+} from '@douyinfe/semi-ui';
 import { getPendingTasks, completeTask } from '@/api/approval';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import type { TaskVO } from '@/types';
 
@@ -42,36 +45,55 @@ export default function PendingTasksPage() {
 
   const columns = [
     { title: '审批单号', dataIndex: 'instanceNo', width: 180 },
-    { title: '标题', dataIndex: 'title' },
+    {
+      title: '标题', dataIndex: 'title',
+      render: (value: string) => <span className="page-table-text-ellipsis" title={value}>{value}</span>,
+    },
     { title: '当前节点', dataIndex: 'nodeName', width: 120 },
     { title: '提交时间', dataIndex: 'createTime', width: 180 },
     {
-      title: '操作', width: 240,
+      title: '操作', width: 228,
       render: (_: unknown, record: TaskVO) => (
-        <>
-          <Button size="small" onClick={() => navigate(`/approval/detail/${record.instanceId}`)}>
+        <Space spacing={8} className="page-inline-actions">
+          <Button
+            size="small"
+            type="tertiary"
+            theme="light"
+            className="page-action-button page-action-button-view"
+            onClick={() => navigate(`/approval/detail/${record.instanceId}`)}
+          >
             详情
           </Button>
-          <Button size="small" type="primary" style={{ marginLeft: 8 }}
-            onClick={() => setActionModal({ visible: true, task: record, action: 'approve' })}>
+          <Button
+            size="small"
+            type="primary"
+            theme="solid"
+            className="page-action-button page-action-button-primary"
+            onClick={() => setActionModal({ visible: true, task: record, action: 'approve' })}
+          >
             通过
           </Button>
-          <Button size="small" type="danger" style={{ marginLeft: 8 }}
-            onClick={() => setActionModal({ visible: true, task: record, action: 'reject' })}>
+          <Button
+            size="small"
+            type="danger"
+            theme="light"
+            className="page-action-button page-action-button-danger"
+            onClick={() => setActionModal({ visible: true, task: record, action: 'reject' })}
+          >
             驳回
           </Button>
-        </>
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h2>待我审批</h2>
-        <p>处理需要您审批的任务</p>
-      </div>
-      <Card>
+      <PageHeader
+        title="待我审批"
+        description="处理需要您审批的任务"
+      />
+      <Card className="page-table-card">
         <Table
           columns={columns}
           dataSource={data}
@@ -94,9 +116,10 @@ export default function PendingTasksPage() {
       >
         <Form onSubmit={handleComplete}>
           <Form.TextArea field="comment" label="审批意见" placeholder="请输入审批意见（可选）" />
-          <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
-            确认
-          </Button>
+          <PageFormActions>
+            <Button type="tertiary" theme="light" className="page-action-button" onClick={() => setActionModal({ visible: false })}>取消</Button>
+            <Button htmlType="submit" type="primary" theme="solid" className="page-action-button page-action-button-primary">确认</Button>
+          </PageFormActions>
         </Form>
       </Modal>
     </div>

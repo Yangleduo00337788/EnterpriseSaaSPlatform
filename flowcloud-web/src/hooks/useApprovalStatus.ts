@@ -9,6 +9,7 @@ export function useApprovalStatus() {
     () => (status: string) => ({
       text: labelMap[status] || APPROVAL_STATUS_META[status]?.text || status,
       color: APPROVAL_STATUS_META[status]?.color || 'grey',
+      tone: APPROVAL_STATUS_META[status]?.tone || 'neutral',
     }),
     [labelMap],
   );

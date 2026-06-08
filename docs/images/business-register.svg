@@ -1,0 +1,57 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="402" viewBox="0 0 1200 402">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .label{font:600 18px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .text{font:15px Arial,'Microsoft YaHei';fill:#2B395B}
+      .small{font:14px Arial,'Microsoft YaHei';fill:#2B395B}
+      .box{fill:#fff;stroke:#0052D9;stroke-width:2}
+      .group{fill:#F3F8FF;stroke:#B5CCFF;stroke-width:2}
+      .infra{fill:#F5F7FA;stroke:#5B6B8C;stroke-width:2}
+      .line{stroke:#4E5969;stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+      
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="402" class="doc-bg"/>
+  <rect x="0" y="0" width="1200" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1168" height="282" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 2-1</text>
+  <text x="136" y="41" class="doc-title">租户开通流程图</text>
+  <text x="1172" y="41" text-anchor="end" class="doc-subtitle">业务流程说明 / 租户开通流程</text>
+  <g transform="translate(0,84)">
+<rect x="40" y="120" width="150" height="56" rx="10" ry="10" class="box"/>
+  <text x="78" y="154" class="label">租户管理员</text>
+  <rect x="230" y="120" width="170" height="56" rx="10" ry="10" class="box"/>
+  <text x="272" y="154" class="label">前端注册页</text>
+  <rect x="440" y="120" width="180" height="56" rx="10" ry="10" class="box"/>
+  <text x="470" y="154" class="label">AuthController</text>
+  <rect x="660" y="120" width="180" height="56" rx="10" ry="10" class="box"/>
+  <text x="682" y="154" class="label">AuthServiceImpl</text>
+  <rect x="880" y="70" width="240" height="56" rx="10" ry="10" class="group"/>
+  <text x="915" y="104" class="label">创建 tenant / dept</text>
+  <rect x="880" y="150" width="240" height="56" rx="10" ry="10" class="group"/>
+  <text x="910" y="184" class="label">创建 role / user</text>
+  <line x1="190" y1="148" x2="230" y2="148" class="line"/>
+  <line x1="400" y1="148" x2="440" y2="148" class="line"/>
+  <line x1="620" y1="148" x2="660" y2="148" class="line"/>
+  <line x1="840" y1="138" x2="880" y2="98" class="line"/>
+  <line x1="840" y1="158" x2="880" y2="178" class="line"/>
+  </g>
+  <line x1="24" y1="378" x2="1176" y2="378" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="398" class="doc-footer">审流云企业审批平台 | 图 2-1 租户开通流程图 | 内部评审稿</text>
+  <text x="1172" y="398" text-anchor="end" class="doc-mark">2-1</text>
+</svg>

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Form, Modal, Table, Tag, Toast, Tree } from '@douyinfe/semi-ui';
+import {
+  Button, Card, Form, Modal, Table, Tag, Toast, Tree, Space,
+} from '@douyinfe/semi-ui';
 import { createRole, deleteRole, getPermissionTree, getRoleById, getRoleList, updateRole } from '@/api/role';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { useDictOptions } from '@/hooks/useDictOptions';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
@@ -92,25 +95,23 @@ export default function RolesPage() {
     {
       title: '操作', width: 160,
       render: (_: unknown, record: RoleVO) => (
-        <>
-          <Button size="small" style={{ marginRight: 8 }} onClick={() => openEdit(record)}>编辑</Button>
+        <Space spacing={8} className="page-inline-actions">
+          <Button size="small" onClick={() => openEdit(record)}>编辑</Button>
           {canEdit && !['admin', 'approver', 'employee'].includes(record.roleCode) && (
             <Button size="small" type="danger" onClick={() => handleDelete(record)}>删除</Button>
           )}
-        </>
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>角色管理</h2>
-          <p>配置角色权限与数据范围</p>
-        </div>
-        {canEdit && <Button type="primary" onClick={openCreate}>新建角色</Button>}
-      </div>
+      <PageHeader
+        title="角色管理"
+        description="配置角色权限与数据范围"
+        actions={canEdit ? <Button type="primary" theme="solid" onClick={openCreate}>新建角色</Button> : undefined}
+      />
       <Card>
         <Table columns={columns} dataSource={data} loading={loading} rowKey="id" pagination={false} />
       </Card>
@@ -133,8 +134,8 @@ export default function RolesPage() {
           <Form.Select field="dataScope" label="数据范围" optionList={dataScopeOptions} />
           <Form.InputNumber field="sort" label="排序" />
           <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ marginBottom: 8, fontWeight: 600 }}>权限配置</div>
+          <div className="page-tree-section">
+            <div className="page-tree-section-title">权限配置</div>
             <Tree
               treeData={permissionTree.map((p) => ({
                 key: String(p.id),
@@ -150,11 +151,16 @@ export default function RolesPage() {
               value={selectedPermIds.map(String)}
               onChange={(value) => setSelectedPermIds((value as string[]).map(Number))}
             />
-            <div style={{ marginTop: 8, color: '#86909c', fontSize: 12 }}>
+            <div className="page-muted-text">
               已选 {selectedPermIds.length} 项权限
             </div>
           </div>
-          {canEdit && <Button type="primary" htmlType="submit">保存</Button>}
+          {canEdit && (
+            <PageFormActions>
+              <Button onClick={() => { setModalVisible(false); setEditing(null); }}>取消</Button>
+              <Button type="primary" htmlType="submit">保存</Button>
+            </PageFormActions>
+          )}
         </Form>
       </Modal>
     </div>

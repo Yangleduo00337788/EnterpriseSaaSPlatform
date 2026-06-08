@@ -1,0 +1,20 @@
+﻿flowchart LR
+    A[用户访问系统] --> B{是否已登录}
+    B -- 否 --> C[进入登录页或注册页]
+    C --> D[调用 /api/auth/login 或 /api/auth/register]
+    D --> E[获取 JWT Token]
+    E --> F[进入工作台 Dashboard]
+    B -- 是 --> F
+
+    F --> G[发起审批]
+    G --> H[选择流程模板]
+    H --> I[填写表单并提交]
+    I --> J[创建审批实例 approval_instance]
+    J --> K[生成待办任务 approval_task]
+    K --> L[消息中心推送待办提醒]
+    L --> M[审批人处理任务]
+    M --> N{审批结果}
+    N -- 通过 --> O[流转下一节点或结束]
+    N -- 驳回 --> P[流程终止]
+    O --> Q[更新审批记录与统计报表]
+    P --> Q

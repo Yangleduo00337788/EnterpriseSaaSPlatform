@@ -6,12 +6,12 @@ export const APPROVAL_CATEGORY_OPTIONS = [
   { value: 'other', label: '其他' },
 ] as const;
 
-export const APPROVAL_STATUS_META: Record<string, { text: string; color: string }> = {
-  draft: { text: '草稿', color: 'grey' },
-  pending: { text: '审批中', color: 'blue' },
-  approved: { text: '已通过', color: 'green' },
-  rejected: { text: '已驳回', color: 'red' },
-  cancelled: { text: '已撤销', color: 'orange' },
+export const APPROVAL_STATUS_META: Record<string, { text: string; color: string; tone: string }> = {
+  draft: { text: '草稿', color: 'grey', tone: 'neutral' },
+  pending: { text: '审批中', color: 'blue', tone: 'processing' },
+  approved: { text: '已通过', color: 'green', tone: 'success' },
+  rejected: { text: '已驳回', color: 'red', tone: 'danger' },
+  cancelled: { text: '已撤销', color: 'orange', tone: 'warning' },
 };
 
 export const APPROVAL_STATUS_OPTIONS = Object.entries(APPROVAL_STATUS_META).map(([value, item]) => ({
@@ -25,9 +25,9 @@ export const TEMPLATE_STATUS_META: Record<number, { text: string; color: 'green'
   2: { text: '已停用', color: 'grey' },
 };
 
-export const TASK_RESULT_META: Record<string, { text: string; color: 'green' | 'grey' | 'red' | 'blue' | 'orange' }> = {
-  pending: { text: '待处理', color: 'blue' },
-  approved: { text: '已通过', color: 'green' },
-  rejected: { text: '已驳回', color: 'red' },
-  cancelled: { text: '已撤销', color: 'orange' },
+export const TASK_RESULT_META: Record<string, { text: string; color: 'green' | 'grey' | 'red' | 'blue' | 'orange'; tone: string }> = {
+  pending: { text: '待处理', color: 'blue', tone: 'processing' },
+  approved: { text: '已通过', color: 'green', tone: 'success' },
+  rejected: { text: '已驳回', color: 'red', tone: 'danger' },
+  cancelled: { text: '已撤销', color: 'orange', tone: 'warning' },
 };

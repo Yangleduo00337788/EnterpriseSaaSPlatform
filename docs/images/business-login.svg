@@ -1,0 +1,64 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="562" viewBox="0 0 1280 562">
+  <defs>
+  <style>
+    .doc-bg{fill:#F5F9FF}
+    .doc-band{fill:#0052D9}
+    .doc-panel{fill:#FFFFFF;stroke:#D6E4FF;stroke-width:1.5}
+    .doc-number{font:700 16px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF;letter-spacing:1px}
+    .doc-title{font:700 28px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#FFFFFF}
+    .doc-subtitle{font:500 13px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#D9E8FF}
+    .doc-footer{font:500 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#5B6B8C}
+    .doc-mark{font:700 12px 'Segoe UI','Microsoft YaHei',sans-serif;fill:#0052D9}
+  </style>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4E5969"/>
+    </marker>
+    <style>
+      .title{font:700 28px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .label{font:600 18px Arial,'Microsoft YaHei';fill:#0F1F3D}
+      .text{font:15px Arial,'Microsoft YaHei';fill:#2B395B}
+      .small{font:14px Arial,'Microsoft YaHei';fill:#2B395B}
+      .box{fill:#fff;stroke:#0052D9;stroke-width:2}
+      .group{fill:#F3F8FF;stroke:#B5CCFF;stroke-width:2}
+      .infra{fill:#F5F7FA;stroke:#5B6B8C;stroke-width:2}
+      .line{stroke:#4E5969;stroke-width:2.2;fill:none;marker-end:url(#arrow)}
+      
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1280" height="562" class="doc-bg"/>
+  <rect x="0" y="0" width="1280" height="70" class="doc-band"/>
+  <rect x="16" y="82" width="1248" height="442" rx="14" ry="14" class="doc-panel"/>
+  <rect x="24" y="18" width="92" height="34" rx="17" ry="17" fill="#1B6CFF"/>
+  <text x="70" y="40" text-anchor="middle" class="doc-number">图 4-1</text>
+  <text x="136" y="41" class="doc-title">登录鉴权流程图</text>
+  <text x="1252" y="41" text-anchor="end" class="doc-subtitle">权限模型说明 / 认证机制</text>
+  <g transform="translate(0,84)">
+<text x="80" y="95" class="label">用户</text>
+  <text x="240" y="95" class="label">前端</text>
+  <text x="430" y="95" class="label">AuthService</text>
+  <text x="640" y="95" class="label">sys_tenant</text>
+  <text x="840" y="95" class="label">sys_user</text>
+  <text x="1030" y="95" class="label">角色权限</text>
+  <line x1="110" y1="110" x2="110" y2="380" class="infra"/>
+  <line x1="290" y1="110" x2="290" y2="380" class="infra"/>
+  <line x1="480" y1="110" x2="480" y2="380" class="infra"/>
+  <line x1="690" y1="110" x2="690" y2="380" class="infra"/>
+  <line x1="890" y1="110" x2="890" y2="380" class="infra"/>
+  <line x1="1080" y1="110" x2="1080" y2="380" class="infra"/>
+  <line x1="110" y1="140" x2="290" y2="140" class="line"/>
+  <text x="135" y="132" class="small">输入 tenantCode / username / password</text>
+  <line x1="290" y1="180" x2="480" y2="180" class="line"/>
+  <text x="320" y="172" class="small">POST /api/auth/login</text>
+  <line x1="480" y1="220" x2="690" y2="220" class="line"/>
+  <text x="530" y="212" class="small">查询租户</text>
+  <line x1="480" y1="260" x2="890" y2="260" class="line"/>
+  <text x="560" y="252" class="small">查询用户</text>
+  <line x1="480" y1="300" x2="1080" y2="300" class="line"/>
+  <text x="650" y="292" class="small">加载角色与权限</text>
+  <line x1="480" y1="340" x2="290" y2="340" class="line"/>
+  <text x="360" y="332" class="small">返回 token / roles / permissions</text>
+  </g>
+  <line x1="24" y1="538" x2="1256" y2="538" stroke="#D6E4FF" stroke-width="1.5"/>
+  <text x="28" y="558" class="doc-footer">审流云企业审批平台 | 图 4-1 登录鉴权流程图 | 内部评审稿</text>
+  <text x="1252" y="558" text-anchor="end" class="doc-mark">4-1</text>
+</svg>

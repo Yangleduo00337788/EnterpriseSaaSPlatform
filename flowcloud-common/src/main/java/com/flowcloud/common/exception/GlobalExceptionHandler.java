@@ -5,6 +5,7 @@ import com.flowcloud.common.result.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,10 +33,31 @@ public class GlobalExceptionHandler {
         return Result.fail(ResultCode.BAD_REQUEST.getCode(), message);
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        long maxUploadSize = e.getMaxUploadSize();
+        String sizeText = maxUploadSize > 0 ? formatFileSize(maxUploadSize) : "允许范围";
+        return Result.fail(ResultCode.BAD_REQUEST.getCode(), "上传文件过大，请控制在 " + sizeText + " 以内");
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleException(Exception e) {
         log.error("系统异常", e);
         return Result.fail("系统繁忙，请稍后重试");
+    }
+
+    private String formatFileSize(long size) {
+        if (size >= 1024L * 1024L * 1024L) {
+            return String.format("%.0fGB", size / 1024d / 1024d / 1024d);
+        }
+        if (size >= 1024L * 1024L) {
+            return String.format("%.0fMB", size / 1024d / 1024d);
+        }
+        if (size >= 1024L) {
+            return String.format("%.0fKB", size / 1024d);
+        }
+        return size + "B";
     }
 }

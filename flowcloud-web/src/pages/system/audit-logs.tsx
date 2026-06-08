@@ -1,14 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   Table, Button, Input, Select, DatePicker, Toast,
-  Typography, Tag, Space,
+  Tag, Space, Card, Form,
 } from '@douyinfe/semi-ui';
 import type { ColumnProps } from '@douyinfe/semi-ui/lib/es/table';
 import { getAuditLogs, type AuditLogVO, type AuditLogQuery } from '@/api/audit';
+import { PageFilterCard, PageHeader } from '@/components/page-kit';
 import { useDictOptions } from '@/hooks/useDictOptions';
 import { AUDIT_ACTION_META, AUDIT_RESULT_META } from '@/utils/statusDisplay';
-
-const { Title } = Typography;
 
 export default function AuditLogsPage() {
   const { options: moduleOptions, labelMap: moduleLabelMap } = useDictOptions('audit_module', [
@@ -113,53 +112,61 @@ export default function AuditLogsPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title heading={4} style={{ marginBottom: 16 }}>审计日志</Title>
-
-      {/* 筛选栏 */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Input
-          placeholder="动作关键词"
-          value={keyword}
-          onChange={setKeyword}
-          style={{ width: 180 }}
-        />
-        <Select
-          placeholder="模块"
-          value={targetType}
-          onChange={(v) => setTargetType(v as string)}
-          optionList={[{ label: '全部', value: '' }, ...moduleOptions]}
-          style={{ width: 120 }}
-        />
-        <DatePicker
-          type="dateRange"
-          value={dateRange as [Date, Date] | undefined}
-          onChange={(v) => setDateRange(v as [Date, Date] | null)}
-          style={{ width: 280 }}
-        />
-        <Space spacing={8}>
-          <Button type="primary" onClick={handleSearch}>查询</Button>
-          <Button onClick={handleReset}>重置</Button>
-        </Space>
-      </div>
-
-      <Table
-        columns={columns}
-        dataSource={list}
-        loading={loading}
-        rowKey="id"
-        pagination={{
-          total,
-          currentPage: query.pageNum,
-          pageSize: query.pageSize,
-          showSizeChanger: true,
-          pageSizeOpts: [10, 20, 50],
-          onChange: (page, size) =>
-            setQuery((prev) => ({ ...prev, pageNum: page, pageSize: size })),
-        }}
-        size="small"
-        scroll={{ x: 900 }}
+    <div className="page-container">
+      <PageHeader
+        title="审计日志"
+        description="按动作、模块和时间范围检索系统操作记录"
       />
+      <PageFilterCard>
+        <Form>
+          <Space wrap spacing={16} align="center" className="page-filter-space">
+            <Space wrap spacing={12} className="page-filter-fields">
+              <Input
+                placeholder="动作关键词"
+                value={keyword}
+                onChange={setKeyword}
+                style={{ width: 180 }}
+              />
+              <Select
+                placeholder="模块"
+                value={targetType}
+                onChange={(v) => setTargetType(v as string)}
+                optionList={[{ label: '全部', value: '' }, ...moduleOptions]}
+                style={{ width: 120 }}
+              />
+              <DatePicker
+                type="dateRange"
+                value={dateRange as [Date, Date] | undefined}
+                onChange={(v) => setDateRange(v as [Date, Date] | null)}
+                style={{ width: 280 }}
+              />
+            </Space>
+            <Space spacing={8} className="page-filter-actions">
+              <Button type="primary" onClick={handleSearch}>查询</Button>
+              <Button onClick={handleReset}>重置</Button>
+            </Space>
+          </Space>
+        </Form>
+      </PageFilterCard>
+      <Card>
+        <Table
+          columns={columns}
+          dataSource={list}
+          loading={loading}
+          rowKey="id"
+          pagination={{
+            total,
+            currentPage: query.pageNum,
+            pageSize: query.pageSize,
+            showSizeChanger: true,
+            pageSizeOpts: [10, 20, 50],
+            onChange: (page, size) =>
+              setQuery((prev) => ({ ...prev, pageNum: page, pageSize: size })),
+          }}
+          size="small"
+          scroll={{ x: 900 }}
+        />
+      </Card>
     </div>
   );
 }

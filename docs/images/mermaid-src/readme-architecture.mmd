@@ -1,0 +1,29 @@
+﻿flowchart TB
+    Web[flowcloud-web<br/>React + TypeScript + Semi Design]
+    Admin[flowcloud-admin<br/>Spring Boot 启动入口]
+    Common[flowcloud-common<br/>Result / JWT / TenantContext / Crypto]
+    System[flowcloud-system<br/>认证 / 用户 / 角色 / 租户]
+    Approval[flowcloud-approval<br/>模板 / 实例 / 任务 / 附件]
+    Notification[flowcloud-notification<br/>消息 / 模板]
+    Report[flowcloud-report<br/>工作台 / 分析]
+    MySQL[(MySQL)]
+    Redis[(Redis)]
+    MQ[(RabbitMQ / Kafka)]
+    MinIO[(MinIO)]
+
+    Web -->|HTTP / JWT / API Crypto| Admin
+    Admin --> System
+    Admin --> Approval
+    Admin --> Notification
+    Admin --> Report
+    System --> Common
+    Approval --> Common
+    Notification --> Common
+    Report --> Common
+    System --> MySQL
+    Approval --> MySQL
+    Notification --> MySQL
+    Report --> MySQL
+    Admin --> Redis
+    Notification --> MQ
+    Approval --> MinIO

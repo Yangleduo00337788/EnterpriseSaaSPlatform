@@ -8,6 +8,7 @@ import {
 } from '@/api/approval';
 import { getRoleOptions } from '@/api/user';
 import { getUserList } from '@/api/user';
+import { PageActionGroup, PageFormActions, PageHeader } from '@/components/page-kit';
 import { useApprovalCategory } from '@/hooks/useApprovalCategory';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
@@ -173,7 +174,7 @@ export default function TemplateListPage() {
     ...(canManage ? [{
       title: '操作', width: 260,
       render: (_: unknown, record: TemplateVO) => (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+        <PageActionGroup>
           <Button size="small" onClick={() => openEdit(record)}>
             编辑
           </Button>
@@ -193,24 +194,22 @@ export default function TemplateListPage() {
             onClick={async () => { await deleteTemplate(record.id); fetchData(); }}>
             删除
           </Button>
-        </div>
+        </PageActionGroup>
       ),
     }] : []),
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>流程模板</h2>
-          <p>草稿 → 发布（生效）→ 停用；发布后产生版本快照</p>
-        </div>
-        {canManage && (
-          <Button type="primary" onClick={openCreate}>
+      <PageHeader
+        title="流程模板"
+        description="草稿 → 发布（生效）→ 停用；发布后产生版本快照"
+        actions={canManage ? (
+          <Button type="primary" theme="solid" className="page-toolbar-button" onClick={openCreate}>
             新建模板
           </Button>
-        )}
-      </div>
+        ) : undefined}
+      />
       <Card>
         <Table columns={columns} dataSource={data} loading={loading} rowKey="id" pagination={false} />
       </Card>
@@ -254,7 +253,7 @@ export default function TemplateListPage() {
               rows={10}
               placeholder="请配置动态表单结构"
             />
-            <div style={{ marginBottom: 16, color: '#86909c', fontSize: 12, lineHeight: 1.8 }}>
+            <div className="page-note-block">
               支持字段类型: text / textarea / number / date / select / attachment。<br />
               select 字段可配置 options 数组，例如: {"{ \"name\": \"type\", \"label\": \"类型\", \"type\": \"select\", \"options\": [\"请假\", \"报销\"] }"}
             </div>
@@ -266,7 +265,7 @@ export default function TemplateListPage() {
                   ? roles.map((role) => ({ value: role.id, label: role.roleName }))
                   : users.map((u) => ({ value: u.id, label: u.realName }));
                 return (
-                <div key={i} style={{ border: '1px solid #f0f0f0', borderRadius: 6, padding: '12px 12px 0', marginBottom: 8 }}>
+                <div key={i} className="page-node-card">
                   <Form.Input field={`flowNodes[${i}].name`} label={`节点${i + 1}名称`}
                     initValue={i === 0 ? '部门主管审批' : 'HR审批'} />
                   <Form.Select
@@ -306,10 +305,10 @@ export default function TemplateListPage() {
                     </>
                   )}
                   {nodeType === 'self' && (
-                    <Tag color="blue" style={{ marginBottom: 12 }}>自审节点不需要额外配置审批人</Tag>
+                    <Tag color="blue">自审节点不需要额外配置审批人</Tag>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <span style={{ color: '#86909c', fontSize: 12 }}>节点顺序由上到下依次执行</span>
+                  <div className="page-node-card-footer">
+                    <span className="page-note-inline">节点顺序由上到下依次执行</span>
                     {nodeCount > 1 && (
                       <Button
                         size="small"
@@ -338,6 +337,7 @@ export default function TemplateListPage() {
               })}
               <Button
                 theme="light"
+                className="page-toolbar-button-secondary"
                 onClick={() => {
                   const nextIndex = nodeCount;
                   setNodeCount((prev) => prev + 1);
@@ -348,9 +348,10 @@ export default function TemplateListPage() {
                 新增节点
               </Button>
             </Form.Section>
-            <Button htmlType="submit" type="primary" theme="solid" block style={{ marginTop: 16 }}>
-              保存草稿
-            </Button>
+            <PageFormActions>
+              <Button theme="borderless" onClick={() => { setModalVisible(false); setEditing(null); }}>取消</Button>
+              <Button htmlType="submit" type="primary" theme="solid">保存草稿</Button>
+            </PageFormActions>
           </Form>
         </Modal>
       )}
@@ -379,14 +380,14 @@ export default function TemplateListPage() {
         width={400}
       >
         {versions.length === 0
-          ? <p style={{ color: '#86909c' }}>暂无发布记录</p>
+          ? <p className="page-empty-text">暂无发布记录</p>
           : (
             <Timeline>
               {(versions as Array<{ version: number; remark?: string; createTime: string }>).map((v) => (
                 <Timeline.Item key={v.version}>
                   <strong>v{v.version}</strong>
-                  {v.remark && <span style={{ marginLeft: 8, color: '#4e5969' }}>{v.remark}</span>}
-                  <div style={{ color: '#86909c', fontSize: 12 }}>{v.createTime}</div>
+                  {v.remark && <span className="page-note-inline"> {v.remark}</span>}
+                  <div className="page-muted-text">{v.createTime}</div>
                 </Timeline.Item>
               ))}
             </Timeline>

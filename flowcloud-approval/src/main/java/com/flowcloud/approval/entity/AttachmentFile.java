@@ -21,6 +21,7 @@ public class AttachmentFile {
     private String originalName;
     private String fileKey;
     private String fileUrl;
+    private String storageType;
     private Long fileSize;
     private String mimeType;
     private Long uploaderId;

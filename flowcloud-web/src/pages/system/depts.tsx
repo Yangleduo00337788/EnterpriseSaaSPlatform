@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Form, Modal, Table, Tag, Toast } from '@douyinfe/semi-ui';
+import {
+  Button, Card, Form, Modal, Table, Tag, Toast, Space,
+} from '@douyinfe/semi-ui';
 import { createDept, deleteDept, getDeptTree, updateDept } from '@/api/dept';
 import { getUserOptions } from '@/api/user';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { usePermission } from '@/hooks/usePermission';
 import { ENABLED_STATUS_META, ENABLED_STATUS_OPTIONS } from '@/utils/statusDisplay';
 import { PERM } from '@/utils/permissions';
@@ -57,13 +60,11 @@ export default function DeptPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>组织架构</h2>
-          <p>维护部门树、负责人和启停状态</p>
-        </div>
-        {canEditDept && <Button type="primary" onClick={() => { setEditing(null); setVisible(true); }}>新增部门</Button>}
-      </div>
+      <PageHeader
+        title="组织架构"
+        description="维护部门树、负责人和启停状态"
+        actions={canEditDept ? <Button type="primary" theme="solid" onClick={() => { setEditing(null); setVisible(true); }}>新增部门</Button> : undefined}
+      />
       <Card>
         <Table
           rowKey="id"
@@ -80,10 +81,10 @@ export default function DeptPage() {
             ...(canEditDept ? [{
               title: '操作', width: 180,
               render: (_: unknown, record: DeptVO) => (
-                <div style={{ display: 'flex', gap: 8 }}>
+                <Space spacing={8} className="page-inline-actions">
                   <Button size="small" onClick={() => { setEditing(record); setVisible(true); }}>编辑</Button>
                   <Button size="small" type="danger" onClick={async () => { await deleteDept(record.id); fetchData(); }}>删除</Button>
-                </div>
+                </Space>
               ),
             }] : []),
           ]}
@@ -120,7 +121,10 @@ export default function DeptPage() {
           <Form.Input field="leader" label="负责人姓名" placeholder="自动从选人带入，或手动输入" />
           <Form.InputNumber field="sort" label="排序" />
           <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
-          <Button htmlType="submit" type="primary" block style={{ marginTop: 16 }}>保存</Button>
+          <PageFormActions>
+            <Button onClick={() => { setVisible(false); setEditing(null); }}>取消</Button>
+            <Button htmlType="submit" type="primary">保存</Button>
+          </PageFormActions>
         </Form>
       </Modal>
     </div>

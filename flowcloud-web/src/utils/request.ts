@@ -50,6 +50,9 @@ request.interceptors.request.use(async (config) => {
 
 request.interceptors.response.use(
   async (response) => {
+    if (shouldSkipEncryptedResponse(response.config as EncryptableRequestConfig)) {
+      return response;
+    }
     const res = (await decodeResponseData(response.data, response.config as EncryptableRequestConfig)) as ApiResult;
     if (shouldRetryApiCrypto(res, response.config as EncryptableRequestConfig)) {
       return retryWithFreshApiCrypto(response.config as EncryptableRequestConfig);
@@ -81,6 +84,10 @@ request.interceptors.response.use(
         }
         return Promise.reject(error);
       }
+    }
+    if (isUploadFormDataRequest(error.config) && !response) {
+      Toast.error('上传失败，请检查文件大小是否超过服务端限制后重试');
+      return Promise.reject(error);
     }
     Toast.error(error.message || '网络错误');
     return Promise.reject(error);
@@ -114,6 +121,10 @@ function setHeader(config: EncryptableRequestConfig, key: string, value: string)
 
 function shouldSkipEncryptedResponse(config: EncryptableRequestConfig) {
   return config.responseType === 'blob' || config.responseType === 'arraybuffer';
+}
+
+function isUploadFormDataRequest(config?: EncryptableRequestConfig) {
+  return !!config && config.data instanceof FormData;
 }
 
 async function decodeResponseData(data: unknown, config: EncryptableRequestConfig) {

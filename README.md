@@ -15,6 +15,7 @@
 ![Semi Design](https://img.shields.io/badge/Semi%20Design-2.70.0-0EA5E9?style=flat-square)
 ![Version](https://img.shields.io/badge/Version-1.0.0--SNAPSHOT-24292F?style=flat-square)
 
+
 </div>
 
 ## 项目简介
@@ -79,28 +80,37 @@
 
 项目采用模块化单体架构，各业务能力按领域拆分为独立 Maven 模块，通过 `flowcloud-admin` 统一对外提供 HTTP 服务。公共能力集中在 `flowcloud-common`，业务模块保持边界清晰，适合中后台业务长期维护与稳态迭代。
 
-### 总体拓扑
+### 图 1-1 总体逻辑架构图
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                       flowcloud-web                         │
-│         React + TypeScript + Semi Design + Axios           │
-└─────────────────────────────┬───────────────────────────────┘
-                              │ HTTP / JWT / API Crypto
-┌─────────────────────────────▼───────────────────────────────┐
-│                      flowcloud-admin                        │
-│      启动装配 / WebConfig / Interceptor / Env Loader       │
-├──────────────┬──────────────┬──────────────┬────────────────┤
-│ system       │ approval     │ notification │ report         │
-├──────────────┴──────────────┴──────────────┴────────────────┤
-│                     flowcloud-common                        │
-│ Result / BaseEntity / JwtUtils / TenantContext / Crypto    │
-└──────────────┬──────────────┬──────────────┬────────────────┘
-               │              │              │
-        ┌──────▼─────┐  ┌─────▼─────┐  ┌────▼────┐  ┌─────────┐
-        │   MySQL    │  │   Redis   │  │ MQ/Kafka│  │ MinIO   │
-        └────────────┘  └───────────┘  └─────────┘  └─────────┘
-```
+用于说明平台在模块化单体架构下的核心分层、模块边界与公共能力沉淀关系。
+
+![架构图](docs/images/readme-architecture.svg)
+
+源文件：`docs/images/readme-architecture.svg`
+
+### 图 1-2 总体拓扑图
+
+用于说明从接入层、应用层、领域层到数据与基础设施层的整体落位关系。
+
+![总体拓扑图](docs/images/arch-topology.svg)
+
+源文件：`docs/images/arch-topology.svg`
+
+### 图 1-3 核心业务流转图
+
+用于说明从用户访问、审批发起、任务流转到消息通知与结果回写的核心业务闭环。
+
+![系统流程图](docs/images/readme-system-flow.svg)
+
+源文件：`docs/images/readme-system-flow.svg`
+
+### 图 1-4 推荐部署架构图
+
+用于说明开发与生产环境下前端、后端、配置中心及基础设施组件的推荐部署基线。
+
+![部署架构图](docs/images/readme-deployment.svg)
+
+源文件：`docs/images/readme-deployment.svg`
 
 ### 设计原则
 
@@ -157,6 +167,20 @@ EnterpriseSaaSPlatform/
 - 工作台：`/api/report/dashboard`
 - 审批分析：`/api/report/analytics`
 
+## 交互设计图
+
+### 接口调用时序图
+
+![接口调用时序图](docs/images/readme-sequence.svg)
+
+源文件：`docs/images/readme-sequence.svg`
+
+### 前端页面导航图
+
+![前端页面导航图](docs/images/readme-navigation.svg)
+
+源文件：`docs/images/readme-navigation.svg`
+
 ## 核心约定
 
 ### 统一响应
@@ -185,6 +209,24 @@ EnterpriseSaaSPlatform/
 - RBAC 权限模型
 - 请求与响应统一接口加密
 - 全局异常处理与统一错误返回
+
+## 数据模型
+
+### 核心实体关系图
+
+![核心实体关系图](docs/images/core-entity-er.svg)
+
+源文件：`docs/images/core-entity-er.svg`
+
+### 核心表说明
+
+| 领域 | 核心表 |
+| --- | --- |
+| 租户与组织 | `sys_tenant`、`sys_dept`、`sys_user`、`sys_position` |
+| 权限体系 | `sys_role`、`sys_permission`、`sys_user_role`、`sys_role_permission` |
+| 审批流程 | `approval_template`、`approval_template_version`、`approval_instance`、`approval_task`、`approval_record` |
+| 通知与审计 | `sys_message`、`sys_message_template`、`sys_audit_log` |
+| 字典能力 | `sys_dict_type`、`sys_dict_data` |
 
 ## 数据初始化
 
@@ -292,7 +334,10 @@ npm run dev
 
 ## 目录文档
 
-- 架构设计：`docs/architecture.md`
+- 架构设计说明书：`docs/architecture.md`
+- 业务流程说明：`docs/business-process.md`
+- 数据库设计说明：`docs/database-design.md`
+- 权限模型说明：`docs/permission-model.md`
 - API 审计报告：`docs/api-audit-report.md`
 - Logo 资源：`docs/images/logo.png`
 

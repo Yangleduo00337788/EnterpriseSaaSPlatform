@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Form, Modal, Table, Tag, Toast } from '@douyinfe/semi-ui';
+import {
+  Button, Card, Form, Modal, Table, Tag, Toast, Space,
+} from '@douyinfe/semi-ui';
 import { createMessageTemplate, deleteMessageTemplate, getMessageTemplates, updateMessageTemplate } from '@/api/messageTemplate';
+import { PageFormActions, PageHeader } from '@/components/page-kit';
 import { useDictOptions } from '@/hooks/useDictOptions';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { usePermission } from '@/hooks/usePermission';
@@ -60,8 +63,8 @@ export default function MessageTemplatesPage() {
     {
       title: '操作', width: 160,
       render: (_: unknown, record: MessageTemplateVO) => (
-        <>
-          <Button size="small" style={{ marginRight: 8 }} onClick={() => { setEditing(record); setModalVisible(true); }}>编辑</Button>
+        <Space spacing={8} className="page-inline-actions">
+          <Button size="small" onClick={() => { setEditing(record); setModalVisible(true); }}>编辑</Button>
           {canEdit && (
             <Button size="small" type="danger" onClick={() => Modal.confirm({
               title: '确认删除',
@@ -69,20 +72,18 @@ export default function MessageTemplatesPage() {
               onOk: async () => { await deleteMessageTemplate(record.id); Toast.success('删除成功'); fetchData(); },
             })}>删除</Button>
           )}
-        </>
+        </Space>
       ),
     },
   ];
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>消息模板</h2>
-          <p>配置审批通知标题与正文，支持变量：{'{operator}'}、{'{title}'}、{'{comment}'}</p>
-        </div>
-        {canEdit && <Button type="primary" onClick={() => { setEditing(null); setModalVisible(true); }}>新建模板</Button>}
-      </div>
+      <PageHeader
+        title="消息模板"
+        description="配置审批通知标题与正文，支持变量：{operator}、{title}、{comment}"
+        actions={canEdit ? <Button type="primary" onClick={() => { setEditing(null); setModalVisible(true); }}>新建模板</Button> : undefined}
+      />
       <Card>
         <Table columns={columns} dataSource={data} loading={loading} rowKey="id" pagination={false} />
       </Card>
@@ -94,7 +95,12 @@ export default function MessageTemplatesPage() {
           <Form.Input field="titleTemplate" label="标题模板" rules={[{ required: true, message: '必填' }]} />
           <Form.TextArea field="contentTemplate" label="内容模板" rules={[{ required: true, message: '必填' }]} />
           <Form.Select field="status" label="状态" optionList={ENABLED_STATUS_OPTIONS} />
-          {canEdit && <Button type="primary" htmlType="submit">保存</Button>}
+          {canEdit && (
+            <PageFormActions>
+              <Button onClick={() => setModalVisible(false)}>取消</Button>
+              <Button type="primary" htmlType="submit">保存</Button>
+            </PageFormActions>
+          )}
         </Form>
       </Modal>
     </div>

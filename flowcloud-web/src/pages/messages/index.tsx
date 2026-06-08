@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Card, Tag, Button, Toast } from '@douyinfe/semi-ui';
 import { getMessages, markMessageRead, markAllMessagesRead, markBatchMessagesRead } from '@/api/message';
+import { PageActionGroup, PageHeader } from '@/components/page-kit';
 import { useRouteRefresh } from '@/hooks/useRouteRefresh';
 import { MESSAGE_READ_STATUS_META, MESSAGE_TYPE_META } from '@/utils/statusDisplay';
 import type { MessageVO } from '@/types';
@@ -55,9 +56,17 @@ export default function MessagesPage() {
     {
       title: '操作', width: 120,
       render: (_: unknown, record: MessageVO) => (
-        <Button size="small" onClick={() => handleRead(record)}>
-          {record.bizType === 'approval' && record.bizId ? '查看审批' : '标为已读'}
-        </Button>
+        <PageActionGroup>
+          <Button
+            size="small"
+            type="tertiary"
+            theme="light"
+            className="page-action-button page-action-button-view"
+            onClick={() => handleRead(record)}
+          >
+            {record.bizType === 'approval' && record.bizId ? '查看审批' : '标为已读'}
+          </Button>
+        </PageActionGroup>
       ),
     },
   ];
@@ -83,16 +92,16 @@ export default function MessagesPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <h2>消息中心</h2>
-          <p>查看审批提醒与系统通知</p>
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button disabled={selectedKeys.length === 0} onClick={markSelectedRead}>批量已读</Button>
-          <Button onClick={markAllRead}>全部标为已读</Button>
-        </div>
-      </div>
+      <PageHeader
+        title="消息中心"
+        description="查看审批提醒与系统通知"
+        actions={(
+          <PageActionGroup>
+            <Button disabled={selectedKeys.length === 0} onClick={markSelectedRead}>批量已读</Button>
+            <Button theme="solid" onClick={markAllRead}>全部标为已读</Button>
+          </PageActionGroup>
+        )}
+      />
       <Card>
         <Table
           columns={columns}

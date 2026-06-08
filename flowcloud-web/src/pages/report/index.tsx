@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Card, Col, Row, Tag } from '@douyinfe/semi-ui';
 import * as echarts from 'echarts';
 import { getReportAnalytics } from '@/api/report';
+import { PageHeader } from '@/components/page-kit';
 import type { ReportAnalyticsVO } from '@/types';
 
 export default function ReportPage() {
@@ -64,11 +65,11 @@ export default function ReportPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h2>报表分析</h2>
-        <p>审批量趋势、驳回率、部门效率与审批人负载</p>
-      </div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <PageHeader
+        title="报表分析"
+        description="审批量趋势、驳回率、部门效率与审批人负载"
+      />
+      <Row gutter={16} className="page-row-gap">
         <Col span={6}>
           <Card>
             <div className="stat-card">
@@ -95,17 +96,19 @@ export default function ReportPage() {
         </Col>
         <Col span={6}>
           <Card>
-            <div style={{ color: '#86909c', fontSize: 12 }}>统计周期</div>
-            <div style={{ marginTop: 8 }}><Tag color="blue">近 6 个月</Tag></div>
+            <div className="stat-card">
+              <div className="page-stat-meta">统计周期</div>
+              <div className="page-stat-meta-body"><Tag color="blue">近 6 个月</Tag></div>
+            </div>
           </Card>
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={12}><Card title="审批量趋势"><div ref={trendRef} style={{ height: 320 }} /></Card></Col>
-        <Col span={12}><Card title="部门效率"><div ref={deptRef} style={{ height: 320 }} /></Card></Col>
+        <Col span={12}><Card title="审批量趋势"><div ref={trendRef} className="page-chart" /></Card></Col>
+        <Col span={12}><Card title="部门效率"><div ref={deptRef} className="page-chart" /></Card></Col>
       </Row>
-      <Card title="审批人负载 TOP10" style={{ marginTop: 16 }}>
-        <div ref={loadRef} style={{ height: 360 }} />
+      <Card title="审批人负载 TOP10" className="page-card-stack">
+        <div ref={loadRef} className="page-chart-lg" />
       </Card>
     </div>
   );
